@@ -1,5 +1,5 @@
 import numpy as np
-from lmfit.models import GaussianModel, LinearModel, PolynomialModel
+from lmfit.models import GaussianModel, LinearModel, PolynomialModel, VoigtModel
 from lmfit import Parameters
 from scipy.signal import medfilt
 # import sys
@@ -75,20 +75,20 @@ class EmissionLineProfile(object):
         if lineName == 'Halpha':
             self.restWave = 6562.82  # angstroms
 
-        self.fittingProfile = FittingProfile(self.vel, self.flux)
-        self.fluxWithoutContinuum = self.fittingProfile.continuum_removal()
+        #self.fittingProfile = FittingProfile(self.vel, self.flux)
+        #self.fluxWithoutContinuum = self.fittingProfile.continuum_removal()
 
     def _velocity(self, wave):
-        return ((wave - self.restWave) / self.restWave) * const.c / 1000
+        return ((wave - self.restWave) / self.restWave) * 300000 #(const.c/(u.m/u.s)) / 1000
 
     def plot_emission_line(self, xaxis='vel', title=''):
         """Choose whether the x axis is 'vel' or 'wave'"""
         plt.figure(title)
         if xaxis == 'wave':
-            plt.plot(self.wave, flux)
+            plt.plot(self.wave, self.flux)
             plt.xlabel("Wavelength ($\AA$)")
         elif xaxis == 'vel':
-            plt.plot(self.vel, flux)
+            plt.plot(self.vel, self.flux)
             plt.xlabel("Velocity ($\mathrm{km \ s}^{-1}$)")
         plt.ylabel("Flux")
         plt.title(title)
@@ -99,11 +99,12 @@ class FittingProfile(object):
         """The input vel and flux must be limited to a single emission line profile"""
         self.vel = vel
         self.flux = flux
+        self.fluxCR = self.continuum_removal() #flux with Continuum Removed
         self.params = Parameters()
 
     def continuum_removal(self):
         # significantly filter profile to remove emission lines
-        medFilt = medfilt(self.flux, kernel_size=int(round(len(self.flux)) // 2 * 2 + 1))
+        medFilt = medfilt(self.flux, kernel_size=int(round(len(self.flux)) // 2 * 2 + 1)) # Rounds to nearest odd number
 
         # Fit Linear slope to filtered profile
         polyCoeff = np.polyfit(self.vel, medFilt, 1)
@@ -124,11 +125,25 @@ class FittingProfile(object):
 
         return newFlux
 
-
-
-
     def fit_gaussian(self, centre):
         gauss = GaussianModel(prefix='g_')
+
+    def model_profile(self, mod=VoigtModel()):
+        pars = mod.guess(self.fluxCR, x=self.vel)
+        pars['gamma'].set(value=0.7, vary=True, expr='')
+        out = mod.fit(self.fluxCR, pars, x=self.vel)
+        print(out.fit_report(min_correl=0.25))
+
+        plt.figure()
+        plt.title('Models')
+        plt.plot(self.vel, self.fluxCR,label = 'Emission Line')
+        plt.plot(self.vel, out.best_fit, label='VoigtModel')
+        plt.xlabel("Velocity ($\mathrm{km \ s}^{-1}$)")
+        plt.ylabel("Flux")
+        plt.legend()
+
+        return out.best_fit
+
 
 
 if __name__ == '__main__':
@@ -140,10 +155,13 @@ if __name__ == '__main__':
     filt = 'red'
     minI = 1180
     maxI = 1650
-    wave, flux = ngc6845_7.mask_emission_line(20, filter=filt, minIndex=minI, maxIndex=maxI)
+    wave1, flux1 = ngc6845_7.mask_emission_line(20, filter=filt, minIndex=minI, maxIndex=maxI)
 
-    HAlphaLine = EmissionLineProfile(wave, flux, lineName='Halpha')
-    HAlphaLine.plot_emission_line(xaxis='vel', title='H-alpha emission line for NGC6845_7')
+    HAlphaLine = EmissionLineProfile(wave1, flux1, lineName='Halpha')
+    #HAlphaLine.plot_emission_line(xaxis='vel', title='H-alpha emission line for NGC6845_7')
+    vel1 = HAlphaLine.vel
 
+    fittingProfile = FittingProfile(vel1, flux1)
+    model = fittingProfile.model_profile()
 
     plt.show()

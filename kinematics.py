@@ -10,6 +10,7 @@ import astropy.units as u
 from astropy import constants as const
 from specutils.io import read_fits
 
+SpOfLi = 300000. #km/s
 
 class GalaxyRegion(object):
     def __init__(self, specFileBlue, specFileRed):
@@ -39,10 +40,11 @@ class GalaxyRegion(object):
         x, y = self._filter_argument(filter)
 
         plt.figure(title)
+        plt.title(title)
         plt.plot(x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex])
         plt.xlabel("Wavelength ($\AA$)")
         plt.ylabel("Flux")
-        plt.title(title)
+        plt.savefig('Figures/' + title)
 
     def mask_emission_line(self, orderNum, filter='red', minIndex=0, maxIndex=-1):
         x, y = self._filter_argument(filter)
@@ -69,21 +71,21 @@ class EmissionLineProfile(object):
         labWave is the wavelength of the emission line if it were at rest (stationary)
         default is for H-alpha emission line"""
         self.restWave = restWave
+        self.lineName = lineName
         self.wave = wave
         self.flux = flux
         self.vel = self._velocity(wave)
-        if lineName == 'Halpha':
-            self.restWave = 6562.82  # angstroms
 
         #self.fittingProfile = FittingProfile(self.vel, self.flux)
         #self.fluxWithoutContinuum = self.fittingProfile.continuum_removal()
 
     def _velocity(self, wave):
-        return ((wave - self.restWave) / self.restWave) * 300000 #(const.c/(u.m/u.s)) / 1000
+        return ((wave - self.restWave) / self.restWave) * SpOfLi #(const.c/(u.m/u.s)) / 1000
 
     def plot_emission_line(self, xaxis='vel', title=''):
         """Choose whether the x axis is 'vel' or 'wave'"""
-        plt.figure(title)
+        plt.figure(self.lineName + title)
+        plt.title(self.lineName + title)
         if xaxis == 'wave':
             plt.plot(self.wave, self.flux)
             plt.xlabel("Wavelength ($\AA$)")
@@ -91,14 +93,16 @@ class EmissionLineProfile(object):
             plt.plot(self.vel, self.flux)
             plt.xlabel("Velocity ($\mathrm{km \ s}^{-1}$)")
         plt.ylabel("Flux")
-        plt.title(title)
+        plt.savefig('Figures/' + self.lineName + title)
 
 
 class FittingProfile(object):
-    def __init__(self, vel, flux):
+    def __init__(self, vel, flux, restWave, lineName):
         """The input vel and flux must be limited to a single emission line profile"""
         self.vel = vel
         self.flux = flux
+        self.restWave = restWave
+        self.lineName = lineName
         self.fluxCR = self.continuum_removal() #flux with Continuum Removed
         self.gaussParams = Parameters()
 
@@ -115,13 +119,14 @@ class FittingProfile(object):
         newFlux = self.flux - continuum
 
         #Plot
-        plt.figure()
-        plt.title("Continuum Removal")
+        plt.figure(self.lineName + "Continuum Removal")
+        plt.title(self.lineName + "Continuum Removal")
         plt.plot(self.vel, self.flux, label='Original')
         plt.plot(self.vel, medFilt, label='Median Filtered')
         plt.plot(self.vel, continuum, label='Continuum')
         plt.plot(self.vel, newFlux, label='Continuum Removed')
         plt.legend(loc='upper left')
+        plt.savefig('Figures/' + self.lineName + "Continuum Removal")
 
         return newFlux
 
@@ -144,7 +149,6 @@ class FittingProfile(object):
 
         for i in range(numOfComponents):
             gList.append(self._gaussian_component(self.gaussParams,'g%d_' % (i+1), cList[i], cMinList[i], cMaxList[i], sList[i], sMinList[i], sMaxList[i], aList[i], aMinList[i], aMaxList[i]))
-            print gList
         gList = np.array(gList)
         mod = gList.sum()
 
@@ -153,14 +157,22 @@ class FittingProfile(object):
         print (out.fit_report())
         components = out.eval_components()
 
-        plt.figure()
-        plt.title("Multi Component Gaussian Model")
+        plt.figure(self.lineName + "Multi Component Gaussian Model")
+        plt.title(self.lineName + "Multi Component Gaussian Model")
         plt.plot(self.vel, self.fluxCR, label='Original')
         for i in range(numOfComponents):
             plt.plot(self.vel, components['g%d_' % (i+1)], label='g%d_' % (i+1))
         plt.plot(self.vel, out.best_fit, label='Combined')
         plt.plot(self.vel, init, label='init')
         plt.legend(loc='upper left')
+        plt.savefig('Figures/' + self.lineName + "Multi Component Gaussian Model")
+
+        amplitudeTotal = 0
+        for i in range(numOfComponents):
+            amplitudeTotal = amplitudeTotal + out.best_values['g%d_amplitude' % (i+1)]/1e14
+        print "Amplitude Total is %f" % amplitudeTotal
+        amplitudeFinal = (amplitudeTotal/SpOfLi) * self.restWave
+        print "Amplitude Final is %f" % amplitudeFinal
 
         return out.best_fit
 
@@ -172,13 +184,14 @@ class FittingProfile(object):
         out = mod.fit(self.fluxCR, pars, x=self.vel)
         print(out.fit_report(min_correl=0.25))
 
-        plt.figure()
-        plt.title('Models')
+        plt.figure(self.lineName + 'Voigt Model')
+        plt.title(self.lineName + 'Voigt Model')
         plt.plot(self.vel, self.fluxCR,label = 'Emission Line')
         plt.plot(self.vel, out.best_fit, label='VoigtModel')
         plt.xlabel("Velocity ($\mathrm{km \ s}^{-1}$)")
         plt.ylabel("Flux")
         plt.legend(loc='upper left')
+        plt.savefig('Figures/' + self.lineName + 'Voigt Model')
 
         return out.best_fit
 
@@ -188,31 +201,33 @@ if __name__ == '__main__':
     ngc6845_7 = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits')
     #ngc6845_7.plot_order(20, filter='red', maxIndex=-10, title="NGC6845_7_red Order 21")
 
-    # SPECTRAL LINE INFO FOR H_ALPHA
-    order = 20
-    filt = 'red'
-    minI = 1180
-    maxI = 1650
-    restWavelength = 6562.82
-    wave1, flux1 = ngc6845_7.mask_emission_line(20, filter=filt, minIndex=minI, maxIndex=maxI)
-    HAlphaLine = EmissionLineProfile(wave1, flux1, restWave=restWavelength)
-    #HAlphaLine.plot_emission_line(xaxis='vel', title='H-alpha emission line for NGC6845_7')
-    vel1 = HAlphaLine.vel
+    # SPECTRAL LINE INFO FOR [H_ALPHA, H_BETA, H_GAMMA, H_DELTA]
+    lineNames = ['H-Alpha - ', 'H-Beta - ', 'H-Gamma - ', 'H-Delta - ']
+    order = [20, 35, 27, 22]
+    filt = ['red', 'blue', 'blue', 'blue']
+    minI = [1180, 2150, 500, 1300]
+    maxI = [1650, 2800, 1200, 2000]
+    restWavelength = [6562.82, 4861.33, 4340.47, 4101.74]
+    for el in range(len(order)): #Iterate through emission lines
+        wave1, flux1 = ngc6845_7.mask_emission_line(order[el], filter=filt[el], minIndex=minI[el], maxIndex=maxI[el])
+        HAlphaLine = EmissionLineProfile(wave1, flux1, restWave=restWavelength[el], lineName=lineNames[el])
+        #HAlphaLine.plot_emission_line(xaxis='vel', title='H-alpha emission line for NGC6845_7')
+        vel1 = HAlphaLine.vel
 
-    # FIT VOIGT MODEL
-    fittingProfile = FittingProfile(vel1, flux1)
-    model = fittingProfile.model_profile()
+        # FIT VOIGT MODEL
+        fittingProfile = FittingProfile(vel1, flux1, restWave=restWavelength[el], lineName=lineNames[el])
+        model = fittingProfile.model_profile()
 
-    # FIT MULTI-COMPONENT GAUSSIAN
-    centerList = [6170.61571, 6187.03025, 6190.34511]
-    centerMinList = [6169, -np.inf, -np.inf]
-    centerMaxList = [6173, np.inf, np.inf]
-    sigmaList = [17.1169513, 90, 44.5836051]
-    sigmaMinList = [-np.inf, -np.inf, -np.inf]
-    sigmaMaxList = [np.inf, np.inf, np.inf]
-    amplitudeList = [20.8830725, 56.2511526, 44.5836051]
-    amplitudeMinList = [-np.inf, -np.inf, -np.inf]
-    amplitudeMaxList = [np.inf, np.inf, np.inf]
-    modelMultiGaussian = fittingProfile.multi_gaussian(centerList,centerMinList,centerMaxList,sigmaList,sigmaMinList,sigmaMaxList,amplitudeList,amplitudeMinList,amplitudeMaxList)
+        # FIT MULTI-COMPONENT GAUSSIAN
+        centerList = [6170.61571, 6187.03025, 6190.34511]
+        centerMinList = [6169, -np.inf, -np.inf]
+        centerMaxList = [6173, np.inf, np.inf]
+        sigmaList = [17.1169513, 90, 44.5836051]
+        sigmaMinList = [-np.inf, -np.inf, -np.inf]
+        sigmaMaxList = [np.inf, np.inf, np.inf]
+        amplitudeList = [20.8830725, 56.2511526, 44.5836051]
+        amplitudeMinList = [-np.inf, -np.inf, -np.inf]
+        amplitudeMaxList = [np.inf, np.inf, np.inf]
+        modelMultiGaussian = fittingProfile.multi_gaussian(centerList,centerMinList,centerMaxList,sigmaList,sigmaMinList,sigmaMaxList,amplitudeList,amplitudeMinList,amplitudeMaxList)
 
     plt.show()

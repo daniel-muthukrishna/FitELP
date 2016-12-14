@@ -2,10 +2,7 @@ import numpy as np
 from lmfit.models import GaussianModel, LinearModel, PolynomialModel, VoigtModel
 from lmfit import Parameters
 from scipy.signal import medfilt
-# import sys
-# import math
 import matplotlib.pyplot as plt
-# from astropy.io import fits
 import astropy.units as u
 from astropy import constants as const
 from specutils.io import read_fits
@@ -134,17 +131,21 @@ class FittingProfile(object):
         """Fits a gaussian with given parameters.
         pars is the lmfit Parameters for the fit, prefix is the label of the gaussian, c is the center, s is sigma,
         a is amplitude. Returns the Gaussian model"""
+        if 'H-Alpha' in self.lineName:
+            vary = True
+        else:
+            vary = False
+
         g = GaussianModel(prefix=prefix)
         pars.update(g.make_params())
-        pars[prefix+'center'].set(c, min=cMin, max=cMax)
-        pars[prefix + 'sigma'].set(s, min=sMin, max=sMax)
+        pars[prefix+'center'].set(c, min=cMin, max=cMax, vary=vary)
+        pars[prefix + 'sigma'].set(s, min=sMin, max=sMax, vary=vary)
         pars[prefix + 'amplitude'].set(a, min=aMin, max=aMax)
 
         return g
 
-    def multi_gaussian(self, cList, cMinList, cMaxList, sList, sMinList, sMaxList, aList, aMinList, aMaxList):
+    def multi_gaussian(self, numOfComponents, cList, cMinList, cMaxList, sList, sMinList, sMaxList, aList, aMinList, aMaxList):
         """All lists should be the same length"""
-        numOfComponents = len(cList)
         gList = []
 
         for i in range(numOfComponents):
@@ -157,24 +158,24 @@ class FittingProfile(object):
         print (out.fit_report())
         components = out.eval_components()
 
-        plt.figure(self.lineName + "Multi Component Gaussian Model")
-        plt.title(self.lineName + "Multi Component Gaussian Model")
+        plt.figure(self.lineName + "%d Component Gaussian Model" % numOfComponents)
+        plt.title(self.lineName + "%d Component Gaussian Model" % numOfComponents)
         plt.plot(self.vel, self.fluxCR, label='Original')
         for i in range(numOfComponents):
             plt.plot(self.vel, components['g%d_' % (i+1)], label='g%d_' % (i+1))
         plt.plot(self.vel, out.best_fit, label='Combined')
         plt.plot(self.vel, init, label='init')
         plt.legend(loc='upper left')
-        plt.savefig('Figures/' + self.lineName + "Multi Component Gaussian Model")
+        plt.savefig('Figures/' + self.lineName + "%d Component Gaussian Model" % numOfComponents)
 
         amplitudeTotal = 0
         for i in range(numOfComponents):
-            amplitudeTotal = amplitudeTotal + out.best_values['g%d_amplitude' % (i+1)]/1e14
+            amplitudeTotal = amplitudeTotal + out.best_values['g%d_amplitude' % (i+1)]/1.0e14
         print "Amplitude Total is %f" % amplitudeTotal
         amplitudeFinal = (amplitudeTotal/SpOfLi) * self.restWave
         print "Amplitude Final is %f" % amplitudeFinal
 
-        return out.best_fit
+        return out
 
 
 
@@ -219,15 +220,29 @@ if __name__ == '__main__':
         model = fittingProfile.model_profile()
 
         # FIT MULTI-COMPONENT GAUSSIAN
-        centerList = [6170.61571, 6187.03025, 6190.34511]
-        centerMinList = [6169, -np.inf, -np.inf]
-        centerMaxList = [6173, np.inf, np.inf]
+        numOfComponentsList = [2, 2, 2, 2]
+        centerList = [6329.27891, 6320, 6190.34511]
+        centerMinList = [-np.inf, -np.inf, -np.inf]
+        centerMaxList = [np.inf, np.inf, np.inf]
         sigmaList = [17.1169513, 90, 44.5836051]
         sigmaMinList = [-np.inf, -np.inf, -np.inf]
         sigmaMaxList = [np.inf, np.inf, np.inf]
         amplitudeList = [[20.8830725, 56.2511526, 44.5836051], [0.9, 0.5, 0.5], [0.9, 0.5, 0.5], [0.9, 0.5, 0.5]]
         amplitudeMinList = [[-np.inf, -np.inf, -np.inf], [-np.inf, -np.inf, -np.inf], [-np.inf, -np.inf, -np.inf], [-np.inf, -np.inf, -np.inf]]
         amplitudeMaxList = [[np.inf, np.inf, np.inf], [np.inf, np.inf, np.inf], [np.inf, np.inf, np.inf], [np.inf, np.inf, np.inf]]
-        modelMultiGaussian = fittingProfile.multi_gaussian(centerList,centerMinList,centerMaxList,sigmaList,sigmaMinList,sigmaMaxList,amplitudeList[el],amplitudeMinList[el],amplitudeMaxList[el])
-
+        if 'H-Alpha' in lineNames[el]:
+            modelMultiGaussian = fittingProfile.multi_gaussian(numOfComponentsList[el], centerList,centerMinList,centerMaxList,sigmaList,sigmaMinList,sigmaMaxList,amplitudeList[el],amplitudeMinList[el],amplitudeMaxList[el])
+            gSigmaList = []
+            gCenterList = []
+            for i in range(numOfComponentsList[el]):
+                gSigmaList.append(modelMultiGaussian.best_values['g%d_sigma' % (i+1)])
+                gCenterList.append(modelMultiGaussian.best_values['g%d_center' % (i + 1)])
+                print "#############################"
+            print gSigmaList
+            print gCenterList
+        else:
+            modelMultiGaussian = fittingProfile.multi_gaussian(numOfComponentsList[el], gCenterList, centerMinList,
+                                                               centerMaxList, sigmaList, gSigmaList, sigmaMaxList,
+                                                               amplitudeList[el], amplitudeMinList[el],
+                                                               amplitudeMaxList[el])
     plt.show()

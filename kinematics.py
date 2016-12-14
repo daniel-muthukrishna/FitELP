@@ -202,7 +202,7 @@ if __name__ == '__main__':
     #ngc6845_7.plot_order(20, filter='red', maxIndex=-10, title="NGC6845_7_red Order 21")
 
     # SPECTRAL LINE INFO FOR [H_ALPHA, H_BETA, H_GAMMA, H_DELTA]
-    lineNames = ['H-Alpha - ', 'H-Beta - ', 'H-Gamma - ', 'H-Delta - ']
+    lineNames = ['H-Alpha: ', 'H-Beta: ', 'H-Gamma: ', 'H-Delta: ']
     order = [20, 35, 27, 22]
     filt = ['red', 'blue', 'blue', 'blue']
     minI = [1180, 2150, 500, 1300]
@@ -225,9 +225,9 @@ if __name__ == '__main__':
         sigmaList = [17.1169513, 90, 44.5836051]
         sigmaMinList = [-np.inf, -np.inf, -np.inf]
         sigmaMaxList = [np.inf, np.inf, np.inf]
-        amplitudeList = [20.8830725, 56.2511526, 44.5836051]
-        amplitudeMinList = [-np.inf, -np.inf, -np.inf]
-        amplitudeMaxList = [np.inf, np.inf, np.inf]
-        modelMultiGaussian = fittingProfile.multi_gaussian(centerList,centerMinList,centerMaxList,sigmaList,sigmaMinList,sigmaMaxList,amplitudeList,amplitudeMinList,amplitudeMaxList)
+        amplitudeList = [[20.8830725, 56.2511526, 44.5836051], [0.9, 0.5, 0.5], [0.9, 0.5, 0.5], [0.9, 0.5, 0.5]]
+        amplitudeMinList = [[-np.inf, -np.inf, -np.inf], [-np.inf, -np.inf, -np.inf], [-np.inf, -np.inf, -np.inf], [-np.inf, -np.inf, -np.inf]]
+        amplitudeMaxList = [[np.inf, np.inf, np.inf], [np.inf, np.inf, np.inf], [np.inf, np.inf, np.inf], [np.inf, np.inf, np.inf]]
+        modelMultiGaussian = fittingProfile.multi_gaussian(centerList,centerMinList,centerMaxList,sigmaList,sigmaMinList,sigmaMaxList,amplitudeList[el],amplitudeMinList[el],amplitudeMaxList[el])
 
     plt.show()

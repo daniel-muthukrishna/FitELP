@@ -100,7 +100,7 @@ class FittingProfile(object):
         self.vel = vel
         self.flux = flux
         self.fluxCR = self.continuum_removal() #flux with Continuum Removed
-        self.params = Parameters()
+        self.gaussParams = Parameters()
 
     def continuum_removal(self):
         # significantly filter profile to remove emission lines
@@ -121,12 +121,50 @@ class FittingProfile(object):
         plt.plot(self.vel, medFilt, label='Median Filtered')
         plt.plot(self.vel, continuum, label='Continuum')
         plt.plot(self.vel, newFlux, label='Continuum Removed')
-        plt.legend()
+        plt.legend(loc='upper left')
 
         return newFlux
 
-    def fit_gaussian(self, centre):
-        gauss = GaussianModel(prefix='g_')
+    def _gaussian_component(self, pars, prefix, c, cMin, cMax, s, sMin, sMax, a, aMin, aMax):
+        """Fits a gaussian with given parameters.
+        pars is the lmfit Parameters for the fit, prefix is the label of the gaussian, c is the center, s is sigma,
+        a is amplitude. Returns the Gaussian model"""
+        g = GaussianModel(prefix=prefix)
+        pars.update(g.make_params())
+        pars[prefix+'center'].set(c, min=cMin, max=cMax)
+        pars[prefix + 'sigma'].set(s, min=sMin, max=sMax)
+        pars[prefix + 'amplitude'].set(a, min=aMin, max=aMax)
+
+        return g
+
+    def multi_gaussian(self, cList, cMinList, cMaxList, sList, sMinList, sMaxList, aList, aMinList, aMaxList):
+        """All lists should be the same length"""
+        numOfComponents = len(cList)
+        gList = []
+
+        for i in range(numOfComponents):
+            gList.append(self._gaussian_component(self.gaussParams,'g%d_' % (i+1), cList[i], cMinList[i], cMaxList[i], sList[i], sMinList[i], sMaxList[i], aList[i], aMinList[i], aMaxList[i]))
+            print gList
+        gList = np.array(gList)
+        mod = gList.sum()
+
+        init = mod.eval(self.gaussParams, x=self.vel)
+        out = mod.fit(self.fluxCR, self.gaussParams, x=self.vel)
+        print (out.fit_report())
+        components = out.eval_components()
+
+        plt.figure()
+        plt.title("Multi Component Gaussian Model")
+        plt.plot(self.vel, self.fluxCR, label='Original')
+        for i in range(numOfComponents):
+            plt.plot(self.vel, components['g%d_' % (i+1)], label='g%d_' % (i+1))
+        plt.plot(self.vel, out.best_fit, label='Combined')
+        plt.plot(self.vel, init, label='init')
+        plt.legend(loc='upper left')
+
+        return out.best_fit
+
+
 
     def model_profile(self, mod=VoigtModel()):
         pars = mod.guess(self.fluxCR, x=self.vel)
@@ -140,7 +178,7 @@ class FittingProfile(object):
         plt.plot(self.vel, out.best_fit, label='VoigtModel')
         plt.xlabel("Velocity ($\mathrm{km \ s}^{-1}$)")
         plt.ylabel("Flux")
-        plt.legend()
+        plt.legend(loc='upper left')
 
         return out.best_fit
 
@@ -155,13 +193,26 @@ if __name__ == '__main__':
     filt = 'red'
     minI = 1180
     maxI = 1650
+    restWavelength = 6562.82
     wave1, flux1 = ngc6845_7.mask_emission_line(20, filter=filt, minIndex=minI, maxIndex=maxI)
-
-    HAlphaLine = EmissionLineProfile(wave1, flux1, lineName='Halpha')
+    HAlphaLine = EmissionLineProfile(wave1, flux1, restWave=restWavelength)
     #HAlphaLine.plot_emission_line(xaxis='vel', title='H-alpha emission line for NGC6845_7')
     vel1 = HAlphaLine.vel
 
+    # FIT VOIGT MODEL
     fittingProfile = FittingProfile(vel1, flux1)
     model = fittingProfile.model_profile()
+
+    # FIT MULTI-COMPONENT GAUSSIAN
+    centerList = [6170.61571, 6187.03025, 6190.34511]
+    centerMinList = [6169, -np.inf, -np.inf]
+    centerMaxList = [6173, np.inf, np.inf]
+    sigmaList = [17.1169513, 90, 44.5836051]
+    sigmaMinList = [-np.inf, -np.inf, -np.inf]
+    sigmaMaxList = [np.inf, np.inf, np.inf]
+    amplitudeList = [20.8830725, 56.2511526, 44.5836051]
+    amplitudeMinList = [-np.inf, -np.inf, -np.inf]
+    amplitudeMaxList = [np.inf, np.inf, np.inf]
+    modelMultiGaussian = fittingProfile.multi_gaussian(centerList,centerMinList,centerMaxList,sigmaList,sigmaMinList,sigmaMaxList,amplitudeList,amplitudeMinList,amplitudeMaxList)
 
     plt.show()

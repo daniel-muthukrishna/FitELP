@@ -10,9 +10,12 @@ from specutils.io import read_fits
 SpOfLi = 300000. #km/s
 
 class GalaxyRegion(object):
-    def __init__(self, specFileBlue, specFileRed):
+    def __init__(self, specFileBlue, specFileRed, specFileBlueError, specFileRedError):
+        """ x is wavelength arrays, y is flux arrays """
         self.xBlue, self.yBlue = self.read_spectra(specFileBlue)
         self.xRed, self.yRed = self.read_spectra(specFileRed)
+        self.xBlueError, self.yBlueError = self.read_spectra(specFileBlueError)
+        self.xRedError, self.yRedError = self.read_spectra(specFileRedError)
 
     def read_spectra(self, filename):
         """ Reads spectra from input FITS File
@@ -21,8 +24,7 @@ class GalaxyRegion(object):
         x and y are an array of the wavelengths and fluxes of each of the orders"""
         x = []
         y = []
-        spectra = read_fits.read_fits_spectrum1d(
-            filename)  # , dispersion_unit=u.angstrom, flux_unit=u.cgs.erg/u.angstrom/u.cm**2/u.s)
+        spectra = read_fits.read_fits_spectrum1d(filename)  # , dispersion_unit=u.angstrom, flux_unit=u.cgs.erg/u.angstrom/u.cm**2/u.s)
         for spectrum in spectra:
             x.append(spectrum.dispersion / u.angstrom)
             y.append(spectrum.flux * 1e14)
@@ -34,28 +36,34 @@ class GalaxyRegion(object):
     def plot_order(self, orderNum, filter='red', minIndex=0, maxIndex=-1, title=''):
         """Plots the wavelength vs flux for a particular order. orderNum starts from 0"""
 
-        x, y = self._filter_argument(filter)
+        x, y, xE, yE = self._filter_argument(filter)
 
         plt.figure(title)
         plt.title(title)
-        plt.plot(x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex])
+        plt.plot(x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex], label='Spectrum')
+        plt.plot(xE[orderNum][minIndex:maxIndex], yE[orderNum][minIndex:maxIndex], label='Spectrum Error')
+        plt.legend()
         plt.xlabel("Wavelength ($\AA$)")
         plt.ylabel("Flux")
         plt.savefig('Figures/' + title)
 
     def mask_emission_line(self, orderNum, filter='red', minIndex=0, maxIndex=-1):
-        x, y = self._filter_argument(filter)
+        x, y, xE, yE = self._filter_argument(filter)
 
-        return x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex]
+        return x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex], xE[orderNum][minIndex:maxIndex], yE[orderNum][minIndex:maxIndex]
+
+    @staticmethod
+    def weights(error):
+        return 1/error
 
     def _filter_argument(self, filter):
         try:
             if filter == 'red':
-                x, y = self.xRed, self.yRed
+                x, y, xE, yE = self.xRed, self.yRed, self.xRedError, self.yRedError
             elif filter == 'blue':
-                x, y = self.xBlue, self.yBlue
+                x, y, xE, yE = self.xBlue, self.yBlue, self.xBlueError, self.yBlueError
 
-            return x, y
+            return x, y, xE, yE
 
         except NameError:
             print("Error: Invalid argument. Choose 'red' or 'blue' for the filter argument")
@@ -72,9 +80,6 @@ class EmissionLineProfile(object):
         self.wave = wave
         self.flux = flux
         self.vel = self._velocity(wave)
-
-        #self.fittingProfile = FittingProfile(self.vel, self.flux)
-        #self.fluxWithoutContinuum = self.fittingProfile.continuum_removal()
 
     def _velocity(self, wave):
         return ((wave - self.restWave) / self.restWave) * SpOfLi #(const.c/(u.m/u.s)) / 1000
@@ -168,9 +173,9 @@ class FittingProfile(object):
         plt.legend(loc='upper left')
         plt.savefig('Figures/' + self.lineName + "%d Component Gaussian Model" % numOfComponents)
 
-        amplitudeTotal = 0
+        amplitudeTotal = 0.
         for i in range(numOfComponents):
-            amplitudeTotal = amplitudeTotal + out.best_values['g%d_amplitude' % (i+1)]/1.0e14
+            amplitudeTotal = amplitudeTotal + out.best_values['g%d_amplitude' % (i+1)]
         print "Amplitude Total is %f" % amplitudeTotal
         amplitudeFinal = (amplitudeTotal/SpOfLi) * self.restWave
         print "Amplitude Final is %f" % amplitudeFinal
@@ -206,7 +211,7 @@ class FittingProfile(object):
 
 
 if __name__ == '__main__':
-    ngc6845_7 = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits')
+    ngc6845_7 = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits', 'NGC6845_7B.fc.fits', 'NGC6845_7R_ErrorFlux.fc.fits')
     # ngc6845_7.plot_order(20, filter='red', maxIndex=-10, title="NGC6845_7_red Order 21")
 
     # SPECTRAL LINE INFO FOR [H_ALPHA, H_BETA, H_GAMMA, H_DELTA]
@@ -219,9 +224,11 @@ if __name__ == '__main__':
 
     # Iterate through emission lines
     for el in range(len(lineNames)):
-        wave1, flux1 = ngc6845_7.mask_emission_line(order[el], filter=filt[el], minIndex=minI[el], maxIndex=maxI[el])
+        wave1, flux1, wave1Error, flux1Error = ngc6845_7.mask_emission_line(order[el], filter=filt[el], minIndex=minI[el], maxIndex=maxI[el])
+        weights = ngc6845_7.weights(flux1Error)
         HAlphaLine = EmissionLineProfile(wave1, flux1, restWave=restWavelength[el], lineName=lineNames[el])
-        vel1 = HAlphaLine.vel
+        HAlphaLineError = EmissionLineProfile(wave1Error, flux1Error, restWave=restWavelength[el], lineName=lineNames[el])
+        vel1, vel1Error = HAlphaLine.vel, HAlphaLineError.vel
         fittingProfile = FittingProfile(vel1, flux1, restWave=restWavelength[el], lineName=lineNames[el])
 
         # FIT VOIGT MODEL

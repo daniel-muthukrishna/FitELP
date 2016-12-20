@@ -177,11 +177,17 @@ class FittingProfile(object):
 
         return out
 
-
-
-    def model_profile(self, mod=VoigtModel()):
+    def voigt_model_profile(self, c=6000, s=20, g=0.7):
+        mod = VoigtModel()
         pars = mod.guess(self.fluxCR, x=self.vel)
-        pars['gamma'].set(value=0.7, vary=True, expr='')
+        if 'H-Alpha' in self.lineName:
+            vary = True
+        else:
+            vary = False
+        pars['center'].set(c, vary=vary)
+        pars['sigma'].set(s, vary=vary)
+        pars['gamma'].set(g, vary=vary)
+
         out = mod.fit(self.fluxCR, pars, x=self.vel)
         print(out.fit_report(min_correl=0.25))
 
@@ -194,13 +200,14 @@ class FittingProfile(object):
         plt.legend(loc='upper left')
         plt.savefig('Figures/' + self.lineName + 'Voigt Model')
 
-        return out.best_fit
+        return out
+
 
 
 
 if __name__ == '__main__':
     ngc6845_7 = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits')
-    #ngc6845_7.plot_order(20, filter='red', maxIndex=-10, title="NGC6845_7_red Order 21")
+    # ngc6845_7.plot_order(20, filter='red', maxIndex=-10, title="NGC6845_7_red Order 21")
 
     # SPECTRAL LINE INFO FOR [H_ALPHA, H_BETA, H_GAMMA, H_DELTA]
     lineNames = ['H-Alpha: ', 'H-Beta: ', 'H-Gamma: ', 'H-Delta: ']
@@ -209,19 +216,26 @@ if __name__ == '__main__':
     minI = [1180, 2150, 500, 1300]
     maxI = [1650, 2800, 1200, 2000]
     restWavelength = [6562.82, 4861.33, 4340.47, 4101.74]
-    for el in range(len(order)): #Iterate through emission lines
+
+    # Iterate through emission lines
+    for el in range(len(lineNames)):
         wave1, flux1 = ngc6845_7.mask_emission_line(order[el], filter=filt[el], minIndex=minI[el], maxIndex=maxI[el])
         HAlphaLine = EmissionLineProfile(wave1, flux1, restWave=restWavelength[el], lineName=lineNames[el])
-        #HAlphaLine.plot_emission_line(xaxis='vel', title='H-alpha emission line for NGC6845_7')
         vel1 = HAlphaLine.vel
+        fittingProfile = FittingProfile(vel1, flux1, restWave=restWavelength[el], lineName=lineNames[el])
 
         # FIT VOIGT MODEL
-        fittingProfile = FittingProfile(vel1, flux1, restWave=restWavelength[el], lineName=lineNames[el])
-        model = fittingProfile.model_profile()
+        if 'H-Alpha' in lineNames[el]:
+            modelVoigt = fittingProfile.voigt_model_profile()
+            vCenter = modelVoigt.best_values['center']
+            vSigma = modelVoigt.best_values['sigma']
+            vGamma = modelVoigt.best_values['gamma']
+        else:
+            modelVoigt = fittingProfile.voigt_model_profile(c=vCenter, s=vSigma, g=vGamma)
 
         # FIT MULTI-COMPONENT GAUSSIAN
-        numOfComponentsList = [2, 2, 2, 2]
-        centerList = [6329.27891, 6320, 6190.34511]
+        numOfComponentsList = [2, 2, 2, 2] # Number of components used for each emission line
+        centerList = [6329.27891, 6320, 6190.34511] # information for each of the three components
         centerMinList = [-np.inf, -np.inf, -np.inf]
         centerMaxList = [np.inf, np.inf, np.inf]
         sigmaList = [17.1169513, 90, 44.5836051]
@@ -237,7 +251,6 @@ if __name__ == '__main__':
             for i in range(numOfComponentsList[el]):
                 gSigmaList.append(modelMultiGaussian.best_values['g%d_sigma' % (i+1)])
                 gCenterList.append(modelMultiGaussian.best_values['g%d_center' % (i + 1)])
-                print "#############################"
             print gSigmaList
             print gCenterList
         else:

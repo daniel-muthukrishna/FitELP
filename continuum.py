@@ -5,7 +5,7 @@ from specutils.io import read_fits
 
 
 class ContinuumRemoval(object):
-    def __init__(self, x, y, tuner=1.5):
+    def __init__(self, x, y, tuner=2):
         """ Decrease tuner to lower continuum line (must be greater than 1)"""
         self.x = x
         self.y = y
@@ -42,9 +42,9 @@ class ContinuumRemoval(object):
 
 
 if __name__ == '__main__':
-    spectrum = read_fits.read_fits_spectrum1d('celesteA.ms.fits')
+    spectrum = read_fits.read_fits_spectrum1d('celesteB.ms.fits')
     wave1, flux1 = spectrum.dispersion, spectrum.flux
-    cR = ContinuumRemoval(wave1, flux1, tuner=2)
-    cR.plot_continuum()
-    cR.save_continuum()
+    cR = ContinuumRemoval(wave1, flux1, tuner=20)
+    cR.plot_continuum('celesteB')
+    cR.save_continuum(continuumRemoved='celesteB_ContinuumRemoved.txt')
     plt.show()

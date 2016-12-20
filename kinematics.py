@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import astropy.units as u
 from astropy import constants as const
 from specutils.io import read_fits
+from continuum import ContinuumRemoval
 
 SpOfLi = 300000. #km/s
 
@@ -107,32 +108,12 @@ class FittingProfile(object):
         self.flux = flux
         self.restWave = restWave
         self.lineName = lineName
-        self.fluxCR = self.continuum_removal() #flux with Continuum Removed
+        cR = ContinuumRemoval(vel, flux, tuner=2)  # flux with Continuum Removed
+        self.fluxCR, self.continuum = cR.continuumRemoved, cR.continuum
+        cR.plot_continuum(lineName)
+        cR.save_continuum(continuumRemoved=lineName+'ContinuumRemoved.txt')
+
         self.gaussParams = Parameters()
-
-    def continuum_removal(self):
-        # significantly filter profile to remove emission lines
-        medFilt = medfilt(self.flux, kernel_size=int(round(len(self.flux)) // 2 * 2 + 1)) # Rounds to nearest odd number
-
-        # Fit Linear slope to filtered profile
-        polyCoeff = np.polyfit(self.vel, medFilt, 1)
-        p = np.poly1d(polyCoeff)
-        continuum = p(self.vel)
-
-        # Subtract continuum
-        newFlux = self.flux - continuum
-
-        #Plot
-        plt.figure(self.lineName + "Continuum Removal")
-        plt.title(self.lineName + "Continuum Removal")
-        plt.plot(self.vel, self.flux, label='Original')
-        plt.plot(self.vel, medFilt, label='Median Filtered')
-        plt.plot(self.vel, continuum, label='Continuum')
-        plt.plot(self.vel, newFlux, label='Continuum Removed')
-        plt.legend(loc='upper left')
-        plt.savefig('Figures/' + self.lineName + "Continuum Removal")
-
-        return newFlux
 
     def _gaussian_component(self, pars, prefix, c, cMin, cMax, s, sMin, sMax, a, aMin, aMax):
         """Fits a gaussian with given parameters.
@@ -217,7 +198,7 @@ if __name__ == '__main__':
     # ngc6845_7.plot_order(20, filter='red', maxIndex=-10, title="NGC6845_7_red Order 21")
 
     # SPECTRAL LINE INFO FOR [H_ALPHA, H_BETA, H_GAMMA, H_DELTA]
-    lineNames = ['H-Alpha: ', 'H-Beta: ', 'H-Gamma: ', 'H-Delta: ']
+    lineNames = ['H-Alpha ', 'H-Beta ', 'H-Gamma ', 'H-Delta ']
     order = [20, 35, 27, 22]
     filt = ['red', 'blue', 'blue', 'blue']
     minI = [1180, 2150, 500, 1300]

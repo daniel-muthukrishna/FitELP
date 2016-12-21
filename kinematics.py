@@ -29,41 +29,49 @@ def read_spectra(filename):
 
 
 class GalaxyRegion(object):
-    def __init__(self, specFileBlue, specFileRed, specFileBlueError, specFileRedError):
+    def __init__(self, specFileBlue, specFileRed, specFileBlueError=None, specFileRedError=None):
         """ x is wavelength arrays, y is flux arrays """
         self.xBlue, self.yBlue = read_spectra(specFileBlue)
         self.xRed, self.yRed = read_spectra(specFileRed)
-        self.xBlueError, self.yBlueError = read_spectra(specFileBlueError)
-        self.xRedError, self.yRedError = read_spectra(specFileRedError)
+        if specFileBlueError is None:
+            self.xBlueError, self.yBlueError = None, None
+        else:
+            self.xBlueError, self.yBlueError = read_spectra(specFileBlueError)
+        if specFileRedError is None:
+            self.xRedError, self.yRedError = None, None
+        else:
+            self.xRedError, self.yRedError = read_spectra(specFileRedError)
 
-    def plot_order(self, orderNum, filter='red', minIndex=0, maxIndex=-1, title=''):
+    def plot_order(self, orderNum, filt='red', minIndex=0, maxIndex=-1, title=''):
         """Plots the wavelength vs flux for a particular order. orderNum starts from 0"""
 
-        x, y, xE, yE = self._filter_argument(filter)
+        x, y, xE, yE = self._filter_argument(filt)
 
         plt.figure(title)
         plt.title(title)
         plt.plot(x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex], label='Spectrum')
-        plt.plot(xE[orderNum][minIndex:maxIndex], yE[orderNum][minIndex:maxIndex], label='Spectrum Error')
+        if yE is not None:
+            plt.plot(xE[orderNum][minIndex:maxIndex], yE[orderNum][minIndex:maxIndex], label='Spectrum Error')
         plt.legend()
         plt.xlabel("Wavelength ($\AA$)")
         plt.ylabel("Flux")
         plt.savefig('Figures/' + title)
 
-    def mask_emission_line(self, orderNum, filter='red', minIndex=0, maxIndex=-1):
-        x, y, xE, yE = self._filter_argument(filter)
+    def mask_emission_line(self, orderNum, filt='red', minIndex=0, maxIndex=-1):
+        x, y, xE, yE = self._filter_argument(filt)
+        xMask, yMask = x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex]
+        if yE is None:
+            xEMask, yEMask = None, None
+        else:
+            xEMask, yEMask = xE[orderNum][minIndex:maxIndex], yE[orderNum][minIndex:maxIndex]
 
-        return x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex], xE[orderNum][minIndex:maxIndex], yE[orderNum][minIndex:maxIndex]
+        return xMask, yMask, xEMask, yEMask
 
-    @staticmethod
-    def weights(error):
-        return 1/error
-
-    def _filter_argument(self, filter):
+    def _filter_argument(self, filt):
         try:
-            if filter == 'red':
+            if filt == 'red':
                 x, y, xE, yE = self.xRed, self.yRed, self.xRedError, self.yRedError
-            elif filter == 'blue':
+            elif filt == 'blue':
                 x, y, xE, yE = self.xBlue, self.yBlue, self.xBlueError, self.yBlueError
 
             return x, y, xE, yE
@@ -102,10 +110,11 @@ class EmissionLineProfile(object):
 
 
 class FittingProfile(object):
-    def __init__(self, vel, flux, restWave, lineName):
+    def __init__(self, vel, flux, restWave, lineName, fluxError=None):
         """The input vel and flux must be limited to a single emission line profile"""
         self.vel = vel
         self.flux = flux
+        self.weights = self._weights(fluxError)
         self.restWave = restWave
         self.lineName = lineName
         cR = ContinuumRemoval(vel, flux, tuner=2)  # flux with Continuum Removed
@@ -114,6 +123,13 @@ class FittingProfile(object):
         cR.save_continuum(continuumRemoved=lineName+'ContinuumRemoved.txt')
 
         self.gaussParams = Parameters()
+
+    def _weights(self, error):
+        if error is None:
+            return None
+        else:
+            return 1./error
+
 
     def _gaussian_component(self, pars, prefix, c, cMin, cMax, s, sMin, sMax, a, aMin, aMax):
         """Fits a gaussian with given parameters.
@@ -142,7 +158,7 @@ class FittingProfile(object):
         mod = gList.sum()
 
         init = mod.eval(self.gaussParams, x=self.vel)
-        out = mod.fit(self.fluxCR, self.gaussParams, x=self.vel)
+        out = mod.fit(self.fluxCR, self.gaussParams, x=self.vel, weights=self.weights)
         print (out.fit_report())
         components = out.eval_components()
 
@@ -176,7 +192,7 @@ class FittingProfile(object):
         pars['sigma'].set(s, vary=vary)
         pars['gamma'].set(g, vary=vary)
 
-        out = mod.fit(self.fluxCR, pars, x=self.vel)
+        out = mod.fit(self.fluxCR, pars, x=self.vel, weights=self.weights)
         print(out.fit_report(min_correl=0.25))
 
         plt.figure(self.lineName + 'Voigt Model')
@@ -194,8 +210,8 @@ class FittingProfile(object):
 
 
 if __name__ == '__main__':
-    ngc6845_7 = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits', 'NGC6845_7B.fc.fits', 'NGC6845_7R_ErrorFlux.fc.fits')  # Flux Calibrated
-    # ngc6845_7.plot_order(20, filter='red', maxIndex=-10, title="NGC6845_7_red Order 21")
+    ngc6845_7 = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits', specFileBlueError=None, specFileRedError='NGC6845_7R_ErrorFlux.fc.fits')  # Flux Calibrated
+    # ngc6845_7.plot_order(20, filt='red', maxIndex=-10, title="NGC6845_7_red Order 21")
 
     # SPECTRAL LINE INFO FOR [H_ALPHA, H_BETA, H_GAMMA, H_DELTA]
     lineNames = ['H-Alpha ', 'H-Beta ', 'H-Gamma ', 'H-Delta ']
@@ -207,12 +223,10 @@ if __name__ == '__main__':
 
     # Iterate through emission lines
     for el in range(len(lineNames)):
-        wave1, flux1, wave1Error, flux1Error = ngc6845_7.mask_emission_line(order[el], filter=filt[el], minIndex=minI[el], maxIndex=maxI[el])
-        weights = ngc6845_7.weights(flux1Error)
+        wave1, flux1, wave1Error, flux1Error = ngc6845_7.mask_emission_line(order[el], filt=filt[el], minIndex=minI[el], maxIndex=maxI[el])
         HAlphaLine = EmissionLineProfile(wave1, flux1, restWave=restWavelength[el], lineName=lineNames[el])
-        HAlphaLineError = EmissionLineProfile(wave1Error, flux1Error, restWave=restWavelength[el], lineName=lineNames[el])
-        vel1, vel1Error = HAlphaLine.vel, HAlphaLineError.vel
-        fittingProfile = FittingProfile(vel1, flux1, restWave=restWavelength[el], lineName=lineNames[el])
+        vel1= HAlphaLine.vel
+        fittingProfile = FittingProfile(vel1, flux1, restWave=restWavelength[el], lineName=lineNames[el], fluxError=flux1Error)
 
         # FIT VOIGT MODEL
         if 'H-Alpha' in lineNames[el]:

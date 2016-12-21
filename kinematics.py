@@ -10,7 +10,7 @@ from continuum import ContinuumRemoval
 SpOfLi = 300000.  # km/s
 
 
-def read_spectra(filename):
+def read_spectra(filename, scaleFlux):
     """ Reads spectra from input FITS File
     Stores the wavelength (in Angstroms) in a vector 'x'
     and the fluxes scaled by 10**14 in a vector 'y'
@@ -20,7 +20,7 @@ def read_spectra(filename):
     spectra = read_fits.read_fits_spectrum1d(filename)  # , dispersion_unit=u.angstrom, flux_unit=u.cgs.erg/u.angstrom/u.cm**2/u.s)
     for spectrum in spectra:
         x.append(spectrum.dispersion / u.angstrom)
-        y.append(spectrum.flux * 1e14)
+        y.append(spectrum.flux * scaleFlux)
     x = np.array(x)
     y = np.array(y)
 
@@ -28,18 +28,18 @@ def read_spectra(filename):
 
 
 class GalaxyRegion(object):
-    def __init__(self, specFileBlue, specFileRed, specFileBlueError=None, specFileRedError=None):
+    def __init__(self, specFileBlue, specFileRed, specFileBlueError=None, specFileRedError=None, scaleFlux=1e14):
         """ x is wavelength arrays, y is flux arrays """
-        self.xBlue, self.yBlue = read_spectra(specFileBlue)
-        self.xRed, self.yRed = read_spectra(specFileRed)
+        self.xBlue, self.yBlue = read_spectra(specFileBlue, scaleFlux)
+        self.xRed, self.yRed = read_spectra(specFileRed, scaleFlux)
         if specFileBlueError is None:
             self.xBlueError, self.yBlueError = (None, None)
         else:
-            self.xBlueError, self.yBlueError = read_spectra(specFileBlueError)
+            self.xBlueError, self.yBlueError = read_spectra(specFileBlueError, scaleFlux)
         if specFileRedError is None:
             self.xRedError, self.yRedError = (None, None)
         else:
-            self.xRedError, self.yRedError = read_spectra(specFileRedError)
+            self.xRedError, self.yRedError = read_spectra(specFileRedError, scaleFlux)
 
     def plot_order(self, orderNum, filt='red', minIndex=0, maxIndex=-1, title=''):
         """Plots the wavelength vs flux for a particular order. orderNum starts from 0"""
@@ -120,8 +120,6 @@ class FittingProfile(object):
         self.fluxCR, self.continuum = (cR.continuumRemoved, cR.continuum)
         cR.plot_continuum(lineName)
         cR.save_continuum(continuumRemoved=lineName+'ContinuumRemoved.txt')
-        plt.plot(vel, self.fluxError, label='Error')
-        plt.legend()
         self.weights = self._weights()
 
         self.gaussParams = Parameters()
@@ -212,7 +210,8 @@ class FittingProfile(object):
 
 
 if __name__ == '__main__':
-    ngc6845_7 = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits', specFileBlueError=None, specFileRedError='NGC6845_7R_ErrorFlux.fc.fits')  # Flux Calibrated
+    ngc6845_7 = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits', specFileBlueError=None, specFileRedError='NGC6845_7R_ErrorFlux.fc.fits', scaleFlux=1e14)  # Flux Calibrated
+    # ngc6845_7 = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R_SPEC1.wc.fits', specFileBlueError=None, specFileRedError='NGC6845_7R_VAR4.wc.fits', scaleFlux=1)  # Flux Calibrated
     # ngc6845_7.plot_order(20, filt='red', maxIndex=-10, title="NGC6845_7_red Order 21")
 
     # SPECTRAL LINE INFO FOR [H_ALPHA, H_BETA, H_GAMMA, H_DELTA]

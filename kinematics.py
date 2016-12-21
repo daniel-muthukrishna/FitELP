@@ -1,14 +1,13 @@
 import numpy as np
 from lmfit.models import GaussianModel, LinearModel, PolynomialModel, VoigtModel
 from lmfit import Parameters
-from scipy.signal import medfilt
 import matplotlib.pyplot as plt
 import astropy.units as u
 from astropy import constants as const
 from specutils.io import read_fits
 from continuum import ContinuumRemoval
 
-SpOfLi = 300000. #km/s
+SpOfLi = 300000.  # km/s
 
 
 def read_spectra(filename):
@@ -34,11 +33,11 @@ class GalaxyRegion(object):
         self.xBlue, self.yBlue = read_spectra(specFileBlue)
         self.xRed, self.yRed = read_spectra(specFileRed)
         if specFileBlueError is None:
-            self.xBlueError, self.yBlueError = None, None
+            self.xBlueError, self.yBlueError = (None, None)
         else:
             self.xBlueError, self.yBlueError = read_spectra(specFileBlueError)
         if specFileRedError is None:
-            self.xRedError, self.yRedError = None, None
+            self.xRedError, self.yRedError = (None, None)
         else:
             self.xRedError, self.yRedError = read_spectra(specFileRedError)
 
@@ -114,22 +113,25 @@ class FittingProfile(object):
         """The input vel and flux must be limited to a single emission line profile"""
         self.vel = vel
         self.flux = flux
-        self.weights = self._weights(fluxError)
+        self.fluxError = fluxError
         self.restWave = restWave
         self.lineName = lineName
-        cR = ContinuumRemoval(vel, flux, tuner=2)  # flux with Continuum Removed
-        self.fluxCR, self.continuum = cR.continuumRemoved, cR.continuum
+        cR = ContinuumRemoval(vel, flux)  # flux with Continuum Removed
+        self.fluxCR, self.continuum = (cR.continuumRemoved, cR.continuum)
         cR.plot_continuum(lineName)
         cR.save_continuum(continuumRemoved=lineName+'ContinuumRemoved.txt')
+        plt.plot(vel, self.fluxError, label='Error')
+        plt.legend()
+        self.weights = self._weights()
 
         self.gaussParams = Parameters()
 
-    def _weights(self, error):
-        if error is None:
+    def _weights(self):
+        if self.fluxError is None:
             return None
         else:
-            return 1./error
-
+            fluxErrorCR = self.fluxError# - self.continuum
+            return 1./fluxErrorCR
 
     def _gaussian_component(self, pars, prefix, c, cMin, cMax, s, sMin, sMax, a, aMin, aMax):
         """Fits a gaussian with given parameters.
@@ -252,9 +254,9 @@ if __name__ == '__main__':
             modelMultiGaussian = fittingProfile.multi_gaussian(numOfComponentsList[el], centerList,centerMinList,centerMaxList,sigmaList,sigmaMinList,sigmaMaxList,amplitudeList[el],amplitudeMinList[el],amplitudeMaxList[el])
             gSigmaList = []
             gCenterList = []
-            for i in range(numOfComponentsList[el]):
-                gSigmaList.append(modelMultiGaussian.best_values['g%d_sigma' % (i+1)])
-                gCenterList.append(modelMultiGaussian.best_values['g%d_center' % (i + 1)])
+            for idx in range(numOfComponentsList[el]):
+                gSigmaList.append(modelMultiGaussian.best_values['g%d_sigma' % (idx+1)])
+                gCenterList.append(modelMultiGaussian.best_values['g%d_center' % (idx + 1)])
             print gSigmaList
             print gCenterList
         else:

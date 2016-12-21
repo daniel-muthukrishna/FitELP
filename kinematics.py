@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from lmfit.models import GaussianModel, LinearModel, PolynomialModel, VoigtModel
 from lmfit import Parameters
@@ -40,6 +41,9 @@ class GalaxyRegion(object):
             self.xRedError, self.yRedError = (None, None)
         else:
             self.xRedError, self.yRedError = read_spectra(specFileRedError, scaleFlux)
+
+        if not os.path.exists('Figures/'):
+            os.makedirs('Figures/')
 
     def plot_order(self, orderNum, filt='red', minIndex=0, maxIndex=-1, title=''):
         """Plots the wavelength vs flux for a particular order. orderNum starts from 0"""

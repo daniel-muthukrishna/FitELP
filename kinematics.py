@@ -127,6 +127,7 @@ class FittingProfile(object):
         self.weights = self._weights()
 
         self.gaussParams = Parameters()
+        self.linGaussParams = Parameters()
 
     def _weights(self):
         if self.fluxError is None:
@@ -134,6 +135,16 @@ class FittingProfile(object):
         else:
             fluxErrorCR = self.fluxError# - self.continuum
             return 1./fluxErrorCR
+
+    def _get_amplitude(self, numOfComponents, modelFit):
+        amplitudeTotal = 0.
+        for i in range(numOfComponents):
+            amplitudeTotal = amplitudeTotal + modelFit.best_values['g%d_amplitude' % (i+1)]
+        print "Amplitude Total is %f" % amplitudeTotal
+        amplitudeFinal = (amplitudeTotal/SpOfLi) * self.restWave
+        print "Amplitude Final is %f" % amplitudeFinal
+
+        return amplitudeFinal
 
     def _gaussian_component(self, pars, prefix, c, cMin, cMax, s, sMin, sMax, a, aMin, aMax):
         """Fits a gaussian with given parameters.
@@ -176,14 +187,45 @@ class FittingProfile(object):
         plt.legend(loc='upper left')
         plt.savefig('Figures/' + self.lineName + "%d Component Gaussian Model" % numOfComponents)
 
-        amplitudeTotal = 0.
-        for i in range(numOfComponents):
-            amplitudeTotal = amplitudeTotal + out.best_values['g%d_amplitude' % (i+1)]
-        print "Amplitude Total is %f" % amplitudeTotal
-        amplitudeFinal = (amplitudeTotal/SpOfLi) * self.restWave
-        print "Amplitude Final is %f" % amplitudeFinal
+        self._get_amplitude(numOfComponents, out)
 
         return out
+
+    def lin_and_multi_gaussian(self, numOfComponents, cList, cMinList, cMaxList, sList, sMinList, sMaxList, aList, aMinList, aMaxList, lS, lSMin, lSMax, lI, lIMin, lIMax):
+        """All lists should be the same length"""
+        gList = []
+
+        lin = LinearModel(prefix='lin_')
+        self.linGaussParams = lin.guess(self.flux, x=self.vel)
+        self.linGaussParams.update(lin.make_params())
+        self.linGaussParams['lin_slope'].set(lS, min=lSMin, max=lSMax)
+        self.linGaussParams['lin_intercept'].set(lI, min=lIMin, max=lIMax)
+
+        for i in range(numOfComponents):
+            gList.append(self._gaussian_component(self.linGaussParams,'g%d_' % (i+1), cList[i], cMinList[i], cMaxList[i], sList[i], sMinList[i], sMaxList[i], aList[i], aMinList[i], aMaxList[i]))
+        gList = np.array(gList)
+        mod = lin + gList.sum()
+
+        init = mod.eval(self.linGaussParams, x=self.vel)
+        out = mod.fit(self.flux, self.linGaussParams, x=self.vel, weights=self.weights)
+        print (out.fit_report())
+        components = out.eval_components()
+
+        plt.figure(self.lineName + "%d Component Linear-Gaussian Model" % numOfComponents)
+        plt.title(self.lineName + "%d Component Linear-Gaussian Model" % numOfComponents)
+        plt.plot(self.vel, self.flux, label='Original')
+        for i in range(numOfComponents):
+            plt.plot(self.vel, components['g%d_' % (i+1)], label='g%d_' % (i+1))
+        plt.plot(self.vel, components['lin_'], label='lin_')
+        plt.plot(self.vel, out.best_fit, label='Combined')
+        plt.plot(self.vel, init, label='init')
+        plt.legend(loc='upper left')
+        plt.savefig('Figures/' + self.lineName + "%d Component Linear-Gaussian Model" % numOfComponents)
+
+        self._get_amplitude(numOfComponents, out)
+
+        return out
+
 
     def voigt_model_profile(self, c=6000, s=20, g=0.7):
         mod = VoigtModel()
@@ -214,8 +256,8 @@ class FittingProfile(object):
 
 
 if __name__ == '__main__':
-    ngc6845_7 = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits', specFileBlueError=None, specFileRedError='NGC6845_7R_ErrorFlux.fc.fits', scaleFlux=1e14)  # Flux Calibrated
-    # ngc6845_7 = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R_SPEC1.wc.fits', specFileBlueError=None, specFileRedError='NGC6845_7R_VAR4.wc.fits', scaleFlux=1)  # Flux Calibrated
+    ngc6845_7 = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits', specFileBlueError='NGC6845_7B_ErrorFlux.fc.fits', specFileRedError='NGC6845_7R_ErrorFlux.fc.fits', scaleFlux=1e14)  # Flux Calibrated
+    # ngc6845_7 = GalaxyRegion('NGC6845_7B_SPEC1.wc.fits', 'NGC6845_7R_SPEC1.wc.fits', specFileBlueError='NGC6845_7B_VAR4.wc.fits', specFileRedError='NGC6845_7R_VAR4.wc.fits', scaleFlux=1)  # Flux Calibrated
     # ngc6845_7.plot_order(20, filt='red', maxIndex=-10, title="NGC6845_7_red Order 21")
 
     # SPECTRAL LINE INFO FOR [H_ALPHA, H_BETA, H_GAMMA, H_DELTA]
@@ -233,14 +275,14 @@ if __name__ == '__main__':
         vel1= HAlphaLine.vel
         fittingProfile = FittingProfile(vel1, flux1, restWave=restWavelength[el], lineName=lineNames[el], fluxError=flux1Error)
 
-        # FIT VOIGT MODEL
-        if 'H-Alpha' in lineNames[el]:
-            modelVoigt = fittingProfile.voigt_model_profile()
-            vCenter = modelVoigt.best_values['center']
-            vSigma = modelVoigt.best_values['sigma']
-            vGamma = modelVoigt.best_values['gamma']
-        else:
-            modelVoigt = fittingProfile.voigt_model_profile(c=vCenter, s=vSigma, g=vGamma)
+        # # FIT VOIGT MODEL
+        # if 'H-Alpha' in lineNames[el]:
+        #     modelVoigt = fittingProfile.voigt_model_profile()
+        #     vCenter = modelVoigt.best_values['center']
+        #     vSigma = modelVoigt.best_values['sigma']
+        #     vGamma = modelVoigt.best_values['gamma']
+        # else:
+        #     modelVoigt = fittingProfile.voigt_model_profile(c=vCenter, s=vSigma, g=vGamma)
 
         # FIT MULTI-COMPONENT GAUSSIAN
         numOfComponentsList = [2, 2, 2, 2]  # Number of components used for each emission line
@@ -253,18 +295,38 @@ if __name__ == '__main__':
         amplitudeList = [[20.8830725, 56.2511526, 44.5836051], [0.9, 0.5, 0.5], [0.9, 0.5, 0.5], [0.9, 0.5, 0.5]]
         amplitudeMinList = [[-np.inf, -np.inf, -np.inf], [-np.inf, -np.inf, -np.inf], [-np.inf, -np.inf, -np.inf], [-np.inf, -np.inf, -np.inf]]
         amplitudeMaxList = [[np.inf, np.inf, np.inf], [np.inf, np.inf, np.inf], [np.inf, np.inf, np.inf], [np.inf, np.inf, np.inf]]
+        linSlope = -5.8461e-06
+        linSlopeMin = -0.1
+        linSlopeMax = 0.1
+        linInt = 0.08749806
+        linIntMin = -5
+        linIntMax = 5
         if 'H-Alpha' in lineNames[el]:
             modelMultiGaussian = fittingProfile.multi_gaussian(numOfComponentsList[el], centerList,centerMinList,centerMaxList,sigmaList,sigmaMinList,sigmaMaxList,amplitudeList[el],amplitudeMinList[el],amplitudeMaxList[el])
+            modelLinearMultiGaussian = fittingProfile.lin_and_multi_gaussian(numOfComponentsList[el], centerList, centerMinList,centerMaxList, sigmaList, sigmaMinList, sigmaMaxList,amplitudeList[el], amplitudeMinList[el],amplitudeMaxList[el], linSlope, linSlopeMin, linSlopeMax, linInt, linIntMin, linIntMax)
             gSigmaList = []
             gCenterList = []
+            gSigmaLinGaussList = []
+            gCenterLinGaussList = []
             for idx in range(numOfComponentsList[el]):
                 gSigmaList.append(modelMultiGaussian.best_values['g%d_sigma' % (idx+1)])
                 gCenterList.append(modelMultiGaussian.best_values['g%d_center' % (idx + 1)])
+                gSigmaLinGaussList.append(modelLinearMultiGaussian.best_values['g%d_sigma' % (idx+1)])
+                gCenterLinGaussList.append(modelLinearMultiGaussian.best_values['g%d_center' % (idx + 1)])
             print gSigmaList
             print gCenterList
+            print gSigmaLinGaussList
+            print gCenterLinGaussList
         else:
             modelMultiGaussian = fittingProfile.multi_gaussian(numOfComponentsList[el], gCenterList, centerMinList,
-                                                               centerMaxList, sigmaList, gSigmaList, sigmaMaxList,
+                                                               centerMaxList, gSigmaList, sigmaMinList, sigmaMaxList,
                                                                amplitudeList[el], amplitudeMinList[el],
                                                                amplitudeMaxList[el])
+            modelLinearMultiGaussian = fittingProfile.lin_and_multi_gaussian(numOfComponentsList[el], gCenterLinGaussList,
+                                                                             centerMinList, centerMaxList, gSigmaLinGaussList,
+                                                                             sigmaMinList, sigmaMaxList,
+                                                                             amplitudeList[el], amplitudeMinList[el],
+                                                                             amplitudeMaxList[el], linSlope,
+                                                                             linSlopeMin, linSlopeMax, linInt, linIntMin, linIntMax)
+
     plt.show()

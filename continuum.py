@@ -37,8 +37,8 @@ class ContinuumRemoval(object):
         plt.savefig('Figures/' + title + "Continuum Removal")
 
     def save_continuum(self, continuumRemoved="continuum_removed.txt", continuum="continuum.txt"):
-        np.savetxt('Figures/' + continuumRemoved, np.c_[self.x, self.continuumRemoved, self.continuum])
-        #np.savetxt('Figures/' + continuum, np.c_[self.x, self.continuum])
+        np.savetxt('Figures/' + continuumRemoved, np.c_[self.x, self.continuumRemoved])
+        np.savetxt('Figures/' + continuum, np.c_[self.x, self.continuum])
 
 
 if __name__ == '__main__':

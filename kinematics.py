@@ -50,9 +50,10 @@ class GalaxyRegion(object):
 
         plt.figure(title)
         plt.title(title)
-        plt.plot(x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex], label='Spectrum')
+        #plt.plot(x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex], label='Spectrum')
+        plt.plot(y[orderNum][minIndex:maxIndex])
         if yE is not None:
-            plt.plot(xE[orderNum][minIndex:maxIndex], yE[orderNum][minIndex:maxIndex], label='Spectrum Error')
+            pass #plt.plot(xE[orderNum][minIndex:maxIndex], yE[orderNum][minIndex:maxIndex], label='Spectrum Error')
         plt.legend()
         plt.xlabel("Wavelength ($\AA$)")
         plt.ylabel("Flux")
@@ -120,7 +121,6 @@ class FittingProfile(object):
         self.lineName = lineName
         self.weights = self._weights()
 
-        self.gaussParams = Parameters()
         self.linGaussParams = Parameters()
 
     def _weights(self):
@@ -147,7 +147,11 @@ class FittingProfile(object):
         if 'H-Alpha' in self.lineName:
             vary = True
         else:
-            vary = False
+            vary = True
+            cMin = c - 5
+            cMax = c + 5
+            sMin = s - 50
+            sMax = s + 50
 
         g = GaussianModel(prefix=prefix)
         pars.update(g.make_params())
@@ -197,50 +201,54 @@ class FittingProfile(object):
 
 
 if __name__ == '__main__':
-    ngc6845_7 = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits', specFileBlueError='NGC6845_7B_ErrorFlux.fc.fits', specFileRedError='NGC6845_7R_ErrorFlux.fc.fits', scaleFlux=1e14)  # Flux Calibrated
-    # ngc6845_7 = GalaxyRegion('NGC6845_7B_SPEC1.wc.fits', 'NGC6845_7R_SPEC1.wc.fits', specFileBlueError='NGC6845_7B_VAR4.wc.fits', specFileRedError='NGC6845_7R_VAR4.wc.fits', scaleFlux=1)  # Counts (ADUS) Calibrated
-    # ngc6845_7.plot_order(20, filt='red', maxIndex=-10, title="NGC6845_7_red Order 21")
+    galaxyRegion = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits', specFileBlueError='NGC6845_7B_ErrorFlux.fc.fits', specFileRedError='NGC6845_7R_ErrorFlux.fc.fits', scaleFlux=1e14)  # Flux Calibrated
+    # galaxyRegion = GalaxyRegion('NGC6845_7B_SPEC1.wc.fits', 'NGC6845_7R_SPEC1.wc.fits', specFileBlueError='NGC6845_7B_VAR4.wc.fits', specFileRedError='NGC6845_7R_VAR4.wc.fits', scaleFlux=1)  # Counts (ADUS) Calibrated
+    #galaxyRegion.plot_order(3, filt='red', maxIndex=-10, title="NGC6845_7_red Order 21")
 
     # SPECTRAL LINE INFO FOR [H_ALPHA, H_BETA, H_GAMMA, H_DELTA]
-    lineNames = ['H-Alpha ', 'H-Beta ', 'H-Gamma ', 'H-Delta ']
-    order = [20, 35, 27, 22]
-    filt = ['red', 'blue', 'blue', 'blue']
-    minI = [1180, 2150, 500, 1300]
-    maxI = [1650, 2800, 1200, 2000]
-    restWavelength = [6562.82, 4861.33, 4340.47, 4101.74]
+    lineNames = ['H-Alpha ', 'H-Beta ', 'H-Gamma ', 'H-Delta ', 'OIII-5007A ', 'OIII-4959A ']
+    colour = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+    order = [20, 35, 27, 22, 4, 3]
+    filt = ['red', 'blue', 'blue', 'blue', 'red', 'red']
+    minI = [1180, 2150, 500, 1300, 1600, 2300]
+    maxI = [1650, 2800, 1200, 2000, 2100, 2800]
+    restWavelength = [6562.82, 4861.33, 4340.47, 4101.74, 5007, 4959]
+    numOfComponentsList = [2, 2, 2, 2, 2, 2]  # Number of components used for each emission line
+    numOfProfiles = len(lineNames)
 
+    # Information for each of the three components
+    centerList = [6329.27, 6326.9, 6300]
+    centerMinList = [-np.inf, -np.inf, -np.inf]
+    centerMaxList = [np.inf, np.inf, np.inf]
+    sigmaList = [28.9, 69.4, 44.6]
+    sigmaMinList = [-np.inf, -np.inf, -np.inf]
+    sigmaMaxList = [np.inf, np.inf, np.inf]
+    amplitudeList = [[48.3, 10.5, 10], [19.7, 4.4, 5], [10, 8.36, 5], [5.6, 1.75, 5], [5.6, 1.75, 5], [5.6, 1.75, 5], [5.6, 1.75, 5], [5.6, 1.75, 5], [5.6, 1.75, 5], [5.6, 1.75, 5]]
+    amplitudeMinList = [[-np.inf, -np.inf, -np.inf]]*numOfProfiles
+    amplitudeMaxList = [[np.inf, np.inf, np.inf]]*numOfProfiles
+    linSlope = 1.1e-5
+    linSlopeMin = -np.inf
+    linSlopeMax = np.inf
+    linInt = -0.067
+    linIntMin = -np.inf
+    linIntMax = np.inf
+
+    allProfiles = []
     # Iterate through emission lines
-    for el in range(len(lineNames)):
+    for el in range(numOfProfiles):
         print "#################### %s ##################" %lineNames[el]
-        wave1, flux1, wave1Error, flux1Error = ngc6845_7.mask_emission_line(order[el], filt=filt[el], minIndex=minI[el], maxIndex=maxI[el])
+        wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(order[el], filt=filt[el], minIndex=minI[el], maxIndex=maxI[el])
         HAlphaLine = EmissionLineProfile(wave1, flux1, restWave=restWavelength[el], lineName=lineNames[el])
-        vel1= HAlphaLine.vel
+        vel1 = HAlphaLine.vel
         fittingProfile = FittingProfile(vel1, flux1, restWave=restWavelength[el], lineName=lineNames[el], fluxError=flux1Error)
 
-        # FIT MULTI-COMPONENT GAUSSIAN
-        numOfComponentsList = [2, 2, 2, 2]  # Number of components used for each emission line
-        centerList = [6329.2, 6326.5, 6300]  # information for each of the three components
-        centerMinList = [-np.inf, -np.inf, -np.inf]
-        centerMaxList = [np.inf, np.inf, np.inf]
-        sigmaList = [29.1, 78.2, 44.6]
-        sigmaMinList = [-np.inf, -np.inf, -np.inf]
-        sigmaMaxList = [np.inf, np.inf, np.inf]
-        amplitudeList = [[48.3, 10.5, 44.58], [0.9, 0.5, 0.5], [0.9, 0.5, 0.5], [0.9, 0.5, 0.5]]
-        amplitudeMinList = [[-np.inf, -np.inf, -np.inf], [-np.inf, -np.inf, -np.inf], [-np.inf, -np.inf, -np.inf], [-np.inf, -np.inf, -np.inf]]
-        amplitudeMaxList = [[np.inf, np.inf, np.inf], [np.inf, np.inf, np.inf], [np.inf, np.inf, np.inf], [np.inf, np.inf, np.inf]]
-        linSlope = -5.8e-6
-        linSlopeMin = -np.inf
-        linSlopeMax = np.inf
-        linInt = 0.008
-        linIntMin = -np.inf
-        linIntMax = np.inf
         if 'H-Alpha' in lineNames[el]:
             modelLinearMultiGaussian = fittingProfile.lin_and_multi_gaussian(numOfComponentsList[el], centerList, centerMinList,centerMaxList, sigmaList, sigmaMinList, sigmaMaxList,amplitudeList[el], amplitudeMinList[el],amplitudeMaxList[el], linSlope, linSlopeMin, linSlopeMax, linInt, linIntMin, linIntMax)
             gSigmaList = []
             gCenterList = []
             for idx in range(numOfComponentsList[el]):
                 gSigmaList.append(modelLinearMultiGaussian.best_values['g%d_sigma' % (idx+1)])
-                gCenterList.append(modelLinearMultiGaussian.best_values['g%d_center' % (idx + 1)])
+                gCenterList.append(modelLinearMultiGaussian.best_values['g%d_center' % (idx+1)])
             print gSigmaList
             print gCenterList
         else:
@@ -251,4 +259,15 @@ if __name__ == '__main__':
                                                                              amplitudeMaxList[el], linSlope,
                                                                              linSlopeMin, linSlopeMax, linInt, linIntMin, linIntMax)
 
+        allProfiles.append([lineNames[el], vel1, flux1, modelLinearMultiGaussian.best_fit, colour[el]])
+
+    # Combined Plot
+    plt.figure("Combined Profiles")
+    plt.xlabel("Velocity (km/s)")
+    plt.ylabel("Flux")
+    for profile in allProfiles:
+        name, x, y, mod, col = profile
+        plt.plot(x, y, color=col, label=name)
+        plt.plot(x, mod, color=col, linestyle='--')
+    plt.legend()
     plt.show()

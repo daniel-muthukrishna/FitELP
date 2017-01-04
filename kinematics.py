@@ -145,38 +145,50 @@ class FittingProfile(object):
         pars is the lmfit Parameters for the fit, prefix is the label of the gaussian, c is the center, s is sigma,
         a is amplitude. Returns the Gaussian model"""
         if self.lineName == 'H-Alpha ':
-            varyCenter = True
+            varyCentre = True
             varySigma = True
             varyAmp = True
         elif self.lineName in ['H-Beta ', 'H-Gamma ', 'H-Delta ']:
-            varyCenter = False
+            varyCentre = False
             varySigma = True
             varyAmp = True
             # cMin = c - c*0.01
             # cMax = c + c*0.01
-            # sMin = s - s*0.05
-            # sMax = s + s*0.05
+            # sMin = s - s*0.03
+            # sMax = s + s*0.03
         elif self.lineName in ['NII-6548A ', 'NII-6584A ', 'SII-6717A ', 'SII-6731A ', 'OII-3717A ', 'OII-3729A ', 'OII-7919A ', 'OII-7330A ', 'OI-6300A ', 'OI-6364A ', 'SIII-6312A ', 'SIII-9069A ', 'SIII-9535A ', 'ArIII-7136A ', 'ArIII-7751A ', 'He1H8-3889A ', 'HeI-4471A ', 'HeI-5876A ', 'HeI-6678A ', 'HeI-7065A ', 'HeI-7281A ']:
-            varyCenter = False
+            varyCentre = False
             varySigma = True
             varyAmp = True
             # cMin = c - c*0.01
             # cMax = c + c*0.01
-
-            # cMin = c - c*0.00001
-            # cMax = c + c*0.00001
-            # sMin = s - s*0.05
-            # sMax = s + s*0.05
-            # aMin = a - a*0.05
-            # aMax = a + a*0.05
-
-
-
+            # sMin = s - s*0.03
+            # sMax = s + s*0.03
+        elif self.lineName == 'OIII-5007 ':
+            varyCentre = True
+            varySigma = True
+            varyAmp = True
+        elif self.lineName in ['OIII-5007A ', 'OIII-4959A ', 'OIII-4363A ']:
+            varyCentre = False
+            varySigma = True
+            varyAmp = True
+            # cMin = c - c*0.01
+            # cMax = c + c*0.01
+            # sMin = s - s*0.03
+            # sMax = s + s*0.03
+        elif self.lineName in ['NeIII-3868A  ', 'NeIII-3970A ']:
+            varyCentre = False
+            varySigma = True
+            varyAmp = True
+            # cMin = c - c*0.01
+            # cMax = c + c*0.01
+            # sMin = s - s*0.03
+            # sMax = s + s*0.03
 
 
         g = GaussianModel(prefix=prefix)
         pars.update(g.make_params())
-        pars[prefix+'center'].set(c, min=cMin, max=cMax, vary=varyCenter)
+        pars[prefix+'center'].set(c, min=cMin, max=cMax, vary=varyCentre)
         pars[prefix + 'sigma'].set(s, min=sMin, max=sMax, vary=varySigma)
         pars[prefix + 'amplitude'].set(a, min=aMin, max=aMax, vary=varyAmp)
 
@@ -230,7 +242,7 @@ if __name__ == '__main__':
     lineNames = ['H-Alpha ', 'H-Beta ', 'H-Gamma ', 'H-Delta ']#, 'NII-6548A ', 'NII-6584A ', 'SII-6717A ', 'SII-6731A ', 'OII-3717A ', 'OII-3729A ', 'OII-7919A ', 'OII-7330A ', 'OI-6300A ', 'OI-6364A ', 'SIII-6312A ', 'SIII-9069A ', 'SIII-9535A ', 'ArIII-7136A ', 'ArIII-7751A ', 'He1H8-3889A ', 'HeI-4471A ', 'HeI-5876A ', 'HeI-6678A ', 'HeI-7065A ', 'HeI-7281A ', 'OIII-5007A ', 'OIII-4959A ', 'OIII-4363A ', 'NeIII-3868A  ', 'NeIII-3970A ']
     emProfiles = [
         {'Name': 'H-Alpha ',    'Colour': 'b', 'Order': 20, 'Filter': 'red',  'minI': 1180, 'maxI': 1650, 'restWavelength': 6562.82, 'ampList': [17.1354, 15.3248335, 25.9915929], 'ampMinList': [-np.inf, -np.inf, -np.inf], 'ampMaxList': [np.inf, np.inf, np.inf]},
-        {'Name': 'H-Beta  ',    'Colour': 'g', 'Order': 35, 'Filter': 'blue', 'minI': 2150, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [19.7000, 4.40000000, 5.00000000], 'ampMinList': [-np.inf, -np.inf, -np.inf], 'ampMaxList': [np.inf, np.inf, np.inf]},
+        {'Name': 'H-Beta ',     'Colour': 'g', 'Order': 35, 'Filter': 'blue', 'minI': 2150, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [19.7000, 4.40000000, 5.00000000], 'ampMinList': [-np.inf, -np.inf, -np.inf], 'ampMaxList': [np.inf, np.inf, np.inf]},
         {'Name': 'H-Gamma ',    'Colour': 'r', 'Order': 27, 'Filter': 'blue', 'minI': 700,  'maxI': 1200, 'restWavelength': 4340.47, 'ampList': [3.18400, 7.70360000, 4.44400000], 'ampMinList': [-np.inf, -np.inf, -np.inf], 'ampMaxList': [np.inf, np.inf, np.inf]},
         {'Name': 'H-Delta ',    'Colour': 'c', 'Order': 22, 'Filter': 'blue', 'minI': 1300, 'maxI': 2000, 'restWavelength': 4101.74, 'ampList': [5.60000, 1.75000000, 5.00000000], 'ampMinList': [-np.inf, -np.inf, -np.inf], 'ampMaxList': [np.inf, np.inf, np.inf]},
         {'Name': 'OIII-5007A ', 'Colour': 'm', 'Order': 4,  'Filter': 'red',  'minI': 1600, 'maxI': 2100, 'restWavelength': 5007.00, 'ampList': [5.60000, 1.75000000, 5.00000000], 'ampMinList': [-np.inf, -np.inf, -np.inf], 'ampMaxList': [np.inf, np.inf, np.inf]},

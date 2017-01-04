@@ -144,18 +144,25 @@ class FittingProfile(object):
         """Fits a gaussian with given parameters.
         pars is the lmfit Parameters for the fit, prefix is the label of the gaussian, c is the center, s is sigma,
         a is amplitude. Returns the Gaussian model"""
-        if 'H-Alpha' in self.lineName:
+        if self.lineName == 'H-Alpha ':
             varyCenter = True
             varySigma = True
             varyAmp = True
-        elif 'H-Gamma' in self.lineName:
-            varyCenter = False
-            varySigma = False
-            varyAmp = True
-        else:
+        elif self.lineName in ['H-Beta ', 'H-Gamma ', 'H-Delta ']:
             varyCenter = False
             varySigma = True
             varyAmp = True
+            # cMin = c - c*0.01
+            # cMax = c + c*0.01
+            # sMin = s - s*0.05
+            # sMax = s + s*0.05
+        elif self.lineName in ['NII-6548A ', 'NII-6584A ', 'SII-6717A ', 'SII-6731A ', 'OII-3717A ', 'OII-3729A ', 'OII-7919A ', 'OII-7330A ', 'OI-6300A ', 'OI-6364A ', 'SIII-6312A ', 'SIII-9069A ', 'SIII-9535A ', 'ArIII-7136A ', 'ArIII-7751A ', 'He1H8-3889A ', 'HeI-4471A ', 'HeI-5876A ', 'HeI-6678A ', 'HeI-7065A ', 'HeI-7281A ']:
+            varyCenter = False
+            varySigma = True
+            varyAmp = True
+            # cMin = c - c*0.01
+            # cMax = c + c*0.01
+
             # cMin = c - c*0.00001
             # cMax = c + c*0.00001
             # sMin = s - s*0.05
@@ -215,25 +222,29 @@ class FittingProfile(object):
 
 
 if __name__ == '__main__':
-    if ('a' or 'b') in 'db':
-        print True
-    else:
-        print False
-    plt.show()
     galaxyRegion = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits', specFileBlueError='NGC6845_7B_ErrorFlux.fc.fits', specFileRedError='NGC6845_7R_ErrorFlux.fc.fits', scaleFlux=1e14)  # Flux Calibrated
     #galaxyRegion = GalaxyRegion('NGC6845_7B_SPEC1.wc.fits', 'NGC6845_7R_SPEC1.wc.fits', specFileBlueError='NGC6845_7B_VAR4.wc.fits', specFileRedError='NGC6845_7R_VAR4.wc.fits', scaleFlux=1)  # Counts (ADUS) Calibrated
     #galaxyRegion.plot_order(3, filt='blue', maxIndex=-10, title="NGC6845_7_red Order 21")
 
     # SPECTRAL LINE INFO FOR [H_ALPHA, H_BETA, H_GAMMA, H_DELTA]
-    lineNames = ['H-Alpha ', 'H-Beta ', 'H-Gamma ', 'H-Delta ', 'NII-6548A ', 'NII-6584A ', 'SII-6717A ', 'SII-6731A ', 'OII-3717A ', 'OII-3729A ', 'OII-7919A ', 'OII-7330A ', 'OI-6300A ', 'OI-6364A ', 'SIII-6312A ', 'SIII-9069A ', 'SIII-9535A ', 'ArIII-7136A ', 'ArIII-7751A ', 'He1H8-3889A ', 'HeI-4471A ', 'HeI-5876A ', 'HeI-6678A ', 'HeI-7065A ', 'HeI-7281A ', 'OIII-5007A ', 'OIII-4959A ', 'OIII-4363A ', 'NeIII-3868A  ', 'NeIII-3970A ']
+    lineNames = ['H-Alpha ', 'H-Beta ', 'H-Gamma ', 'H-Delta ']#, 'NII-6548A ', 'NII-6584A ', 'SII-6717A ', 'SII-6731A ', 'OII-3717A ', 'OII-3729A ', 'OII-7919A ', 'OII-7330A ', 'OI-6300A ', 'OI-6364A ', 'SIII-6312A ', 'SIII-9069A ', 'SIII-9535A ', 'ArIII-7136A ', 'ArIII-7751A ', 'He1H8-3889A ', 'HeI-4471A ', 'HeI-5876A ', 'HeI-6678A ', 'HeI-7065A ', 'HeI-7281A ', 'OIII-5007A ', 'OIII-4959A ', 'OIII-4363A ', 'NeIII-3868A  ', 'NeIII-3970A ']
+    emProfiles = [
+        {'Name': 'H-Alpha ',    'Colour': 'b', 'Order': 20, 'Filter': 'red',  'minI': 1180, 'maxI': 1650, 'restWavelength': 6562.82, 'ampList': [17.1354, 15.3248335, 25.9915929], 'ampMinList': [-np.inf, -np.inf, -np.inf], 'ampMaxList': [np.inf, np.inf, np.inf]},
+        {'Name': 'H-Beta  ',    'Colour': 'g', 'Order': 35, 'Filter': 'blue', 'minI': 2150, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [19.7000, 4.40000000, 5.00000000], 'ampMinList': [-np.inf, -np.inf, -np.inf], 'ampMaxList': [np.inf, np.inf, np.inf]},
+        {'Name': 'H-Gamma ',    'Colour': 'r', 'Order': 27, 'Filter': 'blue', 'minI': 700,  'maxI': 1200, 'restWavelength': 4340.47, 'ampList': [3.18400, 7.70360000, 4.44400000], 'ampMinList': [-np.inf, -np.inf, -np.inf], 'ampMaxList': [np.inf, np.inf, np.inf]},
+        {'Name': 'H-Delta ',    'Colour': 'c', 'Order': 22, 'Filter': 'blue', 'minI': 1300, 'maxI': 2000, 'restWavelength': 4101.74, 'ampList': [5.60000, 1.75000000, 5.00000000], 'ampMinList': [-np.inf, -np.inf, -np.inf], 'ampMaxList': [np.inf, np.inf, np.inf]},
+        {'Name': 'OIII-5007A ', 'Colour': 'm', 'Order': 4,  'Filter': 'red',  'minI': 1600, 'maxI': 2100, 'restWavelength': 5007.00, 'ampList': [5.60000, 1.75000000, 5.00000000], 'ampMinList': [-np.inf, -np.inf, -np.inf], 'ampMaxList': [np.inf, np.inf, np.inf]},
+        {'Name': 'OIII-4959A ', 'Colour': 'y', 'Order': 3,  'Filter': 'red',  'minI': 2300, 'maxI': 2800, 'restWavelength': 4959.00, 'ampList': [5.60000, 1.75000000, 5.00000000], 'ampMinList': [-np.inf, -np.inf, -np.inf], 'ampMaxList': [np.inf, np.inf, np.inf]},
+
+
+    ]
     colour = ['b', 'g', 'r', 'c', 'm', 'y', 'k', '#D35400', '#58D68D', '#EC7063', '#5D6D7E', '#F8C471', '#7FB3D5']
     order = [20, 35, 27, 22]#, 4, 3]
     filt = ['red', 'blue', 'blue', 'blue', 'red', 'red']
     minI = [1180, 2150, 700, 1300, 1600, 2300]
     maxI = [1650, 2800, 1200, 2000, 2100, 2800]
     restWavelength = [6562.82, 4861.33, 4340.47, 4101.74, 5007, 4959]
-    numOfProfiles = len(order)
-    numOfComponentsList = [3] * numOfProfiles  # Number of components used for each emission line
+    numOfComponents = 3
 
     # Information for each of the three components
     centerList = [6349.2, 6328.978, 6314.2879]
@@ -242,9 +253,6 @@ if __name__ == '__main__':
     sigmaList = [19.2858, 61.11, 21.3885036]
     sigmaMinList = [-np.inf, -np.inf, -np.inf]
     sigmaMaxList = [np.inf, np.inf, np.inf]
-    amplitudeList = [[17.1354, 15.3248335, 25.9915929], [19.7, 4.4, 5], [3.184, 7.7036, 4.444], [5.6, 1.75, 5], [7.62317429, 11.913, 8.83], [17.1354, 15.3248335, 25.9915929], [5.6, 1.75, 5], [5.6, 1.75, 5], [5.6, 1.75, 5], [5.6, 1.75, 5], [5.6, 1.75, 5], [5.6, 1.75, 5], [5.6, 1.75, 5], [5.6, 1.75, 5]]
-    amplitudeMinList = [[-np.inf, -np.inf, -np.inf]]*numOfProfiles
-    amplitudeMaxList = [[np.inf, np.inf, np.inf]]*numOfProfiles
     linSlope = 1.3796e-5
     linSlopeMin = -np.inf
     linSlopeMax = np.inf
@@ -254,31 +262,26 @@ if __name__ == '__main__':
 
     allProfiles = []
     # Iterate through emission lines
-    for el in range(numOfProfiles):
-        print "#################### %s ##################" %lineNames[el]
-        wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(order[el], filt=filt[el], minIndex=minI[el], maxIndex=maxI[el])
-        HAlphaLine = EmissionLineProfile(wave1, flux1, restWave=restWavelength[el], lineName=lineNames[el])
+    for eL in emProfiles:
+        print "#################### %s ##################" %eL['Name']
+        wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(eL['Order'], filt=eL['Filter'], minIndex=eL['minI'], maxIndex=eL['maxI'])
+        HAlphaLine = EmissionLineProfile(wave1, flux1, restWave=eL['restWavelength'], lineName=eL['Name'])
         vel1 = HAlphaLine.vel
-        fittingProfile = FittingProfile(vel1, flux1, restWave=restWavelength[el], lineName=lineNames[el], fluxError=flux1Error)
+        fittingProfile = FittingProfile(vel1, flux1, restWave=eL['restWavelength'], lineName=eL['Name'], fluxError=flux1Error)
 
-        if 'H-Alpha' in lineNames[el]:
-            modelLinearMultiGaussian = fittingProfile.lin_and_multi_gaussian(numOfComponentsList[el], centerList, centerMinList,centerMaxList, sigmaList, sigmaMinList, sigmaMaxList,amplitudeList[el], amplitudeMinList[el],amplitudeMaxList[el], linSlope, linSlopeMin, linSlopeMax, linInt, linIntMin, linIntMax)
+        if 'H-Alpha' in eL['Name']:
+            modelLinearMultiGaussian = fittingProfile.lin_and_multi_gaussian(numOfComponents, centerList, centerMinList,centerMaxList, sigmaList, sigmaMinList, sigmaMaxList, eL['ampList'], eL['ampMinList'], eL['ampMaxList'], linSlope, linSlopeMin, linSlopeMax, linInt, linIntMin, linIntMax)
             gSigmaList = []
             gCenterList = []
-            for idx in range(numOfComponentsList[el]):
+            for idx in range(numOfComponents):
                 gSigmaList.append(modelLinearMultiGaussian.best_values['g%d_sigma' % (idx+1)])
                 gCenterList.append(modelLinearMultiGaussian.best_values['g%d_center' % (idx+1)])
             print gSigmaList
             print gCenterList
         else:
-            modelLinearMultiGaussian = fittingProfile.lin_and_multi_gaussian(numOfComponentsList[el], gCenterList,
-                                                                             centerMinList, centerMaxList, gSigmaList,
-                                                                             sigmaMinList, sigmaMaxList,
-                                                                             amplitudeList[el], amplitudeMinList[el],
-                                                                             amplitudeMaxList[el], linSlope,
-                                                                             linSlopeMin, linSlopeMax, linInt, linIntMin, linIntMax)
+            modelLinearMultiGaussian = fittingProfile.lin_and_multi_gaussian(numOfComponents, gCenterList, centerMinList, centerMaxList, gSigmaList, sigmaMinList, sigmaMaxList, eL['ampList'], eL['ampMinList'], eL['ampMaxList'], linSlope, linSlopeMin, linSlopeMax, linInt, linIntMin, linIntMax)
 
-        allProfiles.append([lineNames[el], vel1, flux1, modelLinearMultiGaussian.best_fit, colour[el]])
+        allProfiles.append([eL['Name'], vel1, flux1, modelLinearMultiGaussian.best_fit, eL['Colour']])
 
     # Combined Plot
     plt.figure("Combined Profiles")

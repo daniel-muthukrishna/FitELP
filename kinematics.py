@@ -45,13 +45,13 @@ class GalaxyRegion(object):
 
     def plot_order(self, orderNum, filt='red', minIndex=0, maxIndex=-1, title=''):
         """Plots the wavelength vs flux for a particular order. orderNum starts from 0"""
-
+        orderNum -= 1
         x, y, xE, yE = self._filter_argument(filt)
 
         plt.figure(title)
         plt.title(title)
-        plt.plot(x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex], label='Spectrum')
-        #plt.plot(y[orderNum][minIndex:maxIndex])
+        #plt.plot(x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex], label='Spectrum')
+        plt.plot(y[orderNum][minIndex:maxIndex])
         if yE is not None:
             pass #plt.plot(xE[orderNum][minIndex:maxIndex], yE[orderNum][minIndex:maxIndex], label='Spectrum Error')
         plt.legend()
@@ -60,6 +60,7 @@ class GalaxyRegion(object):
         plt.savefig('Figures/' + title)
 
     def mask_emission_line(self, orderNum, filt='red', minIndex=0, maxIndex=-1):
+        orderNum -= 1
         x, y, xE, yE = self._filter_argument(filt)
         xMask, yMask = x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex]
         if yE is None:
@@ -151,8 +152,8 @@ class FittingProfile(object):
                 varySigma = True
                 varyAmp = True
             else:
-                varyCentre = True
-                varySigma = True
+                varyCentre = False
+                varySigma = False
                 varyAmp = True
                 # cMin = c - c*0.01
                 # cMax = c + c*0.01
@@ -164,8 +165,8 @@ class FittingProfile(object):
                 varySigma = True
                 varyAmp = True
             else:
-                varyCentre = True
-                varySigma = True
+                varyCentre = False
+                varySigma = False
                 varyAmp = True
                 # cMin = c - c*0.01
                 # cMax = c + c*0.01
@@ -215,7 +216,7 @@ class FittingProfile(object):
 
         self._get_amplitude(numOfComponents, out)
 
-        return out
+        return out, components
 
 
 
@@ -223,21 +224,40 @@ class FittingProfile(object):
 if __name__ == '__main__':
     galaxyRegion = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits', specFileBlueError='NGC6845_7B_ErrorFlux.fc.fits', specFileRedError='NGC6845_7R_ErrorFlux.fc.fits', scaleFlux=1e14)  # Flux Calibrated
     #galaxyRegion = GalaxyRegion('NGC6845_7B_SPEC1.wc.fits', 'NGC6845_7R_SPEC1.wc.fits', specFileBlueError='NGC6845_7B_VAR4.wc.fits', specFileRedError='NGC6845_7R_VAR4.wc.fits', scaleFlux=1)  # Counts (ADUS) Calibrated
-    #galaxyRegion.plot_order(3, filt='blue', maxIndex=-10, title="NGC6845_7_red Order 21")
+    # galaxyRegion.plot_order(20, filt='blue', maxIndex=-10, title="")
+    # plt.show()
     numOfComponents = 3
     lowZoneProfiles = []
     highZoneProfiles = []
     # SPECTRAL LINE INFO FOR [H_ALPHA, H_BETA, H_GAMMA, H_DELTA]
     lineNames = ['H-Alpha ', 'H-Beta ', 'H-Gamma ', 'H-Delta ']#, 'NII-6548A ', 'NII-6584A ', 'SII-6717A ', 'SII-6731A ', 'OII-3717A ', 'OII-3729A ', 'OII-7919A ', 'OII-7330A ', 'OI-6300A ', 'OI-6364A ', 'SIII-6312A ', 'SIII-9069A ', 'SIII-9535A ', 'ArIII-7136A ', 'ArIII-7751A ', 'He1H8-3889A ', 'HeI-4471A ', 'HeI-5876A ', 'HeI-6678A ', 'HeI-7065A ', 'HeI-7281A ', 'OIII-5007A ', 'OIII-4959A ', 'OIII-4363A ', 'NeIII-3868A  ', 'NeIII-3970A ']
     emProfiles = [
-        {'Name': 'H-Alpha',    'Colour': 'b', 'Order': 20, 'Filter': 'red',  'minI': 1180, 'maxI': 1650, 'restWavelength': 6562.82, 'ampList': [17.1348559, 15.3253166, 25.9916403], 'zone': 'low'},
-        {'Name': 'H-Beta',     'Colour': 'g', 'Order': 35, 'Filter': 'blue', 'minI': 2150, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [7.17002360, 7.75519580, 8.11792730], 'zone': 'low'},
-        {'Name': 'H-Gamma',    'Colour': 'r', 'Order': 27, 'Filter': 'blue', 'minI': 700,  'maxI': 1200, 'restWavelength': 4340.47, 'ampList': [2.26418260, 7.30954600, 2.94597170], 'zone': 'low'},
-        {'Name': 'H-Delta',    'Colour': 'c', 'Order': 22, 'Filter': 'blue', 'minI': 1300, 'maxI': 2000, 'restWavelength': 4101.74, 'ampList': [1.59439390, 3.28250600, 2.43874240], 'zone': 'low'},
-        {'Name': 'OIII-5007A', 'Colour': 'm', 'Order': 4,  'Filter': 'red',  'minI': 1600, 'maxI': 2100, 'restWavelength': 5007.00, 'ampList': [22.1754732, 26.5383276, 27.2475071], 'zone': 'high'},
-        {'Name': 'OIII-4959A', 'Colour': 'y', 'Order': 3,  'Filter': 'red',  'minI': 2300, 'maxI': 2800, 'restWavelength': 4959.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'high'},
-
-
+        {'Name': 'H-Alpha',     'Colour': 'b',       'Order': 21, 'Filter': 'red',  'minI': 1180, 'maxI': 1650, 'restWavelength': 6562.82, 'ampList': [17.1348559, 15.3253166, 25.9916403], 'zone': 'low' },
+        {'Name': 'OIII-5007A',  'Colour': 'b',       'Order': 5,  'Filter': 'red',  'minI': 1600, 'maxI': 2100, 'restWavelength': 5007.00, 'ampList': [22.1754732, 26.5383276, 27.2475071], 'zone': 'high'},
+        {'Name': 'H-Beta',      'Colour': 'g',       'Order': 36, 'Filter': 'blue', 'minI': 2150, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [7.17002360, 7.75519580, 8.11792730], 'zone': 'low' },
+        {'Name': 'H-Gamma',     'Colour': 'r',       'Order': 28, 'Filter': 'blue', 'minI': 700,  'maxI': 1200, 'restWavelength': 4340.47, 'ampList': [2.26418260, 7.30954600, 2.94597170], 'zone': 'low' },
+        {'Name': 'H-Delta',     'Colour': 'c',       'Order': 23, 'Filter': 'blue', 'minI': 1300, 'maxI': 2000, 'restWavelength': 4101.74, 'ampList': [1.59439390, 3.28250600, 2.43874240], 'zone': 'low' },
+        {'Name': 'NII-6548A',   'Colour': 'm',       'Order': 21, 'Filter': 'red',  'minI': 1000, 'maxI': 1300, 'restWavelength': 6548.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'NII-6584A',   'Colour': 'y',       'Order': 21, 'Filter': 'red',  'minI': 1750, 'maxI': 2050, 'restWavelength': 6584.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'SII-6717A',   'Colour': '#D35400', 'Order': 22, 'Filter': 'red',  'minI': 1850, 'maxI': 2000, 'restWavelength': 6717.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'SII-6731A',   'Colour': '#58D68D', 'Order': 22, 'Filter': 'red',  'minI': 2100, 'maxI': 2350, 'restWavelength': 6731.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'OII-3727A',   'Colour': '#EC7063', 'Order': 14, 'Filter': 'blue', 'minI': 2660, 'maxI': 2829, 'restWavelength': 3727.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'OII-3729A',   'Colour': '#5D6D7E', 'Order': 14, 'Filter': 'blue', 'minI': 2800, 'maxI': 3000, 'restWavelength': 3729.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'OII-7919A',   'Colour': '#F8C471', 'Order': 30, 'Filter': 'red',  'minI': 640,  'maxI': 730,  'restWavelength': 7919.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'OII-7330A',   'Colour': '#7FB3D5', 'Order': 26, 'Filter': 'red',  'minI': 2420, 'maxI': 2520, 'restWavelength': 7330.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'OI-6300A',    'Colour': '#7FB3D5', 'Order': 18, 'Filter': 'red',  'minI': 790,  'maxI': 865,  'restWavelength': 6300.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'OI-6364A',    'Colour': '#7FB3D5', 'Order': 19, 'Filter': 'red',  'minI': 2550, 'maxI': 2580, 'restWavelength': 6364.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'SIII-6312A',  'Colour': '#7FB3D5', 'Order': 35, 'Filter': 'red',  'minI': 1720, 'maxI': 1870, 'restWavelength': 6312.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'ArIII-7136A', 'Colour': '#7FB3D5', 'Order': 25, 'Filter': 'red',  'minI': 1660, 'maxI': 1790, 'restWavelength': 7136.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'ArIII-7751A', 'Colour': '#7FB3D5', 'Order': 29, 'Filter': 'red',  'minI': 818,  'maxI': 853,  'restWavelength': 7751.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'HeIH8-3889A', 'Colour': '#7FB3D5', 'Order': 18, 'Filter': 'blue', 'minI': 2450, 'maxI': 2650, 'restWavelength': 3889.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'HeI-4471A',   'Colour': '#7FB3D5', 'Order': 30, 'Filter': 'blue', 'minI': 1750, 'maxI': 1900, 'restWavelength': 4471.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'HeI-5876A',   'Colour': '#7FB3D5', 'Order': 15, 'Filter': 'red',  'minI': 1320, 'maxI': 2000, 'restWavelength': 5876.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'HeI-6678A',   'Colour': '#7FB3D5', 'Order': 22, 'Filter': 'red',  'minI': 1050, 'maxI': 1240, 'restWavelength': 6678.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'HeI-7281A',   'Colour': '#7FB3D5', 'Order': 26, 'Filter': 'red',  'minI': 1350, 'maxI': 1560, 'restWavelength': 7281.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'OIII-4959A',  'Colour': 'g',       'Order': 4,  'Filter': 'red',  'minI': 2300, 'maxI': 2800, 'restWavelength': 4959.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'high'},
+        {'Name': 'NeIII-3868A', 'Colour': 'g',       'Order': 18, 'Filter': 'blue', 'minI': 1430, 'maxI': 1650, 'restWavelength': 3868.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'high'},
+        {'Name': 'NeIII-3970A', 'Colour': 'g',       'Order': 20, 'Filter': 'blue', 'minI': 2110, 'maxI': 2290, 'restWavelength': 3970.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'high'},
     ]
     #'#D35400', '#58D68D', '#EC7063', '#5D6D7E', '#F8C471', '#7FB3D5'
 
@@ -257,33 +277,33 @@ if __name__ == '__main__':
     for eL in emProfiles:
         print "------------------ %s ----------------" %eL['Name']
         wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(eL['Order'], filt=eL['Filter'], minIndex=eL['minI'], maxIndex=eL['maxI'])
-        HAlphaLine = EmissionLineProfile(wave1, flux1, restWave=eL['restWavelength'], lineName=eL['Name'])
-        vel1 = HAlphaLine.vel
+        emLineProfile = EmissionLineProfile(wave1, flux1, restWave=eL['restWavelength'], lineName=eL['Name'])
+        vel1 = emLineProfile.vel
         fittingProfile = FittingProfile(vel1, flux1, restWave=eL['restWavelength'], lineName=eL['Name'], fluxError=flux1Error, zone=eL['zone'])
 
         if eL['zone'] == 'low':
             if eL['Name'] == 'H-Alpha':
-                modelLinearMultiGaussian = fittingProfile.lin_and_multi_gaussian(numOfComponents, centerListLowZone, sigmaListLowZone, eL['ampList'], linSlopeLowZone, linIntLowZone)
+                modelLinearMultiGaussian, comps = fittingProfile.lin_and_multi_gaussian(numOfComponents, centerListLowZone, sigmaListLowZone, eL['ampList'], linSlopeLowZone, linIntLowZone)
                 gSigmaListLowZone = []
                 gCenterListLowZone = []
                 for idx in range(numOfComponents):
                     gSigmaListLowZone.append(modelLinearMultiGaussian.best_values['g%d_sigma' % (idx+1)])
                     gCenterListLowZone.append(modelLinearMultiGaussian.best_values['g%d_center' % (idx+1)])
             else:
-                modelLinearMultiGaussian = fittingProfile.lin_and_multi_gaussian(numOfComponents, gCenterListLowZone, gSigmaListLowZone, eL['ampList'], linSlopeLowZone, linIntLowZone)
-            lowZoneProfiles.append([eL['Name'], vel1, flux1, modelLinearMultiGaussian.best_fit, eL['Colour']])
+                modelLinearMultiGaussian, comps = fittingProfile.lin_and_multi_gaussian(numOfComponents, gCenterListLowZone, gSigmaListLowZone, eL['ampList'], linSlopeLowZone, linIntLowZone)
+            lowZoneProfiles.append([eL['Name'], vel1, flux1, modelLinearMultiGaussian.best_fit, eL['Colour'], comps])
 
         elif eL['zone'] == 'high':
             if eL['Name'] == 'OIII-5007A':
-                modelLinearMultiGaussian = fittingProfile.lin_and_multi_gaussian(numOfComponents, centerListHighZone, sigmaListHighZone, eL['ampList'], linSlopeHighZone, linIntHighZone)
+                modelLinearMultiGaussian, comps = fittingProfile.lin_and_multi_gaussian(numOfComponents, centerListHighZone, sigmaListHighZone, eL['ampList'], linSlopeHighZone, linIntHighZone)
                 gSigmaListHighZone = []
                 gCenterListHighZone = []
                 for idx in range(numOfComponents):
                     gSigmaListHighZone.append(modelLinearMultiGaussian.best_values['g%d_sigma' % (idx + 1)])
                     gCenterListHighZone.append(modelLinearMultiGaussian.best_values['g%d_center' % (idx + 1)])
             else:
-                modelLinearMultiGaussian = fittingProfile.lin_and_multi_gaussian(numOfComponents, gCenterListHighZone, gSigmaListHighZone, eL['ampList'], linSlopeHighZone, linIntHighZone)
-            highZoneProfiles.append([eL['Name'], vel1, flux1, modelLinearMultiGaussian.best_fit, eL['Colour']])
+                modelLinearMultiGaussian, comps = fittingProfile.lin_and_multi_gaussian(numOfComponents, gCenterListHighZone, gSigmaListHighZone, eL['ampList'], linSlopeHighZone, linIntHighZone)
+            highZoneProfiles.append([eL['Name'], vel1, flux1, modelLinearMultiGaussian.best_fit, eL['Colour'], comps])
 
     #Print Amplitudes
         ampComponentList = []
@@ -302,9 +322,11 @@ if __name__ == '__main__':
     plt.xlabel("Velocity (km/s)")
     plt.ylabel("Flux")
     for profile in lowZoneProfiles:
-        name, x, y, mod, col = profile
+        name, x, y, mod, col, comps = profile
         plt.plot(x, y, color=col, label=name)
         plt.plot(x, mod, color=col, linestyle='--')
+        for idx in range(numOfComponents):
+            pass#plt.plot(x, comps['g%d_' % (idx + 1)], color=col, linestyle=':')
     plt.legend()
 
     plt.figure("High Zone Profiles")
@@ -312,8 +334,10 @@ if __name__ == '__main__':
     plt.xlabel("Velocity (km/s)")
     plt.ylabel("Flux")
     for profile in highZoneProfiles:
-        name, x, y, mod, col = profile
+        name, x, y, mod, col, comps = profile
         plt.plot(x, y, color=col, label=name)
         plt.plot(x, mod, color=col, linestyle='--')
+        for idx in range(numOfComponents):
+            pass#plt.plot(x, comps['g%d_' % (idx + 1)], color=col, linestyle=':')
     plt.legend()
     plt.show()

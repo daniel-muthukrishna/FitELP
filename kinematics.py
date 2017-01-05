@@ -224,11 +224,12 @@ class FittingProfile(object):
 if __name__ == '__main__':
     galaxyRegion = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits', specFileBlueError='NGC6845_7B_ErrorFlux.fc.fits', specFileRedError='NGC6845_7R_ErrorFlux.fc.fits', scaleFlux=1e14)  # Flux Calibrated
     #galaxyRegion = GalaxyRegion('NGC6845_7B_SPEC1.wc.fits', 'NGC6845_7R_SPEC1.wc.fits', specFileBlueError='NGC6845_7B_VAR4.wc.fits', specFileRedError='NGC6845_7R_VAR4.wc.fits', scaleFlux=1)  # Counts (ADUS) Calibrated
-    # galaxyRegion.plot_order(20, filt='blue', maxIndex=-10, title="")
+    # galaxyRegion.plot_order(19, filt='red', maxIndex=-10, title="")
     # plt.show()
     numOfComponents = 3
     lowZoneProfiles = []
     highZoneProfiles = []
+
     # SPECTRAL LINE INFO FOR [H_ALPHA, H_BETA, H_GAMMA, H_DELTA]
     lineNames = ['H-Alpha ', 'H-Beta ', 'H-Gamma ', 'H-Delta ']#, 'NII-6548A ', 'NII-6584A ', 'SII-6717A ', 'SII-6731A ', 'OII-3717A ', 'OII-3729A ', 'OII-7919A ', 'OII-7330A ', 'OI-6300A ', 'OI-6364A ', 'SIII-6312A ', 'SIII-9069A ', 'SIII-9535A ', 'ArIII-7136A ', 'ArIII-7751A ', 'He1H8-3889A ', 'HeI-4471A ', 'HeI-5876A ', 'HeI-6678A ', 'HeI-7065A ', 'HeI-7281A ', 'OIII-5007A ', 'OIII-4959A ', 'OIII-4363A ', 'NeIII-3868A  ', 'NeIII-3970A ']
     emProfiles = [
@@ -236,31 +237,29 @@ if __name__ == '__main__':
         {'Name': 'OIII-5007A',  'Colour': 'b',       'Order': 5,  'Filter': 'red',  'minI': 1600, 'maxI': 2100, 'restWavelength': 5007.00, 'ampList': [22.1754732, 26.5383276, 27.2475071], 'zone': 'high'},
         {'Name': 'H-Beta',      'Colour': 'g',       'Order': 36, 'Filter': 'blue', 'minI': 2150, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [7.17002360, 7.75519580, 8.11792730], 'zone': 'low' },
         {'Name': 'H-Gamma',     'Colour': 'r',       'Order': 28, 'Filter': 'blue', 'minI': 700,  'maxI': 1200, 'restWavelength': 4340.47, 'ampList': [2.26418260, 7.30954600, 2.94597170], 'zone': 'low' },
-        {'Name': 'H-Delta',     'Colour': 'c',       'Order': 23, 'Filter': 'blue', 'minI': 1300, 'maxI': 2000, 'restWavelength': 4101.74, 'ampList': [1.59439390, 3.28250600, 2.43874240], 'zone': 'low' },
-        {'Name': 'NII-6548A',   'Colour': 'm',       'Order': 21, 'Filter': 'red',  'minI': 1000, 'maxI': 1300, 'restWavelength': 6548.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'NII-6584A',   'Colour': 'y',       'Order': 21, 'Filter': 'red',  'minI': 1750, 'maxI': 2050, 'restWavelength': 6584.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'SII-6717A',   'Colour': '#D35400', 'Order': 22, 'Filter': 'red',  'minI': 1850, 'maxI': 2000, 'restWavelength': 6717.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'SII-6731A',   'Colour': '#58D68D', 'Order': 22, 'Filter': 'red',  'minI': 2100, 'maxI': 2350, 'restWavelength': 6731.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'OII-3727A',   'Colour': '#EC7063', 'Order': 14, 'Filter': 'blue', 'minI': 2660, 'maxI': 2829, 'restWavelength': 3727.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'OII-3729A',   'Colour': '#5D6D7E', 'Order': 14, 'Filter': 'blue', 'minI': 2800, 'maxI': 3000, 'restWavelength': 3729.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'OII-7919A',   'Colour': '#F8C471', 'Order': 30, 'Filter': 'red',  'minI': 640,  'maxI': 730,  'restWavelength': 7919.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'OII-7330A',   'Colour': '#7FB3D5', 'Order': 26, 'Filter': 'red',  'minI': 2420, 'maxI': 2520, 'restWavelength': 7330.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'OI-6300A',    'Colour': '#7FB3D5', 'Order': 18, 'Filter': 'red',  'minI': 790,  'maxI': 865,  'restWavelength': 6300.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'OI-6364A',    'Colour': '#7FB3D5', 'Order': 19, 'Filter': 'red',  'minI': 2550, 'maxI': 2580, 'restWavelength': 6364.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'SIII-6312A',  'Colour': '#7FB3D5', 'Order': 35, 'Filter': 'red',  'minI': 1720, 'maxI': 1870, 'restWavelength': 6312.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'ArIII-7136A', 'Colour': '#7FB3D5', 'Order': 25, 'Filter': 'red',  'minI': 1660, 'maxI': 1790, 'restWavelength': 7136.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'ArIII-7751A', 'Colour': '#7FB3D5', 'Order': 29, 'Filter': 'red',  'minI': 818,  'maxI': 853,  'restWavelength': 7751.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'HeIH8-3889A', 'Colour': '#7FB3D5', 'Order': 18, 'Filter': 'blue', 'minI': 2450, 'maxI': 2650, 'restWavelength': 3889.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'HeI-4471A',   'Colour': '#7FB3D5', 'Order': 30, 'Filter': 'blue', 'minI': 1750, 'maxI': 1900, 'restWavelength': 4471.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'HeI-5876A',   'Colour': '#7FB3D5', 'Order': 15, 'Filter': 'red',  'minI': 1320, 'maxI': 2000, 'restWavelength': 5876.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'HeI-6678A',   'Colour': '#7FB3D5', 'Order': 22, 'Filter': 'red',  'minI': 1050, 'maxI': 1240, 'restWavelength': 6678.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'HeI-7281A',   'Colour': '#7FB3D5', 'Order': 26, 'Filter': 'red',  'minI': 1350, 'maxI': 1560, 'restWavelength': 7281.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
-        {'Name': 'OIII-4959A',  'Colour': 'g',       'Order': 4,  'Filter': 'red',  'minI': 2300, 'maxI': 2800, 'restWavelength': 4959.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'high'},
-        {'Name': 'NeIII-3868A', 'Colour': 'g',       'Order': 18, 'Filter': 'blue', 'minI': 1430, 'maxI': 1650, 'restWavelength': 3868.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'high'},
-        {'Name': 'NeIII-3970A', 'Colour': 'g',       'Order': 20, 'Filter': 'blue', 'minI': 2110, 'maxI': 2290, 'restWavelength': 3970.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'high'},
+        {'Name': 'H-Delta',     'Colour': 'c',       'Order': 23, 'Filter': 'blue', 'minI': 1400, 'maxI': 2000, 'restWavelength': 4101.74, 'ampList': [1.59439390, 3.28250600, 2.43874240], 'zone': 'low' },
+        {'Name': 'NII-6548A',   'Colour': 'm',       'Order': 21, 'Filter': 'red',  'minI': 1000, 'maxI': 1300, 'restWavelength': 6548.00, 'ampList': [0.81158470, 0.31584470, 0.7387997], 'zone': 'low' },
+        {'Name': 'NII-6584A',   'Colour': 'y',       'Order': 21, 'Filter': 'red',  'minI': 1750, 'maxI': 2050, 'restWavelength': 6584.00, 'ampList': [0.81158470, 0.31584470, 0.7387997], 'zone': 'low' },
+        {'Name': 'SII-6717A',   'Colour': '#D35400', 'Order': 22, 'Filter': 'red',  'minI': 1850, 'maxI': 2000, 'restWavelength': 6717.00, 'ampList': [-0.6481646, 4.1089043, 2.8879626], 'zone': 'low' },
+        {'Name': 'SII-6731A',   'Colour': '#58D68D', 'Order': 22, 'Filter': 'red',  'minI': 2100, 'maxI': 2350, 'restWavelength': 6731.00, 'ampList': [0.7642784, 1.4831617, 1.1742854], 'zone': 'low' },
+        {'Name': 'OII-3727A',   'Colour': '#EC7063', 'Order': 14, 'Filter': 'blue', 'minI': 2660, 'maxI': 2829, 'restWavelength': 3726.10, 'ampList': [-15.3942993, 119.9357409, -26.5382152], 'zone': 'low' },
+        {'Name': 'OII-3729A',   'Colour': '#5D6D7E', 'Order': 14, 'Filter': 'blue', 'minI': 2800, 'maxI': 3000, 'restWavelength': 3728.80, 'ampList': [2.8939567, 26.9173626, 18.8309673], 'zone': 'low' },
+        {'Name': 'OII-7919A',   'Colour': '#F8C471', 'Order': 30, 'Filter': 'red',  'minI': 640,  'maxI': 730,  'restWavelength': 7919.00, 'ampList': [9.9836023, -72.4898956, 6.6585656], 'zone': 'low' },
+        {'Name': 'OII-7330A',   'Colour': '#7FB3D5', 'Order': 26, 'Filter': 'red',  'minI': 2420, 'maxI': 2520, 'restWavelength': 7330.00, 'ampList': [-0.5248204, 8.5912248, -1.0489058], 'zone': 'low' },
+        {'Name': 'OI-6300A',    'Colour': 'k',       'Order': 19, 'Filter': 'red',  'minI': 1050, 'maxI': 1250,  'restWavelength': 6300.00, 'ampList': [9.9836023, 11.7256654, 6.6585656], 'zone': 'low' },
+        {'Name': 'OI-6364A',    'Colour': '#7D6608', 'Order': 19, 'Filter': 'red',  'minI': 2550, 'maxI': 2580, 'restWavelength': 6364.00, 'ampList': [18.3221864, -350.3468259, 9.59442], 'zone': 'low' },
+        {'Name': 'SIII-9069A',  'Colour': '#27AE60', 'Order': 35, 'Filter': 'red',  'minI': 1720, 'maxI': 1870, 'restWavelength': 9069.00, 'ampList': [9.9836023, 11.7256654, 6.6585656], 'zone': 'low' },
+        {'Name': 'ArIII-7136A', 'Colour': '#0E6655', 'Order': 25, 'Filter': 'red',  'minI': 1660, 'maxI': 1790, 'restWavelength': 7136.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'ArIII-7751A', 'Colour': '#1B4F72', 'Order': 29, 'Filter': 'red',  'minI': 818,  'maxI': 853,  'restWavelength': 7751.00, 'ampList': [0.5052717, 5.9512536, 1.9817152], 'zone': 'low' },
+        {'Name': 'HeIH8-3889A', 'Colour': '#5B2C6F', 'Order': 18, 'Filter': 'blue', 'minI': 2450, 'maxI': 2650, 'restWavelength': 3889.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'low' },
+        {'Name': 'HeI-4471A',   'Colour': '#78281F', 'Order': 30, 'Filter': 'blue', 'minI': 1750, 'maxI': 1900, 'restWavelength': 4471.00, 'ampList': [0.1298479, 3.0644391, -0.4675975], 'zone': 'low' },
+        {'Name': 'HeI-5876A',   'Colour': '#641E16', 'Order': 15, 'Filter': 'red',  'minI': 1320, 'maxI': 1700, 'restWavelength': 5876.00, 'ampList': [-0.2039344, 1.601665, 1.280084], 'zone': 'low' },
+        {'Name': 'HeI-6678A',   'Colour': '#D5D8DC', 'Order': 22, 'Filter': 'red',  'minI': 1050, 'maxI': 1240, 'restWavelength': 6678.00, 'ampList': [0.3407534, 0.0631993, 0.2012086], 'zone': 'low' },
+        {'Name': 'HeI-7281A',   'Colour': '#E8DAEF', 'Order': 26, 'Filter': 'red',  'minI': 1350, 'maxI': 1560, 'restWavelength': 7281.00, 'ampList': [0.1083285, -1.5113626, 0.2402424], 'zone': 'low' },
+        {'Name': 'OIII-4959A',  'Colour': 'g',       'Order': 4,  'Filter': 'red',  'minI': 2300, 'maxI': 2800, 'restWavelength': 4959.00, 'ampList': [8.1141842, 12.775176, 6.6846808], 'zone': 'high'},
+        {'Name': 'NeIII-3868A', 'Colour': 'r',       'Order': 18, 'Filter': 'blue', 'minI': 1430, 'maxI': 1650, 'restWavelength': 3868.00, 'ampList': [-4.0722732, 22.379184, -4.8332575], 'zone': 'high'},
+        {'Name': 'NeIII-3970A', 'Colour': 'c',       'Order': 20, 'Filter': 'blue', 'minI': 2110, 'maxI': 2290, 'restWavelength': 3970.00, 'ampList': [1.1737456, 3.8537062, 0.0697405], 'zone': 'high'},
     ]
-    #'#D35400', '#58D68D', '#EC7063', '#5D6D7E', '#F8C471', '#7FB3D5'
-
 
     # Information for the center, sigma nad linear for the low (H-alpha) and high (OIII) zones
     centerListLowZone = [6349.20126, 6328.97820, 6315.53639]

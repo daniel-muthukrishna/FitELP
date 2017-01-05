@@ -151,7 +151,7 @@ class FittingProfile(object):
                 varySigma = True
                 varyAmp = True
             else:
-                varyCentre = False
+                varyCentre = True
                 varySigma = True
                 varyAmp = True
                 # cMin = c - c*0.01
@@ -164,7 +164,7 @@ class FittingProfile(object):
                 varySigma = True
                 varyAmp = True
             else:
-                varyCentre = False
+                varyCentre = True
                 varySigma = True
                 varyAmp = True
                 # cMin = c - c*0.01
@@ -224,37 +224,38 @@ if __name__ == '__main__':
     galaxyRegion = GalaxyRegion('NGC6845_7B.fc.fits', 'NGC6845_7R.fc.fits', specFileBlueError='NGC6845_7B_ErrorFlux.fc.fits', specFileRedError='NGC6845_7R_ErrorFlux.fc.fits', scaleFlux=1e14)  # Flux Calibrated
     #galaxyRegion = GalaxyRegion('NGC6845_7B_SPEC1.wc.fits', 'NGC6845_7R_SPEC1.wc.fits', specFileBlueError='NGC6845_7B_VAR4.wc.fits', specFileRedError='NGC6845_7R_VAR4.wc.fits', scaleFlux=1)  # Counts (ADUS) Calibrated
     #galaxyRegion.plot_order(3, filt='blue', maxIndex=-10, title="NGC6845_7_red Order 21")
-
+    numOfComponents = 3
+    lowZoneProfiles = []
+    highZoneProfiles = []
     # SPECTRAL LINE INFO FOR [H_ALPHA, H_BETA, H_GAMMA, H_DELTA]
     lineNames = ['H-Alpha ', 'H-Beta ', 'H-Gamma ', 'H-Delta ']#, 'NII-6548A ', 'NII-6584A ', 'SII-6717A ', 'SII-6731A ', 'OII-3717A ', 'OII-3729A ', 'OII-7919A ', 'OII-7330A ', 'OI-6300A ', 'OI-6364A ', 'SIII-6312A ', 'SIII-9069A ', 'SIII-9535A ', 'ArIII-7136A ', 'ArIII-7751A ', 'He1H8-3889A ', 'HeI-4471A ', 'HeI-5876A ', 'HeI-6678A ', 'HeI-7065A ', 'HeI-7281A ', 'OIII-5007A ', 'OIII-4959A ', 'OIII-4363A ', 'NeIII-3868A  ', 'NeIII-3970A ']
     emProfiles = [
-        {'Name': 'H-Alpha',    'Colour': 'b', 'Order': 20, 'Filter': 'red',  'minI': 1180, 'maxI': 1650, 'restWavelength': 6562.82, 'ampList': [17.1354, 15.3248335, 25.9915929], 'zone': 'low'},
-        {'Name': 'H-Beta',     'Colour': 'g', 'Order': 35, 'Filter': 'blue', 'minI': 2150, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [19.7000, 4.40000000, 5.00000000], 'zone': 'low'},
-        {'Name': 'H-Gamma',    'Colour': 'r', 'Order': 27, 'Filter': 'blue', 'minI': 700,  'maxI': 1200, 'restWavelength': 4340.47, 'ampList': [3.18400, 7.70360000, 4.44400000], 'zone': 'low'},
-        {'Name': 'H-Delta',    'Colour': 'c', 'Order': 22, 'Filter': 'blue', 'minI': 1300, 'maxI': 2000, 'restWavelength': 4101.74, 'ampList': [5.60000, 1.75000000, 5.00000000], 'zone': 'low'},
-        {'Name': 'OIII-5007A', 'Colour': 'm', 'Order': 4,  'Filter': 'red',  'minI': 1600, 'maxI': 2100, 'restWavelength': 5007.00, 'ampList': [5.60000, 1.75000000, 5.00000000], 'zone': 'high'},
-        {'Name': 'OIII-4959A', 'Colour': 'y', 'Order': 3,  'Filter': 'red',  'minI': 2300, 'maxI': 2800, 'restWavelength': 4959.00, 'ampList': [5.60000, 1.75000000, 5.00000000], 'zone': 'high'},
+        {'Name': 'H-Alpha',    'Colour': 'b', 'Order': 20, 'Filter': 'red',  'minI': 1180, 'maxI': 1650, 'restWavelength': 6562.82, 'ampList': [17.1348559, 15.3253166, 25.9916403], 'zone': 'low'},
+        {'Name': 'H-Beta',     'Colour': 'g', 'Order': 35, 'Filter': 'blue', 'minI': 2150, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [7.17002360, 7.75519580, 8.11792730], 'zone': 'low'},
+        {'Name': 'H-Gamma',    'Colour': 'r', 'Order': 27, 'Filter': 'blue', 'minI': 700,  'maxI': 1200, 'restWavelength': 4340.47, 'ampList': [2.26418260, 7.30954600, 2.94597170], 'zone': 'low'},
+        {'Name': 'H-Delta',    'Colour': 'c', 'Order': 22, 'Filter': 'blue', 'minI': 1300, 'maxI': 2000, 'restWavelength': 4101.74, 'ampList': [1.59439390, 3.28250600, 2.43874240], 'zone': 'low'},
+        {'Name': 'OIII-5007A', 'Colour': 'm', 'Order': 4,  'Filter': 'red',  'minI': 1600, 'maxI': 2100, 'restWavelength': 5007.00, 'ampList': [22.1754732, 26.5383276, 27.2475071], 'zone': 'high'},
+        {'Name': 'OIII-4959A', 'Colour': 'y', 'Order': 3,  'Filter': 'red',  'minI': 2300, 'maxI': 2800, 'restWavelength': 4959.00, 'ampList': [9.98360230, 11.7256654, 6.65856560], 'zone': 'high'},
 
 
     ]
     #'#D35400', '#58D68D', '#EC7063', '#5D6D7E', '#F8C471', '#7FB3D5'
-    numOfComponents = 3
+
 
     # Information for the center, sigma nad linear for the low (H-alpha) and high (OIII) zones
-    centerListLowZone = [6349.2, 6328.978, 6314.2879]
-    sigmaListLowZone = [19.2858, 61.11, 21.3885036]
-    linSlopeLowZone = 1.3796e-5
-    linIntLowZone = -0.07987
-    centerListHighZone = [6349.2, 6328.978, 6314.2879]
-    sigmaListHighZone = [19.2858, 61.11, 21.3885036]
-    linSlopeHighZone = 1.3796e-5
-    linIntHighZone = -0.07987
+    centerListLowZone = [6349.20126, 6328.97820, 6315.53639]
+    sigmaListLowZone = [19.2852694, 64.1684056, 22.2647170]
+    linSlopeLowZone = 1.9395e-07
+    linIntLowZone = 0.00761979
+    centerListHighZone = [6338.67659, 6323.24779, 6304.79109]
+    sigmaListHighZone = [15.9654171, 56.3776214, 16.6294007]
+    linSlopeHighZone = 2.6129e-06
+    linIntHighZone = -0.00145233
 
-    lowZoneProfiles = []
-    highZoneProfiles = []
+    ampListAll = []
     # Iterate through emission lines
     for eL in emProfiles:
-        print "#################### %s ##################" %eL['Name']
+        print "------------------ %s ----------------" %eL['Name']
         wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(eL['Order'], filt=eL['Filter'], minIndex=eL['minI'], maxIndex=eL['maxI'])
         HAlphaLine = EmissionLineProfile(wave1, flux1, restWave=eL['restWavelength'], lineName=eL['Name'])
         vel1 = HAlphaLine.vel
@@ -283,6 +284,16 @@ if __name__ == '__main__':
             else:
                 modelLinearMultiGaussian = fittingProfile.lin_and_multi_gaussian(numOfComponents, gCenterListHighZone, gSigmaListHighZone, eL['ampList'], linSlopeHighZone, linIntHighZone)
             highZoneProfiles.append([eL['Name'], vel1, flux1, modelLinearMultiGaussian.best_fit, eL['Colour']])
+
+    #Print Amplitudes
+        ampComponentList = []
+        for idx in range(numOfComponents):
+            ampComponentList.append(round(modelLinearMultiGaussian.best_values['g%d_amplitude' % (idx + 1)], 7))
+        ampListAll.append([eL['Name'], ampComponentList])
+
+    print "--- List all Amplitudes ----"
+    for ampComps in ampListAll:
+        print ampComps[0], ampComps[1]
 
 
     # Combined Plots

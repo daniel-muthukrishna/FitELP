@@ -160,7 +160,7 @@ class FittingProfile(object):
                 varyCentre = True
                 varySigma = True
                 varyAmp = True
-            elif self.lineName in ['NII-6548A', 'NII-6584A', 'SII-6717A', 'SII-6731A', 'OII-3726A', 'OII-3729A', 'SIII-9069A']:
+            elif self.lineName in ['NII-6584A', 'SII-6717A', 'OII-3729A']:
                 varyCentre = False
                 varySigma = True
                 varyAmp = True
@@ -238,7 +238,7 @@ if __name__ == '__main__':
     #galaxyRegion = GalaxyRegion('NGC6845_7B_SPEC1.wc.fits', 'NGC6845_7R_SPEC1.wc.fits', specFileBlueError='NGC6845_7B_VAR4.wc.fits', specFileRedError='NGC6845_7R_VAR4.wc.fits', scaleFlux=1)  # Counts (ADUS) Calibrated
     # galaxyRegion.plot_order(24, filt='red', maxIndex=-10, title="")
     # plt.show()
-    numOfComponents = 3
+    numComps = 3
     lowZoneProfiles = []
     highZoneProfiles = []
 
@@ -249,8 +249,8 @@ if __name__ == '__main__':
         ('H-Beta', {'Colour': 'g', 'Order': 36, 'Filter': 'blue', 'minI': 2150, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [7.1034076, 6.9433785, 9.0872374], 'zone': 'low'}),
         ('H-Gamma', {'Colour': 'r', 'Order': 28, 'Filter': 'blue', 'minI': 700, 'maxI': 1200, 'restWavelength': 4340.47, 'ampList': [3.5975999, 4.4061048, 4.9858671], 'zone': 'low'}),
         ('H-Delta', {'Colour': 'c', 'Order': 23, 'Filter': 'blue', 'minI': 1400, 'maxI': 2000, 'restWavelength': 4101.74, 'ampList': [2.0445931, 2.5207302, 2.9131719], 'zone': 'low'}),
-        ('NII-6548A', {'Colour': 'm', 'Order': 21, 'Filter': 'red', 'minI': 1000, 'maxI': 1300, 'restWavelength': 6548.03, 'ampList': [0.7751841, 0.28759, 0.7934139], 'zone': 'low'}),
         ('NII-6584A', {'Colour': 'y', 'Order': 21, 'Filter': 'red', 'minI': 1750, 'maxI': 2050, 'restWavelength': 6583.41, 'ampList': [2.3677107, 1.2368296, 2.1863502], 'zone': 'low'}),
+        ('NII-6548A', {'Colour': 'm', 'Order': 21, 'Filter': 'red', 'minI': 1000, 'maxI': 1300, 'restWavelength': 6548.03, 'ampList': [0.7751841, 0.28759, 0.7934139], 'zone': 'low'}),
         ('SII-6717A', {'Colour': 'k', 'Order': 22, 'Filter': 'red', 'minI': 1850, 'maxI': 2000, 'restWavelength': 6716.47, 'ampList': [2.0078135, 1.3327135, 1.8721066], 'zone': 'low'}),
         ('SII-6731A', {'Colour': '#58D68D', 'Order': 22, 'Filter': 'red', 'minI': 2100, 'maxI': 2350, 'restWavelength': 6730.85, 'ampList': [1.161882, 1.601409, 0.760334], 'zone': 'low'}),
         ('OII-3729A', {'Colour': '#5D6D7E', 'Order': 14, 'Filter': 'blue', 'minI': 2800, 'maxI': 3000, 'restWavelength': 3728.82, 'ampList': [14.5939116, 5.8093067, 15.9000253], 'zone': 'low'}),
@@ -296,45 +296,61 @@ if __name__ == '__main__':
 
         if emInfo['zone'] == 'low':
             if emName == 'H-Alpha':
-                modelLinearMultiGaussian, comps = fittingProfile.lin_and_multi_gaussian(numOfComponents, centerListLowZone, sigmaListLowZone, emInfo['ampList'], linSlopeLowZone, linIntLowZone)
-                gCenterListLowZone = []
-                gSigmaListLowZone = []
-                for idx in range(numOfComponents):
-                    gCenterListLowZone.append(modelLinearMultiGaussian.best_values['g%d_center' % (idx + 1)])
-                    gSigmaListLowZone.append(modelLinearMultiGaussian.best_values['g%d_sigma' % (idx+1)])
-                emInfo['centerList'] = gCenterListLowZone
-                emInfo['sigmaList'] = gSigmaListLowZone
+                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, centerListLowZone, sigmaListLowZone, emInfo['ampList'], linSlopeLowZone, linIntLowZone)
+                emProfiles[emName]['centerList'] = []
+                emProfiles[emName]['sigmaList'] = []
+                for idx in range(numComps):
+                    emProfiles[emName]['centerList'].append(model.best_values['g%d_center' % (idx + 1)])
+                    emProfiles[emName]['sigmaList'].append(model.best_values['g%d_sigma' % (idx + 1)])
+
+            elif emName in ['NII-6584A', 'SII-6717A', 'OII-3729A']:
+                emProfiles[emName]['centerList'] = emProfiles['H-Alpha']['centerList']
+                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, emProfiles['H-Alpha']['centerList'], emProfiles['H-Alpha']['sigmaList'], emInfo['ampList'], linSlopeLowZone, linIntLowZone)
+                emProfiles[emName]['sigmaList'] = []
+                for idx in range(numComps):
+                    emProfiles[emName]['sigmaList'].append(model.best_values['g%d_sigma' % (idx + 1)])
             else:
-                modelLinearMultiGaussian, comps = fittingProfile.lin_and_multi_gaussian(numOfComponents, gCenterListLowZone, gSigmaListLowZone, emInfo['ampList'], linSlopeLowZone, linIntLowZone)
-            lowZoneProfiles.append([emName, vel1, flux1, modelLinearMultiGaussian.best_fit, emInfo['Colour'], comps])
+                emProfiles[emName]['centerList'] = emProfiles['H-Alpha']['centerList']
+                if emName == 'NII-6548A':
+                    emProfiles[emName]['sigmaList'] = emProfiles['NII-6584A']['sigmaList']
+                elif emName == 'SII-6731A':
+                    emProfiles[emName]['sigmaList'] = emProfiles['SII-6717A']['sigmaList']
+                elif emName == 'OII-3726A':
+                    emProfiles[emName]['sigmaList'] = emProfiles['OII-3729A']['sigmaList']
+                else:
+                    emProfiles[emName]['sigmaList'] = emProfiles['H-Alpha']['sigmaList']
+                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, emProfiles[emName]['centerList'], emProfiles[emName]['sigmaList'], emInfo['ampList'], linSlopeLowZone, linIntLowZone)
+            lowZoneProfiles.append([emName, vel1, flux1, model.best_fit, emInfo['Colour'], comps])
 
         elif emInfo['zone'] == 'high':
             if emName == 'OIII-5007A':
-                modelLinearMultiGaussian, comps = fittingProfile.lin_and_multi_gaussian(numOfComponents, centerListHighZone, sigmaListHighZone, emInfo['ampList'], linSlopeHighZone, linIntHighZone)
-                gSigmaListHighZone = []
-                gCenterListHighZone = []
-                for idx in range(numOfComponents):
-                    gSigmaListHighZone.append(modelLinearMultiGaussian.best_values['g%d_sigma' % (idx + 1)])
-                    gCenterListHighZone.append(modelLinearMultiGaussian.best_values['g%d_center' % (idx + 1)])
+                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, centerListHighZone, sigmaListHighZone, emInfo['ampList'], linSlopeHighZone, linIntHighZone)
+                emProfiles[emName]['centerList'] = []
+                emProfiles[emName]['sigmaList'] = []
+                for idx in range(numComps):
+                    emProfiles[emName]['centerList'].append(model.best_values['g%d_center' % (idx + 1)])
+                    emProfiles[emName]['sigmaList'].append(model.best_values['g%d_sigma' % (idx + 1)])
             else:
-                modelLinearMultiGaussian, comps = fittingProfile.lin_and_multi_gaussian(numOfComponents, gCenterListHighZone, gSigmaListHighZone, emInfo['ampList'], linSlopeHighZone, linIntHighZone)
-            highZoneProfiles.append([emName, vel1, flux1, modelLinearMultiGaussian.best_fit, emInfo['Colour'], comps])
+                emProfiles[emName]['centerList'] = emProfiles['OIII-5007A']['centerList']
+                emProfiles[emName]['sigmaList'] = emProfiles['OIII-5007A']['sigmaList']
+                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, emProfiles[emName]['centerList'], emProfiles[emName]['sigmaList'], emInfo['ampList'], linSlopeHighZone, linIntHighZone)
+            highZoneProfiles.append([emName, vel1, flux1, model.best_fit, emInfo['Colour'], comps])
 
     #Print Amplitudes
         ampComponentList = []
-        for idx in range(numOfComponents):
-            ampComponentList.append(round(modelLinearMultiGaussian.best_values['g%d_amplitude' % (idx + 1)], 7))
-            o = modelLinearMultiGaussian
+        for idx in range(numComps):
+            ampComponentList.append(round(model.best_values['g%d_amplitude' % (idx + 1)], 7))
+            o = model
             allModelComponents.append([emName, 'g%d' % (idx + 1), round(o.params['g%d_center' % (idx + 1)].value, 2), round(o.params['g%d_center' % (idx + 1)].stderr, 2), round(o.params['g%d_sigma' % (idx + 1)].value, 2), round(o.params['g%d_sigma' % (idx + 1)].stderr, 2), round(o.params['g%d_amplitude' % (idx + 1)].value, 2), round(o.params['g%d_amplitude' % (idx + 1)].stderr, 2), round(o.params['g%d_height' % (idx + 1)].value, 3), round(o.params['g%d_height' % (idx + 1)].stderr, 3)])
-        ampListAll.append([emName, ampComponentList])
+        ampListAll.append([emName, ampComponentList, emInfo, emName])
 
-    print "--- List all Amplitudes ----"
+    print "------------ List all Amplitudes -------"
     for ampComps in ampListAll:
         #print ampComps[0], ampComps[1]
-        ampCompsList = ampComps[1]
-        #print "# {" + "'Name': '" + emInfo['Name'] + "',   " + "'Colour': '" + eL['Colour'] + "', " + "'Order': " + str(eL['Order']) + ", " + "'Filter': '" + eL['Filter'] + "', " + "'minI': " + str(eL['minI']) + ", " + "'maxI': " + str(eL['maxI']) + ", " + "'restWavelength': " + str(eL['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + eL['zone'] + "'},"
+        ampCompsList, emInfo, emName = ampComps[1:4]
+        print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "'}),"
 
-
+    print "------------ Component information -------"
     for mod in allModelComponents:
         print mod
 
@@ -350,7 +366,7 @@ if __name__ == '__main__':
         plt.plot(x, y, color=col, label=name)
         plt.plot(x, mod, color=col, linestyle='--')
         if name == 'H-Delta':
-            for idx in range(numOfComponents):
+            for idx in range(numComps):
                 plt.plot(x, comps['g%d_' % (idx + 1)], color=col, linestyle=':')
     plt.xlim([6150, 6500])
     plt.legend()
@@ -363,9 +379,9 @@ if __name__ == '__main__':
         name, x, y, mod, col, comps = profile
         plt.plot(x, y, color=col, label=name)
         plt.plot(x, mod, color=col, linestyle='--')
-        for idx in range(numOfComponents):
+        for idx in range(numComps):
             if name == 'OIII-4959A':
-                for idx in range(numOfComponents):
+                for idx in range(numComps):
                     plt.plot(x, comps['g%d_' % (idx + 1)], color=col, linestyle=':')
         plt.xlim([6150, 6500])
     plt.legend()

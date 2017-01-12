@@ -40,6 +40,24 @@ def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter):
     return intrinsic, intrinsicError
 
 
+def calculate_flux(height, sigmaObs):
+    calcFlux = height * np.sqrt(2 * np.pi * sigmaObs**2)
+
+    return calcFlux
+
+
+def calculate_em_f(model, numComponents):
+    componentFluxes = []
+    for i in range(numComponents):
+        componentFluxes.append(calculate_flux(model.params['g%d_height' % (i + 1)], model.params['g%d_sigma'% (i + 1)]))
+    componentFluxes = np.array(componentFluxes)
+
+    calcEMF = componentFluxes/sum(componentFluxes) * 100
+
+    return calcEMF
+
+
+
 class GalaxyRegion(object):
     def __init__(self, specFileBlue, specFileRed, specFileBlueError=None, specFileRedError=None, scaleFlux=1e14):
         """ x is wavelength arrays, y is flux arrays """
@@ -169,35 +187,39 @@ class FittingProfile(object):
         pars is the lmfit Parameters for the fit, prefix is the label of the gaussian, c is the center, s is sigma,
         a is amplitude. Returns the Gaussian model"""
         if self.zone == 'low':
-            if self.lineName == 'H-Alpha':
+            if self.lineName == 'H-Alpha':  # Find solutions
                 varyCentre = True
                 varySigma = True
                 varyAmp = True
-            elif self.lineName in ['NII-6584A', 'SII-6717A', 'OII-3729A']:
+            elif self.lineName in ['SII-6717A', 'NII-6584A', 'OII-3729A', 'HeI-5876A']:  # Copy center from Halpha, others vary
                 varyCentre = False
                 varySigma = True
                 varyAmp = True
-            else:
+            elif self.lineName in ['SII-6731A', 'NII-6548A', 'OII-3726A', 'HeI-6678A', 'HeI-7065A', 'HeI-4471A']:  # Copy center from Halpha, sigma from above
                 varyCentre = False
                 varySigma = False
+                varyAmp = True
+            elif self.lineName in ['H-Gamma', 'OI-6300A', 'ArIII-7136A', 'HeIH8-3889A', 'NeIII-3976A', 'NeIII-3970A', 'NeIII-3868A']:  # Copy center and sigma from Halpha
+                varyCentre = False
+                varySigma = False
+                varyAmp = True
+            else:               # Copy center from Halpha, others vary
+                varyCentre = False
+                varySigma = True
                 varyAmp = True
                 # cMin = c - c*0.01
                 # cMax = c + c*0.01
                 # sMin = s - s*0.03
                 # sMax = s + s*0.03
         elif self.zone == 'high':
-            if self.lineName == 'OIII-5007A':
+            if self.lineName == 'OIII-5007A':  # Find solutions
                 varyCentre = True
                 varySigma = True
                 varyAmp = True
-            else:
+            else:                               # Copy center from OIII-5007 (all others vary)
                 varyCentre = False
-                varySigma = False
+                varySigma = True
                 varyAmp = True
-                # cMin = c - c*0.01
-                # cMax = c + c*0.01
-                # sMin = s - s*0.03
-                # sMax = s + s*0.03
 
         g = GaussianModel(prefix=prefix)
         pars.update(g.make_params())
@@ -224,7 +246,7 @@ class FittingProfile(object):
 
         init = mod.eval(self.linGaussParams, x=self.vel)
         out = mod.fit(self.flux, self.linGaussParams, x=self.vel, weights=self.weights)
-        print "######## %s Linear and Multi-gaussian Model ##########" %self.lineName
+        print "######## %s Linear and Multi-gaussian Model ##########" % self.lineName
         print (out.fit_report())
         components = out.eval_components()
 
@@ -236,6 +258,7 @@ class FittingProfile(object):
         plt.plot(self.vel, components['lin_'], label='lin_')
         plt.plot(self.vel, out.best_fit, label='Combined')
         plt.plot(self.vel, init, label='init')
+        # plt.xlim(plottingXRange)
         plt.legend(loc='upper left')
         plt.savefig('Figures/' + self.lineName + " %d Component Linear-Gaussian Model" % numOfComponents)
 
@@ -268,19 +291,19 @@ if __name__ == '__main__':
 
         if emInfo['zone'] == 'low':
             if emName == 'H-Alpha':
-                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, centerListLowZone, sigmaListLowZone, emInfo['ampList'], linSlopeLowZone, linIntLowZone)
+                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, centerListLowZone, sigmaListLowZone, emInfo['ampList'], linSlopeLowZone, linIntLowZone)
                 emProfiles[emName]['centerList'] = []
                 emProfiles[emName]['sigmaList'] = []
                 for idx in range(numComps):
-                    emProfiles[emName]['centerList'].append(model.best_values['g%d_center' % (idx + 1)])
-                    emProfiles[emName]['sigmaList'].append(model.best_values['g%d_sigma' % (idx + 1)])
+                    emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
+                    emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
 
-            elif emName in ['NII-6584A', 'SII-6717A', 'OII-3729A']:
+            elif emName in ['SII-6717A', 'NII-6584A', 'OII-3729A', 'HeI-5876A']:
                 emProfiles[emName]['centerList'] = emProfiles['H-Alpha']['centerList']
-                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, emProfiles['H-Alpha']['centerList'], emProfiles['H-Alpha']['sigmaList'], emInfo['ampList'], linSlopeLowZone, linIntLowZone)
+                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, emProfiles['H-Alpha']['centerList'], emProfiles['H-Alpha']['sigmaList'], emInfo['ampList'], linSlopeLowZone, linIntLowZone)
                 emProfiles[emName]['sigmaList'] = []
                 for idx in range(numComps):
-                    emProfiles[emName]['sigmaList'].append(model.best_values['g%d_sigma' % (idx + 1)])
+                    emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
             else:
                 emProfiles[emName]['centerList'] = emProfiles['H-Alpha']['centerList']
                 if emName == 'NII-6548A':
@@ -289,39 +312,42 @@ if __name__ == '__main__':
                     emProfiles[emName]['sigmaList'] = emProfiles['SII-6717A']['sigmaList']
                 elif emName == 'OII-3726A':
                     emProfiles[emName]['sigmaList'] = emProfiles['OII-3729A']['sigmaList']
+                elif emName in ['HeI-6678A', 'HeI-7065A', 'HeI-4471A']:
+                    emProfiles[emName]['sigmaList'] = emProfiles['HeI-5876A']['sigmaList']
                 else:
                     emProfiles[emName]['sigmaList'] = emProfiles['H-Alpha']['sigmaList']
-                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, emProfiles[emName]['centerList'], emProfiles[emName]['sigmaList'], emInfo['ampList'], linSlopeLowZone, linIntLowZone)
-            lowZoneProfiles.append([emName, vel1, flux1, model.best_fit, emInfo['Colour'], comps])
+                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, emProfiles[emName]['centerList'], emProfiles[emName]['sigmaList'], emInfo['ampList'], linSlopeLowZone, linIntLowZone)
+            lowZoneProfiles.append([emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps])
 
         elif emInfo['zone'] == 'high':
             if emName == 'OIII-5007A':
-                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, centerListHighZone, sigmaListHighZone, emInfo['ampList'], linSlopeHighZone, linIntHighZone)
+                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, centerListHighZone, sigmaListHighZone, emInfo['ampList'], linSlopeHighZone, linIntHighZone)
                 emProfiles[emName]['centerList'] = []
                 emProfiles[emName]['sigmaList'] = []
                 for idx in range(numComps):
-                    emProfiles[emName]['centerList'].append(model.best_values['g%d_center' % (idx + 1)])
-                    emProfiles[emName]['sigmaList'].append(model.best_values['g%d_sigma' % (idx + 1)])
+                    emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
+                    emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
             else:
                 emProfiles[emName]['centerList'] = emProfiles['OIII-5007A']['centerList']
                 emProfiles[emName]['sigmaList'] = emProfiles['OIII-5007A']['sigmaList']
-                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, emProfiles[emName]['centerList'], emProfiles[emName]['sigmaList'], emInfo['ampList'], linSlopeHighZone, linIntHighZone)
-            highZoneProfiles.append([emName, vel1, flux1, model.best_fit, emInfo['Colour'], comps])
+                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, emProfiles[emName]['centerList'], emProfiles[emName]['sigmaList'], emInfo['ampList'], linSlopeHighZone, linIntHighZone)
+            highZoneProfiles.append([emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps])
 
     #Print Amplitudes
         ampComponentList = []
+        o = model1
+        eMFList = calculate_em_f(model1, numComps)
         for idx in range(numComps):
-            ampComponentList.append(round(model.best_values['g%d_amplitude' % (idx + 1)], 7))
-            o = model
+            ampComponentList.append(round(model1.best_values['g%d_amplitude' % (idx + 1)], 7))
             sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'])
-            allModelComponents.append([emName, 'g%d' % (idx + 1), round(o.params['g%d_center' % (idx + 1)].value, 2), round(o.params['g%d_center' % (idx + 1)].stderr, 2), round(sigInt, 2), round(sigIntErr, 2), round(o.params['g%d_amplitude' % (idx + 1)].value, 2), round(o.params['g%d_amplitude' % (idx + 1)].stderr, 2), round(o.params['g%d_height' % (idx + 1)].value, 3), round(o.params['g%d_height' % (idx + 1)].stderr, 3)])
+            allModelComponents.append([emName, 'g%d' % (idx + 1), round(o.params['g%d_center' % (idx + 1)].value, 2), round(o.params['g%d_center' % (idx + 1)].stderr, 2), round(sigInt, 2), round(sigIntErr, 2), round(o.params['g%d_amplitude' % (idx + 1)].value, 2), round(o.params['g%d_amplitude' % (idx + 1)].stderr, 2), round(o.params['g%d_height' % (idx + 1)].value, 3), round(o.params['g%d_height' % (idx + 1)].stderr, 3), round(eMFList[idx], 3)])
         ampListAll.append([emName, ampComponentList, emInfo, emName])
 
     print "------------ List all Amplitudes -------"
     for ampComps in ampListAll:
         #print ampComps[0], ampComps[1]
         ampCompsList, emInfo, emName = ampComps[1:4]
-        print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "'}),"
+        print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + "}),"
 
     print "------------ Component information ------------"
     for mod in allModelComponents:
@@ -339,7 +365,7 @@ if __name__ == '__main__':
         if name == 'H-Delta':
             for idx in range(numComps):
                 plt.plot(x, comps['g%d_' % (idx + 1)], color=col, linestyle=':')
-    plt.xlim([6150, 6500])
+    # plt.xlim(plottingXRange)
     plt.legend()
 
     plt.figure("High Zone Profiles")
@@ -354,6 +380,6 @@ if __name__ == '__main__':
             if name == 'OIII-4959A':
                 for idx in range(numComps):
                     plt.plot(x, comps['g%d_' % (idx + 1)], color=col, linestyle=':')
-        plt.xlim([6150, 6500])
+        # plt.xlim(plottingXRange)
     plt.legend()
     plt.show()

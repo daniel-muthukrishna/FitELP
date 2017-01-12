@@ -1,8 +1,8 @@
 from collections import OrderedDict
 
-blueSpecFile = 'NGC6845_7B.fc.fits'             #'NGC6845_26B_SPEC1.wc.fits'
+blueSpecFile = 'NGC6845_26B.fc.fits'             #'NGC6845_26B_SPEC1.wc.fits'
 redSpecFile = 'NGC6845_26R.fc.fits'              #'NGC6845_26R_SPEC1.wc.fits'
-blueSpecError = None#'NGC6845_26B_ErrorFlux.fc.fits'  #'NGC6845_26B_VAR4.wc.fits'
+blueSpecError = 'NGC6845_26B_ErrorFlux.fc.fits'  #'NGC6845_26B_VAR4.wc.fits'
 redSpecError = 'NGC6845_26R_ErrorFlux.fc.fits'   #'NGC6845_26R_VAR4.wc.fits'
 scaleFlux = 1e14                                # 1
 
@@ -26,8 +26,8 @@ emProfiles = OrderedDict([
     ('SIII-9069A', {'Colour': '#27AE60', 'Order': 35, 'Filter': 'red', 'minI': 1720, 'maxI': 1870, 'restWavelength': 9068.9, 'ampList': [0.9362368, 0.7920389, 1.3819049], 'zone': 'low', 'sigmaT2': 5.19}),
     ('ArIII-7136A', {'Colour': '#0E6655', 'Order': 25, 'Filter': 'red', 'minI': 1713, 'maxI': 1790, 'restWavelength': 7135.78, 'ampList': [0.4554454, -0.227442, 1.066718], 'zone': 'low', 'sigmaT2': 4.16}),
     ('HeIH8-3889A', {'Colour': '#5B2C6F', 'Order': 18, 'Filter': 'blue', 'minI': 2450, 'maxI': 2750, 'restWavelength': 3888.65, 'ampList': [2.1000007, 4.4749605, 0.0491404], 'zone': 'low', 'sigmaT2': 41.54}),
-    ('HeI-4471A', {'Colour': '#78281F', 'Order': 30, 'Filter': 'blue', 'minI': 1750, 'maxI': 1900, 'restWavelength': 4471.48, 'ampList': [0.2947782, 0.0391142, 0.4628401], 'zone': 'low', 'sigmaT2': 41.54}),
     ('HeI-5876A', {'Colour': '#641E16', 'Order': 15, 'Filter': 'red', 'minI': 1320, 'maxI': 1700, 'restWavelength': 5875.64, 'ampList': [0.6740428, 0.8351308, 0.995738], 'zone': 'low', 'sigmaT2': 41.54}),
+    ('HeI-4471A', {'Colour': '#78281F', 'Order': 30, 'Filter': 'blue', 'minI': 1750, 'maxI': 1900, 'restWavelength': 4471.48, 'ampList': [0.2947782, 0.0391142, 0.4628401], 'zone': 'low', 'sigmaT2': 41.54}),
     ('HeI-6678A', {'Colour': '#D5D8DC', 'Order': 22, 'Filter': 'red', 'minI': 1050, 'maxI': 1240, 'restWavelength': 6678.15, 'ampList': [0.2719279, -0.0142201, 0.3160476], 'zone': 'low', 'sigmaT2': 41.54}),
     ('HeI-7065A', {'Colour': '#E8DAEF', 'Order': 24, 'Filter': 'red', 'minI': 3150, 'maxI': 3450, 'restWavelength': 7065.19, 'ampList': [0.1282397, 0.0734707, 0.1437775], 'zone': 'low', 'sigmaT2': 41.54}),
     ('HeI-7281A', {'Colour': '#E8DAEF', 'Order': 26, 'Filter': 'red', 'minI': 1465, 'maxI': 1600, 'restWavelength': 7281.35, 'ampList': [0.6740428, 0.8351308, 0.9957380], 'zone': 'low', 'sigmaT2': 41.54}),
@@ -48,3 +48,4 @@ linSlopeHighZone = 2.6129e-06
 linIntHighZone = -0.00147764
 
 numComps = 3
+# plottingXRange = [6150, 6500]

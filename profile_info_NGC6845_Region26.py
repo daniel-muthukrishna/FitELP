@@ -5,7 +5,7 @@ redSpecFile = 'NGC6845_26R.fc.fits'              #'NGC6845_26R_SPEC1.wc.fits'
 blueSpecError = 'NGC6845_26B_ErrorFlux.fc.fits'  #'NGC6845_26B_VAR4.wc.fits'
 redSpecError = 'NGC6845_26R_ErrorFlux.fc.fits'   #'NGC6845_26R_VAR4.wc.fits'
 scaleFlux = 1e14                                # 1
-# test iupload
+
 # SPECTRAL LINE INFO FOR ALL EMISSION LINES
 emProfiles = OrderedDict([
     ('H-Alpha', {'Colour': 'b', 'Order': 21, 'Filter': 'red', 'minI': 1180, 'maxI': 1650, 'restWavelength': 6562.82, 'ampList': [3.9e5, 9.5e4, 44.5836051], 'zone': 'low', 'sigmaT2': 164.96}),

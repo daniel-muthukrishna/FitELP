@@ -258,7 +258,7 @@ class FittingProfile(object):
         plt.plot(self.vel, components['lin_'], label='lin_')
         plt.plot(self.vel, out.best_fit, label='Combined')
         plt.plot(self.vel, init, label='init')
-        # plt.xlim(plottingXRange)
+        plt.xlim(plottingXRange)
         plt.legend(loc='upper left')
         plt.savefig('Figures/' + self.lineName + " %d Component Linear-Gaussian Model" % numOfComponents)
 
@@ -365,7 +365,7 @@ if __name__ == '__main__':
         if name == 'H-Delta':
             for idx in range(numComps):
                 plt.plot(x, comps['g%d_' % (idx + 1)], color=col, linestyle=':')
-    # plt.xlim(plottingXRange)
+    plt.xlim(plottingXRange)
     plt.legend()
 
     plt.figure("High Zone Profiles")
@@ -380,6 +380,6 @@ if __name__ == '__main__':
             if name == 'OIII-4959A':
                 for idx in range(numComps):
                     plt.plot(x, comps['g%d_' % (idx + 1)], color=col, linestyle=':')
-        # plt.xlim(plottingXRange)
+        plt.xlim(plottingXRange)
     plt.legend()
     plt.show()

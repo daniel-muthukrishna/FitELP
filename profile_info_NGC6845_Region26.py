@@ -32,9 +32,10 @@ emProfiles = OrderedDict([
     ('HeI-7065A', {'Colour': '#E8DAEF', 'Order': 24, 'Filter': 'red', 'minI': 3150, 'maxI': 3450, 'restWavelength': 7065.19, 'ampList': [-0.2040654, 1.2253885, 0.2591682], 'zone': 'low', 'sigmaT2': 41.54}),
     ('HeI-7281A', {'Colour': '#E8DAEF', 'Order': 26, 'Filter': 'red', 'minI': 1465, 'maxI': 1600, 'restWavelength': 7281.35, 'ampList': [0.9749919, 0.2172607, 0.0538293], 'zone': 'low', 'sigmaT2': 41.54}),
     ('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2300, 'maxI': 2800, 'restWavelength': 4958.91, 'ampList': [9.3962825, 34.1797722, -2.3071007], 'zone': 'high', 'sigmaT2': 10.39}),
-    ('NeIII-3868A', {'Colour': 'r', 'Order': 18, 'Filter': 'blue', 'minI': 1430, 'maxI': 1650, 'restWavelength': 3868.75, 'ampList': [4.6834512, -91.7716303, -3.24152], 'zone': 'high', 'sigmaT2': 8.24}),
-    ('NeIII-3970A', {'Colour': 'c', 'Order': 20, 'Filter': 'blue', 'minI': 2110, 'maxI': 2290, 'restWavelength': 3970.07, 'ampList': [9.0306809, -44.6867254, -22.3737158], 'zone': 'high', 'sigmaT2': 8.24}),
-    ('NeIII-3967A', {'Colour': 'm', 'Order': 20, 'Filter': 'blue', 'minI': 1950, 'maxI': 2135, 'restWavelength': 3967.46, 'ampList': [-110564.4250094, 135984.8984857, -58716.1699752], 'zone':])
+        ('NeIII-3868A', {'Colour': 'r', 'Order': 18, 'Filter': 'blue', 'minI': 1430, 'maxI': 1650, 'restWavelength': 3868.75, 'ampList': [1.7808936, 7.5984469, 2.6727271], 'zone': 'high', 'sigmaT2': 8.24}),
+    ('NeIII-3970A', {'Colour': 'c', 'Order': 20, 'Filter': 'blue', 'minI': 2110, 'maxI': 2290, 'restWavelength': 3970.07, 'ampList': [1.238593, 1.6775335, 1.2004524], 'zone': 'high', 'sigmaT2': 8.24}),
+    ('NeIII-3967A', {'Colour': 'm', 'Order': 20, 'Filter': 'blue', 'minI': 1950, 'maxI': 2135, 'restWavelength': 3967.46, 'ampList': [0.1400479, 2.1556011, 0.3788218], 'zone': 'high', 'sigmaT2': 8.24}),
+
 
 # Information for the center, sigma and linear for the low (H-alpha) and high (OIII) zones
 centerListLowZone = [6170.97557, 6185.89437, 6190.04683]

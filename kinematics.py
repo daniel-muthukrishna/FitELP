@@ -401,10 +401,9 @@ if __name__ == '__main__':
         name, x, y, mod, col, comps, lab = profile
         plt.plot(x, y, color=col, label=lab)
         plt.plot(x, mod, color=col, linestyle='--')
-        for idx in range(numComps):
-            if name == 'OIII-4959A':
-                for idx in range(numComps):
-                    plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
+        if name == 'OIII-4959A':
+            for idx in range(numComps):
+                plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
     plt.xlim(plottingXRange)
     plt.savefig('Figures/' + 'HighZoneProfiles.png')
     plt.legend()
@@ -418,10 +417,9 @@ if __name__ == '__main__':
         if name in ['H-Alpha', 'OIII-5007A', 'H-Beta', 'NII-6584A', 'SII-6717A']:
             plt.plot(x, y, color=col, label=lab)
             plt.plot(x, mod, color=col, linestyle='--')
-            for idx in range(numComps):
-                if name == 'SII-6717A':
-                    for idx in range(numComps):
-                        plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
+            if name == 'SII-6717A':
+                for idx in range(numComps):
+                    plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
     plt.xlim(plottingXRange)
     plt.legend()
     plt.savefig('Figures/' + 'StrongestEmissionLines.png')

@@ -400,7 +400,7 @@ if __name__ == '__main__':
     plt.ylabel("Flux ($\mathrm{10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
     for profile in (lowZoneProfiles + highZoneProfiles):
         name, x, y, mod, col, comps = profile
-        if name in ['H-Alpha', '[OIII]-5007A', 'H-Beta', '[NII]-6584A', '[SII]-6717A']:
+        if name in ['H-Alpha', 'OIII-5007A', 'H-Beta', 'NII-6584A', 'SII-6717A']:
             plt.plot(x, y, color=col, label=name)
             plt.plot(x, mod, color=col, linestyle='--')
             for idx in range(numComps):

@@ -371,7 +371,7 @@ if __name__ == '__main__':
         plt.plot(x, mod, color=col, linestyle='--')
         if name == 'H-Delta':
             for idx in range(numComps):
-                plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=col, linestyle=':')
+                plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
     plt.xlim(plottingXRange)
     plt.legend()
     plt.savefig('LowZoneProfiles.png')
@@ -387,7 +387,7 @@ if __name__ == '__main__':
         for idx in range(numComps):
             if name == 'OIII-4959A':
                 for idx in range(numComps):
-                    plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=col, linestyle=':')
+                    plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
     plt.xlim(plottingXRange)
     plt.savefig('HighZoneProfiles.png')
     plt.legend()

@@ -52,5 +52,5 @@ linSlopeHighZone = 2.6129e-06
 linIntHighZone = -0.00147764
 
 numComps = 3
-componentColours = ['deepblue', 'green', 'orange']
+componentColours = ['blue', 'green', 'orange']
 plottingXRange = [5900, 6600]  # velocities

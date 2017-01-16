@@ -257,7 +257,7 @@ class FittingProfile(object):
         plt.plot(self.vel, self.flux, label='Data')
         for i in range(numOfComponents):
             labelComp = ['Narrow 1', 'Broad', 'Narrow 2']  # 'g%d_' % (i+1)
-            plt.plot(self.vel, components['g%d_' % (i+1)], color=componentColours[i], linestyle=':', label=labelComp[i])
+            plt.plot(self.vel, components['g%d_' % (i+1)]+components['lin_'], color=componentColours[i], linestyle=':', label=labelComp[i])
         # plt.plot(self.vel, components['lin_'], label='lin_')
         plt.plot(self.vel, out.best_fit, color='black', linestyle='--', label='Fit')
         # plt.plot(self.vel, init, label='init')
@@ -358,6 +358,7 @@ if __name__ == '__main__':
     print "------------ Component information ------------"
     for mod in allModelComponents:
         print mod
+    # np.savetxt("ComponentInfo.csv", allModelComponents, delimiter=' & ', newline=' \\\\\n')
 
     # Combined Plots
     plt.figure("Low Zone Profiles")
@@ -404,7 +405,7 @@ if __name__ == '__main__':
             for idx in range(numComps):
                 if name == 'SII-6717A':
                     for idx in range(numComps):
-                        plt.plot(x, comps['g%d_' % (idx + 1)], color=componentColours[idx], linestyle=':')
+                        plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
     plt.xlim(plottingXRange)
     plt.legend()
     plt.savefig('StrongestEmissionLines.png')

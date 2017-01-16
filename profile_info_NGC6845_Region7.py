@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+"NGC6845 Region 7"
+
 blueSpecFile = 'NGC6845_7B.fc.fits'             #'NGC6845_7B_SPEC1.wc.fits'
 redSpecFile = 'NGC6845_7R.fc.fits'              #'NGC6845_7R_SPEC1.wc.fits'
 blueSpecError = 'NGC6845_7B_ErrorFlux.fc.fits'  #'NGC6845_7B_VAR4.wc.fits'

@@ -409,9 +409,8 @@ if __name__ == '__main__':
     plt.savefig('Figures/' + 'HighZoneProfiles.png')
     plt.legend()
 
-
-    plt.figure("NGC6845 Region 26")
-    plt.title("NGC6845 Region 26")
+    plt.figure(regionName)
+    plt.title(regionName)
     plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
     plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
     for profile in (lowZoneProfiles + highZoneProfiles):

@@ -292,6 +292,7 @@ if __name__ == '__main__':
         vel1 = emLineProfile.vel
         fittingProfile = FittingProfile(vel1, flux1, restWave=emInfo['restWavelength'], lineName=emName, fluxError=flux1Error, zone=emInfo['zone'])
 
+
         if emInfo['zone'] == 'low':
             if emName == 'H-Alpha':
                 model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, centerListLowZone, sigmaListLowZone, emInfo['ampList'], linSlopeLowZone, linIntLowZone)
@@ -374,7 +375,7 @@ if __name__ == '__main__':
                 plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
     plt.xlim(plottingXRange)
     plt.legend()
-    plt.savefig('LowZoneProfiles.png')
+    plt.savefig('Figures/' + 'LowZoneProfiles.png')
 
     plt.figure("High Zone Profiles")
     plt.title("High Zone Profiles")
@@ -389,7 +390,7 @@ if __name__ == '__main__':
                 for idx in range(numComps):
                     plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
     plt.xlim(plottingXRange)
-    plt.savefig('HighZoneProfiles.png')
+    plt.savefig('Figures/' + 'HighZoneProfiles.png')
     plt.legend()
 
 
@@ -408,5 +409,5 @@ if __name__ == '__main__':
                         plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
     plt.xlim(plottingXRange)
     plt.legend()
-    plt.savefig('StrongestEmissionLines.png')
+    plt.savefig('Figures/' + 'StrongestEmissionLines.png')
     plt.show()

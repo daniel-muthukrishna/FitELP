@@ -5,6 +5,7 @@ from lmfit import Parameters
 import matplotlib.pyplot as plt
 import astropy.units as u
 from specutils.io import read_fits
+import pandas as pd
 from collections import OrderedDict
 
 SpOfLi = 300000.  # km/s
@@ -58,17 +59,19 @@ def calculate_em_f(model, numComponents):
 
 
 def line_label(emLineName, emRestWave):
-    if emLineName not in ['H-Alpha', 'H-Beta', 'H-Gamma', 'H-Delta']:
+    if emLineName in ['H-Alpha', 'H-Beta', 'H-Gamma', 'H-Delta']:
+        lambdaZero = '$%s$' % str(int(round(emRestWave)))
+        if emLineName == 'H-Alpha':
+            ion = r"$\mathrm{H\alpha}$"
+        elif emLineName == 'H-Beta':
+            ion = r"$\mathrm{H\beta}$"
+        elif emLineName == 'H-Gamma':
+            ion = r"$\mathrm{H\gamma}$"
+        elif emLineName == 'H-Delta':
+            ion = r"$\mathrm{H\delta}$"
+    else:
         ion = r"$\mathrm{[%s]}$" % emName.split('-')[0]
-    elif emLineName == 'H-Alpha':
-        ion = r"$\mathrm{H\alpha}$"
-    elif emLineName == 'H-Beta':
-        ion = r"$\mathrm{H\beta}$"
-    elif emLineName == 'H-Gamma':
-        ion = r"$\mathrm{H\gamma}$"
-    elif emLineName == 'H-Delta':
-        ion = r"$\mathrm{H\delta}$"
-    lambdaZero = '$%s$' % str(int(round(emRestWave)))
+        lambdaZero = '$%s$' % emLineName.split('-')[1][:-1]
 
     return ion, lambdaZero
 
@@ -376,7 +379,7 @@ if __name__ == '__main__':
     print "------------ Component information ------------"
     for mod in allModelComponents:
         print mod
-    # np.savetxt(regionName + '/' + 'ComponentInfo.csv', np.array(allModelComponents), delimiter=' & ', newline=' \\\\\n')
+    # np.savetxt(regionName + '/' + 'ComponentInfo.csv', np.array(allModelComponents))
 
     # Combined Plots
     plt.figure("Low Zone Profiles")
@@ -410,18 +413,23 @@ if __name__ == '__main__':
     plt.legend()
 
     plt.figure(regionName)
+    ax = plt.subplot(1,1,1)
     plt.title(regionName)
     plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
     plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
     for profile in (lowZoneProfiles + highZoneProfiles):
         name, x, y, mod, col, comps, lab = profile
         if name in ['H-Alpha', 'OIII-5007A', 'H-Beta', 'NII-6584A', 'SII-6717A']:
-            plt.plot(x, y, color=col, label=lab)
-            plt.plot(x, mod, color=col, linestyle='--')
+            ax.plot(x, y, color=col, label=lab)
+            ax.plot(x, mod, color=col, linestyle='--')
             if name == 'SII-6717A':
                 for idx in range(numComps):
-                    plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
+                    ax.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
     plt.xlim(plottingXRange)
-    plt.legend()
+    handles, labels = ax.get_legend_handles_labels()
+    sortedIndex = [1, 4, 0, 2, 3]
+    handles2 = [handles[idx] for idx in sortedIndex]
+    labels2 = [labels[idx] for idx in sortedIndex]
+    ax.legend(handles2, labels2)
     plt.savefig(regionName + '/' + 'StrongestEmissionLines.png')
     plt.show()

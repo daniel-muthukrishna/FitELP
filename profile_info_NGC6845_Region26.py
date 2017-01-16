@@ -9,7 +9,7 @@ scaleFlux = 1e14                                # 1
 # SPECTRAL LINE INFO FOR ALL EMISSION LINES
 emProfiles = OrderedDict([
     ('H-Alpha', {'Colour': 'g', 'Order': 21, 'Filter': 'red', 'minI': 1180, 'maxI': 1700, 'restWavelength': 6562.82, 'ampList': [21.1703448, 42.7999296, 106.280233], 'zone': 'low', 'sigmaT2': 164.96}),
-    ('OIII-5007A', {'Colour': '#58D68D', 'Order': 5, 'Filter': 'red', 'minI': 1600, 'maxI': 2100, 'restWavelength': 5006.84, 'ampList': [2.3401689, 12.4310292, 5.4627831], 'zone': 'high', 'sigmaT2': 41.54}),
+    ('OIII-5007A', {'Colour': 'y', 'Order': 5, 'Filter': 'red', 'minI': 1600, 'maxI': 2100, 'restWavelength': 5006.84, 'ampList': [2.3401689, 12.4310292, 5.4627831], 'zone': 'high', 'sigmaT2': 41.54}),
     ('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2300, 'maxI': 2700, 'restWavelength': 4958.91, 'ampList': [1.0459424, 11312.2429713, 4.5869075], 'zone': 'high', 'sigmaT2': 10.39}),
     ('H-Beta', {'Colour': 'b', 'Order': 3, 'Filter': 'red', 'minI': 1550, 'maxI': 2100, 'restWavelength': 4861.33, 'ampList': [6.7150469, 6.5487836, 36.9434462], 'zone': 'low', 'sigmaT2': 164.96}),
     ('H-Beta', {'Colour': 'c', 'Order': 36, 'Filter': 'blue', 'minI': 2000, 'maxI': 2700, 'restWavelength': 4861.33, 'ampList': [6.7150469, 6.5487836, 36.9434462], 'zone': 'low', 'sigmaT2': 164.96}),

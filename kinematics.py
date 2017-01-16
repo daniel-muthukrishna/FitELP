@@ -57,6 +57,23 @@ def calculate_em_f(model, numComponents):
     return calcEMF
 
 
+def line_label(emLineName, emRestWave):
+    if emLineName not in ['H-Alpha', 'H-Beta', 'H-Gamma', 'H-Delta']:
+        ion = r"$\mathrm{[%s]}$" % emName.split('-')[0]
+    elif emLineName == 'H-Alpha':
+        ion = r"$\mathrm{H\alpha}$"
+    elif emLineName == 'H-Beta':
+        ion = r"$\mathrm{H\beta}$"
+    elif emLineName == 'H-Gamma':
+        ion = r"$\mathrm{H\gamma}$"
+    elif emLineName == 'H-Delta':
+        ion = r"$\mathrm{H\delta}$"
+    lambdaZero = '$%s$' % str(int(round(emRestWave)))
+
+    return ion, lambdaZero
+
+
+
 
 class GalaxyRegion(object):
     def __init__(self, specFileBlue, specFileRed, specFileBlueError=None, specFileRedError=None, scaleFlux=1e14):
@@ -72,8 +89,8 @@ class GalaxyRegion(object):
         else:
             self.xRedError, self.yRedError = read_spectra(specFileRedError, scaleFlux)
 
-        if not os.path.exists('Figures/'):
-            os.makedirs('Figures/')
+        if not os.path.exists(regionName + '/'):
+            os.makedirs(regionName + '/')
 
     def plot_order(self, orderNum, filt='red', minIndex=0, maxIndex=-1, title=''):
         """Plots the wavelength vs flux for a particular order. orderNum starts from 0"""
@@ -97,7 +114,7 @@ class GalaxyRegion(object):
         plt.legend()
         plt.xlabel("Wavelength ($\AA$)")
         plt.ylabel("Flux")
-        plt.savefig('Figures/' + title)
+        plt.savefig(regionName + '/' + title)
 
     def mask_emission_line(self, orderNum, filt='red', minIndex=0, maxIndex=-1):
         orderNum -= 1
@@ -149,7 +166,7 @@ class EmissionLineProfile(object):
             plt.plot(self.vel, self.flux)
             plt.xlabel("Velocity ($\mathrm{km \ s}^{-1}$)")
         plt.ylabel("Flux")
-        plt.savefig('Figures/' + self.lineName + title)
+        plt.savefig(regionName + '/' + self.lineName + title)
 
 
 class FittingProfile(object):
@@ -264,27 +281,11 @@ class FittingProfile(object):
         # plt.plot(self.vel, init, label='init')
         plt.xlim(plottingXRange)
         plt.legend(loc='upper left')
-        plt.savefig('Figures/' + self.lineName + " %d Component Linear-Gaussian Model" % numOfComponents)
+        plt.savefig(regionName + '/' + self.lineName + " %d Component Linear-Gaussian Model" % numOfComponents)
 
         self._get_amplitude(numOfComponents, out)
 
         return out, components
-
-
-def line_label(emLineName, emRestWave):
-    if emLineName not in ['H-Alpha', 'H-Beta', 'H-Gamma', 'H-Delta']:
-        ion = r"$\mathrm{[%s]}$" % emName.split('-')[0]
-    elif emLineName == 'H-Alpha':
-        ion = r"$\mathrm{H\alpha}$"
-    elif emLineName == 'H-Beta':
-        ion = r"$\mathrm{H\beta}$"
-    elif emLineName == 'H-Gamma':
-        ion = r"$\mathrm{H\gamma}$"
-    elif emLineName == 'H-Delta':
-        ion = r"$\mathrm{H\delta}$"
-    lambdaZero = '$%s$' % str(int(round(emRestWave)))
-
-    return ion, lambdaZero
 
 
 if __name__ == '__main__':
@@ -375,7 +376,7 @@ if __name__ == '__main__':
     print "------------ Component information ------------"
     for mod in allModelComponents:
         print mod
-    # np.savetxt("Figures/ComponentInfo.csv", allModelComponents, delimiter=' & ', newline=' \\\\\n')
+    # np.savetxt(regionName + '/' + 'ComponentInfo.csv', np.array(allModelComponents), delimiter=' & ', newline=' \\\\\n')
 
     # Combined Plots
     plt.figure("Low Zone Profiles")
@@ -391,7 +392,7 @@ if __name__ == '__main__':
                 plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
     plt.xlim(plottingXRange)
     plt.legend()
-    plt.savefig('Figures/' + 'LowZoneProfiles.png')
+    plt.savefig(regionName + '/' + 'LowZoneProfiles.png')
 
     plt.figure("High Zone Profiles")
     plt.title("High Zone Profiles")
@@ -405,7 +406,7 @@ if __name__ == '__main__':
             for idx in range(numComps):
                 plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
     plt.xlim(plottingXRange)
-    plt.savefig('Figures/' + 'HighZoneProfiles.png')
+    plt.savefig(regionName + '/' + 'HighZoneProfiles.png')
     plt.legend()
 
     plt.figure(regionName)
@@ -422,5 +423,5 @@ if __name__ == '__main__':
                     plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
     plt.xlim(plottingXRange)
     plt.legend()
-    plt.savefig('Figures/' + 'StrongestEmissionLines.png')
+    plt.savefig(regionName + '/' + 'StrongestEmissionLines.png')
     plt.show()

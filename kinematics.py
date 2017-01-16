@@ -293,7 +293,7 @@ class FittingProfile(object):
 
 if __name__ == '__main__':
     # ONLY CHANGE THIS IMPORT LINE TO THE APPROPRIATE REGION
-    from profile_info_NGC6845_Region26 import *
+    from profile_info_NGC6845_Region7 import *
 
     galaxyRegion = GalaxyRegion(blueSpecFile, redSpecFile, blueSpecError, redSpecError, scaleFlux)  # Flux Calibrated
     # galaxyRegion.plot_order(26, filt='red', maxIndex=-10, title="")

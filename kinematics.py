@@ -81,13 +81,13 @@ def line_label(emLineName, emRestWave, rp):
     if emLineName in ['H-Alpha', 'H-Beta', 'H-Gamma', 'H-Delta']:
         lambdaZero = '$%s$' % str(int(round(emRestWave)))
         if emLineName == 'H-Alpha':
-            ion = r"$\mathrm{H\alpha}$"
+            ion = r"$\mathrm{H}\alpha$"
         elif emLineName == 'H-Beta':
-            ion = r"$\mathrm{H\beta}$"
+            ion = r"$\mathrm{H}\beta$"
         elif emLineName == 'H-Gamma':
-            ion = r"$\mathrm{H\gamma}$"
+            ion = r"$\mathrm{H}\gamma$"
         elif emLineName == 'H-Delta':
-            ion = r"$\mathrm{H\delta}$"
+            ion = r"$\mathrm{H}\delta$"
     else:
         ion = r"$\mathrm{[%s]}$" % emLineName.split('-')[0]
         lambdaZero = '$%s$' % emLineName.split('-')[1][:-1]
@@ -100,15 +100,18 @@ def table_to_latex(componentArray, rp):
     texFile = open(rp.regionName + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
     texFile.write('\\usepackage[landscape, margin=0.5in]{geometry}\n')
-    texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
-    texFile.write('\\usepackage[utf8]{inputenc}\n')
+    # texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
+    # texFile.write('\\usepackage[utf8]{inputenc}\n')
     texFile.write('\\begin{document}\n')
     texFile.write('\n')
-    texFile.write('\\begin{table}[]\n')
+    texFile.write('\\begin{table}[tbp]\n')
     texFile.write('\\centering\n')
     texFile.write('\\begin{tabular}{%s}\n' % ('l'*len(componentArray[0])))
-    headings = ['$\lambda_0$', '$Ion$', '$Comp.$', '$v_r$', '${v_r}_{err}$', '$\sigma_{int}$', '${\sigma_{int}}_{err}$',
-                '$Flux$', '$Flux_{err}$', '$EM_f$', '$GlobalFlux$', '$GlobalFlux_{err}$']
+    headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
+                r'$\mathrm{{v_r}_{err}}$', r'$\mathrm{\sigma_{int}}$', r'$\mathrm{{\sigma_{int}}_{err}}$',
+                r'$\mathrm{Flux}$', r'$\mathrm{Flux_{err}}$', r'$\mathrm{EM_f}$', r'$\mathrm{GlobalFlux}$',
+                r'$\mathrm{GlobalFlux_{err}}$']
+
     texFile.write('\\hline\n')
     texFile.write(' & '.join(str(e) for e in headings) + ' \\\\ \\hline\n')
     for line in componentArray:
@@ -149,7 +152,7 @@ class GalaxyRegion(object):
         orderNum -= 1
         x, y, xE, yE = self._filter_argument(filt)
 
-        fig = plt.figure(title)
+        fig = plt.figure(self.rp.regionName + " Order Plot " + title)
         plt.title(title)
         ax1 = fig.add_subplot(111)
         ax2 = ax1.twiny()
@@ -210,7 +213,7 @@ class EmissionLineProfile(object):
 
     def plot_emission_line(self, xaxis='vel', title=''):
         """Choose whether the x axis is 'vel' or 'wave'"""
-        plt.figure(self.lineName + title)
+        plt.figure(self.rp.regionName + self.lineName + title)
         plt.title(self.lineName + title)
         if xaxis == 'wave':
             plt.plot(self.wave, self.flux)
@@ -322,7 +325,7 @@ class FittingProfile(object):
         components = out.eval_components()
 
         ion, lambdaZero = line_label(self.lineName, self.restWave, self.rp)
-        plt.figure("%s %s" % (ion, lambdaZero))
+        plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
         plt.title("%s %s" % (ion, lambdaZero))
         plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
         plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
@@ -434,7 +437,7 @@ class RegionCalculations(object):
             print mod
 
         # Combined Plots
-        plt.figure("Low Zone Profiles")
+        plt.figure(rp.regionName + " Low Zone Profiles")
         plt.title("Low Zone Profiles") #Recombination Emission Lines")
         plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
         plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
@@ -449,7 +452,7 @@ class RegionCalculations(object):
         plt.legend()
         plt.savefig(rp.regionName + '/' + 'LowZoneProfiles.png')
 
-        plt.figure("High Zone Profiles")
+        plt.figure(rp.regionName + " High Zone Profiles")
         plt.title("High Zone Profiles")
         plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
         plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
@@ -484,7 +487,6 @@ class RegionCalculations(object):
         labels2 = [labels[idx] for idx in sortedIndex]
         ax.legend(handles2, labels2)
         plt.savefig(rp.regionName + '/' + 'StrongestEmissionLines.png')
-        plt.show()
 
 
 
@@ -500,7 +502,7 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
 
-    regions = [NGC6845Region26Params, NGC6845Region7Params]
+    region26 = RegionCalculations(NGC6845Region26Params)
+    region7 = RegionCalculations(NGC6845Region7Params)
 
-    for regionParameters in regions:
-        RegionCalculations(regionParameters)
+    plt.show()

@@ -26,12 +26,12 @@ def read_spectra(filename, scaleFlux):
     return x, y
 
 
-def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter):
+def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
     # Assuming negligible error in temp or instrument
     if filter == 'blue':
-        sigmaInstr = sigmaInstrBlue
+        sigmaInstr = rp.sigmaInstrBlue
     elif filter == 'red':
-        sigmaInstr = sigmaInstrRed
+        sigmaInstr = rp.sigmaInstrRed
 
     totalSigmaSquared = sigmaObs**2 - sigmaInstr**2 - sigmaTemp2
     totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError
@@ -77,7 +77,7 @@ def calculate_em_f(model, numComponents):
     return calcEMF, componentFluxes, componentFluxErrors, totalFlux, totalFluxError
 
 
-def line_label(emLineName, emRestWave):
+def line_label(emLineName, emRestWave, rp):
     if emLineName in ['H-Alpha', 'H-Beta', 'H-Gamma', 'H-Delta']:
         lambdaZero = '$%s$' % str(int(round(emRestWave)))
         if emLineName == 'H-Alpha':
@@ -89,15 +89,15 @@ def line_label(emLineName, emRestWave):
         elif emLineName == 'H-Delta':
             ion = r"$\mathrm{H\delta}$"
     else:
-        ion = r"$\mathrm{[%s]}$" % emName.split('-')[0]
+        ion = r"$\mathrm{[%s]}$" % emLineName.split('-')[0]
         lambdaZero = '$%s$' % emLineName.split('-')[1][:-1]
 
     return ion, lambdaZero
 
 
-def table_to_latex(componentArray):
+def table_to_latex(componentArray, rp):
     saveFileName = 'componentTable'
-    texFile = open(regionName + '/' + saveFileName + '.tex', 'w')
+    texFile = open(rp.regionName + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
     texFile.write('\\usepackage[landscape, margin=0.5in]{geometry}\n')
     texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
@@ -121,27 +121,28 @@ def table_to_latex(componentArray):
 
     texFile.close()
 
-    os.system("pdflatex ./'" + regionName + "'/" + saveFileName + ".tex")
-    os.system("mv " + saveFileName + ".pdf ./'" + regionName + "'")
+    os.system("pdflatex ./'" + rp.regionName + "'/" + saveFileName + ".tex")
+    os.system("mv " + saveFileName + ".pdf ./'" + rp.regionName + "'")
     os.system("rm " + saveFileName + ".*")
 
 
 class GalaxyRegion(object):
-    def __init__(self, specFileBlue, specFileRed, specFileBlueError=None, specFileRedError=None, scaleFlux=1e14):
+    def __init__(self, rp):
         """ x is wavelength arrays, y is flux arrays """
-        self.xBlue, self.yBlue = read_spectra(specFileBlue, scaleFlux)
-        self.xRed, self.yRed = read_spectra(specFileRed, scaleFlux)
-        if specFileBlueError is None:
+        self.xBlue, self.yBlue = read_spectra(rp.blueSpecFile, rp.scaleFlux)
+        self.xRed, self.yRed = read_spectra(rp.redSpecFile, rp.scaleFlux)
+        self.rp = rp
+        if rp.blueSpecError is None:
             self.xBlueError, self.yBlueError = (None, None)
         else:
-            self.xBlueError, self.yBlueError = read_spectra(specFileBlueError, scaleFlux)
-        if specFileRedError is None:
+            self.xBlueError, self.yBlueError = read_spectra(rp.blueSpecError, rp.scaleFlux)
+        if rp.redSpecError is None:
             self.xRedError, self.yRedError = (None, None)
         else:
-            self.xRedError, self.yRedError = read_spectra(specFileRedError, scaleFlux)
+            self.xRedError, self.yRedError = read_spectra(rp.redSpecError, rp.scaleFlux)
 
-        if not os.path.exists(regionName + '/'):
-            os.makedirs(regionName + '/')
+        if not os.path.exists(rp.regionName + '/'):
+            os.makedirs(rp.regionName + '/')
 
     def plot_order(self, orderNum, filt='red', minIndex=0, maxIndex=-1, title=''):
         """Plots the wavelength vs flux for a particular order. orderNum starts from 0"""
@@ -165,7 +166,7 @@ class GalaxyRegion(object):
         plt.legend()
         plt.xlabel("Wavelength ($\AA$)")
         plt.ylabel("Flux")
-        plt.savefig(regionName + '/' + title)
+        plt.savefig(self.rp.regionName + '/' + title)
 
     def mask_emission_line(self, orderNum, filt='red', minIndex=0, maxIndex=-1):
         orderNum -= 1
@@ -193,7 +194,7 @@ class GalaxyRegion(object):
 
 
 class EmissionLineProfile(object):
-    def __init__(self, wave, flux, restWave=6562.82, lineName=''):
+    def __init__(self, wave, flux, rp, restWave=6562.82, lineName=''):
         """wave and flux are for vectors representing only the given emission line
         labWave is the wavelength of the emission line if it were at rest (stationary)
         default is for H-alpha emission line"""
@@ -202,6 +203,7 @@ class EmissionLineProfile(object):
         self.wave = wave
         self.flux = flux
         self.vel = self._velocity(wave)
+        self.rp = rp
 
     def _velocity(self, wave):
         return ((wave - self.restWave) / self.restWave) * SpOfLi #(const.c/(u.m/u.s)) / 1000
@@ -217,11 +219,11 @@ class EmissionLineProfile(object):
             plt.plot(self.vel, self.flux)
             plt.xlabel("Velocity ($\mathrm{km \ s}^{-1}$)")
         plt.ylabel("Flux")
-        plt.savefig(regionName + '/' + self.lineName + title)
+        plt.savefig(self.rp.regionName + '/' + self.lineName + title)
 
 
 class FittingProfile(object):
-    def __init__(self, vel, flux, restWave, lineName, zone, fluxError=None):
+    def __init__(self, vel, flux, restWave, lineName, zone, rp, fluxError=None):
         """The input vel and flux must be limited to a single emission line profile"""
         self.vel = vel
         self.flux = flux
@@ -230,6 +232,7 @@ class FittingProfile(object):
         self.lineName = lineName
         self.zone = zone
         self.weights = self._weights()
+        self.rp = rp
 
         self.linGaussParams = Parameters()
 
@@ -318,7 +321,7 @@ class FittingProfile(object):
         print (out.fit_report())
         components = out.eval_components()
 
-        ion, lambdaZero = line_label(self.lineName, self.restWave)
+        ion, lambdaZero = line_label(self.lineName, self.restWave, self.rp)
         plt.figure("%s %s" % (ion, lambdaZero))
         plt.title("%s %s" % (ion, lambdaZero))
         plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
@@ -326,20 +329,162 @@ class FittingProfile(object):
         plt.plot(self.vel, self.flux, label='Data')
         for i in range(numOfComponents):
             labelComp = ['Narrow 1', 'Broad', 'Narrow 2']  # 'g%d_' % (i+1)
-            plt.plot(self.vel, components['g%d_' % (i+1)]+components['lin_'], color=componentColours[i], linestyle=':', label=labelComp[i])
+            plt.plot(self.vel, components['g%d_' % (i+1)]+components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])
         # plt.plot(self.vel, components['lin_'], label='lin_')
         plt.plot(self.vel, out.best_fit, color='black', linestyle='--', label='Fit')
         # plt.plot(self.vel, init, label='init')
-        plt.xlim(plottingXRange)
+        plt.xlim(self.rp.plottingXRange)
         plt.legend(loc='upper left')
-        plt.savefig(regionName + '/' + self.lineName + " %d Component Linear-Gaussian Model" % numOfComponents)
+        plt.savefig(self.rp.regionName + '/' + self.lineName + " %d Component Linear-Gaussian Model" % numOfComponents)
 
         self._get_amplitude(numOfComponents, out)
 
         return out, components
 
 
+class RegionCalculations(object):
+    def __init__(self, rp):
+        galaxyRegion = GalaxyRegion(rp)  # Flux Calibrated
+        # galaxyRegion.plot_order(26, filt='red', maxIndex=-10, title="")
+        # plt.show()
 
+        lowZoneProfiles = []
+        highZoneProfiles = []
+        ampListAll = []
+        allModelComponents = []
+        # Iterate through emission lines
+        for emName, emInfo in rp.emProfiles.items():
+            print "------------------ %s ----------------" %emName
+            wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(emInfo['Order'], filt=emInfo['Filter'], minIndex=emInfo['minI'], maxIndex=emInfo['maxI'])
+            emLineProfile = EmissionLineProfile(wave1, flux1, restWave=emInfo['restWavelength'], lineName=emName, rp=rp)
+            vel1 = emLineProfile.vel
+            fittingProfile = FittingProfile(vel1, flux1, restWave=emInfo['restWavelength'], lineName=emName, fluxError=flux1Error, zone=emInfo['zone'], rp=rp)
+            ion1, lambdaZero1 = line_label(emName, emInfo['restWavelength'], rp)
+            emLabel = (ion1 + ' ' + lambdaZero1)
+
+            if emInfo['zone'] == 'low':
+                if emName == 'H-Alpha':
+                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps , rp.centerListLowZone, rp.sigmaListLowZone, emInfo['ampList'], rp.linSlopeLowZone, rp.linIntLowZone)
+                    rp.emProfiles[emName]['centerList'] = []
+                    rp.emProfiles[emName]['sigmaList'] = []
+                    for idx in range(rp.numComps ):
+                        rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
+                        rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
+
+                elif emName in ['SII-6717A', 'NII-6584A', 'OII-3729A', 'HeI-5876A', 'SIII-9069A']:
+                    rp.emProfiles[emName]['centerList'] = rp.emProfiles['H-Alpha']['centerList']
+                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps , rp.emProfiles['H-Alpha']['centerList'], rp.emProfiles['H-Alpha']['sigmaList'], emInfo['ampList'], rp.linSlopeLowZone, rp.linIntLowZone)
+                    rp.emProfiles[emName]['sigmaList'] = []
+                    for idx in range(rp.numComps ):
+                        rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
+                else:
+                    rp.emProfiles[emName]['centerList'] = rp.emProfiles['H-Alpha']['centerList']
+                    if emName in ['NII-6548A', 'NII-5755A']:
+                        rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['NII-6584A']['sigmaList']
+                    elif emName == 'SII-6731A':
+                        rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['SII-6717A']['sigmaList']
+                    elif emName == 'OII-3726A':
+                        rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['OII-3729A']['sigmaList']
+                    elif emName in ['HeI-6678A', 'HeI-7065A', 'HeI-4471A']:
+                        rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['HeI-5876A']['sigmaList']
+                    elif emName == 'SIII-6312A':
+                        rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['SIII-9069A']['sigmaList']
+                    else:
+                        rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['H-Alpha']['sigmaList']
+                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps , rp.emProfiles[emName]['centerList'], rp.emProfiles[emName]['sigmaList'], emInfo['ampList'], rp.linSlopeLowZone, rp.linIntLowZone)
+                lowZoneProfiles.append([emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel])
+
+            elif emInfo['zone'] == 'high':
+                if emName == 'OIII-5007A':
+                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps , rp.centerListHighZone, rp.sigmaListHighZone, emInfo['ampList'], rp.linSlopeHighZone, rp.linIntHighZone)
+                    rp.emProfiles[emName]['centerList'] = []
+                    rp.emProfiles[emName]['sigmaList'] = []
+                    for idx in range(rp.numComps ):
+                        rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
+                        rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
+                else:
+                    rp.emProfiles[emName]['centerList'] = rp.emProfiles['OIII-5007A']['centerList']
+                    rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['OIII-5007A']['sigmaList']
+                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps , rp.emProfiles[emName]['centerList'], rp.emProfiles[emName]['sigmaList'], emInfo['ampList'], rp.linSlopeHighZone, rp.linIntHighZone)
+                highZoneProfiles.append([emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel])
+
+        #Print Amplitudes
+            ampComponentList = []
+            o = model1
+            eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, rp.numComps )
+            for idx in range(rp.numComps ):
+                ampComponentList.append(round(model1.best_values['g%d_amplitude' % (idx + 1)], 7))
+                sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'], rp)
+                tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], round(o.params['g%d_center' % (idx + 1)].value, 1), round(o.params['g%d_center' % (idx + 1)].stderr, 1), round(sigInt, 1), round(sigIntErr, 1), round(fluxList[idx], 2), round(fluxListErr[idx], 2), round(eMFList[idx], 1), round(globalFlux, 2), round(globalFluxErr, 2)]
+                if idx != 0:
+                    tableLine[0:2] = ['', '']
+                    tableLine[-2:] = ['', '']
+                allModelComponents.append(tableLine)
+            ampListAll.append([emName, ampComponentList, emInfo, emName])
+        table_to_latex(allModelComponents, rp)
+
+        print "------------ List all Amplitudes -------"
+        for ampComps in ampListAll:
+            #print ampComps[0], ampComps[1]
+            ampCompsList, emInfo, emName = ampComps[1:4]
+            print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + "}),"
+
+        print "------------ Component information ------------"
+        for mod in allModelComponents:
+            print mod
+
+        # Combined Plots
+        plt.figure("Low Zone Profiles")
+        plt.title("Low Zone Profiles") #Recombination Emission Lines")
+        plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
+        for profile in lowZoneProfiles:
+            name, x, y, mod, col, comps, lab = profile
+            plt.plot(x, y, color=col, label=lab)
+            plt.plot(x, mod, color=col, linestyle='--')
+            if name == 'H-Delta':
+                for idx in range(rp.numComps ):
+                    plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
+        plt.xlim(rp.plottingXRange)
+        plt.legend()
+        plt.savefig(rp.regionName + '/' + 'LowZoneProfiles.png')
+
+        plt.figure("High Zone Profiles")
+        plt.title("High Zone Profiles")
+        plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
+        for profile in highZoneProfiles:
+            name, x, y, mod, col, comps, lab = profile
+            plt.plot(x, y, color=col, label=lab)
+            plt.plot(x, mod, color=col, linestyle='--')
+            if name == 'OIII-4959A':
+                for idx in range(rp.numComps ):
+                    plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
+        plt.xlim(rp.plottingXRange)
+        plt.savefig(rp.regionName + '/' + 'HighZoneProfiles.png')
+        plt.legend()
+
+        plt.figure(rp.regionName)
+        ax = plt.subplot(1,1,1)
+        plt.title(rp.regionName)
+        plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
+        for profile in (lowZoneProfiles + highZoneProfiles):
+            name, x, y, mod, col, comps, lab = profile
+            if name in ['H-Alpha', 'OIII-5007A', 'H-Beta', 'NII-6584A', 'SII-6717A']:
+                ax.plot(x, y, color=col, label=lab)
+                ax.plot(x, mod, color=col, linestyle='--')
+                if name == 'SII-6717A':
+                    for idx in range(rp.numComps ):
+                        ax.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
+        plt.xlim(rp.plottingXRange)
+        handles, labels = ax.get_legend_handles_labels()
+        sortedIndex = [1, 4, 0, 2, 3]
+        handles2 = [handles[idx] for idx in sortedIndex]
+        labels2 = [labels[idx] for idx in sortedIndex]
+        ax.legend(handles2, labels2)
+        plt.savefig(rp.regionName + '/' + 'StrongestEmissionLines.png')
+        plt.show()
 
 
 
@@ -352,147 +497,10 @@ class FittingProfile(object):
 
 
 if __name__ == '__main__':
-    # ONLY CHANGE THIS IMPORT LINE TO THE APPROPRIATE REGION
-    from profile_info_NGC6845_Region26 import *
+    from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
+    from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
 
-    galaxyRegion = GalaxyRegion(blueSpecFile, redSpecFile, blueSpecError, redSpecError, scaleFlux)  # Flux Calibrated
-    # galaxyRegion.plot_order(26, filt='red', maxIndex=-10, title="")
-    # plt.show()
+    regions = [NGC6845Region26Params, NGC6845Region7Params]
 
-    lowZoneProfiles = []
-    highZoneProfiles = []
-    ampListAll = []
-    allModelComponents = []
-    # Iterate through emission lines
-    for emName, emInfo in emProfiles.items():
-        print "------------------ %s ----------------" %emName
-        wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(emInfo['Order'], filt=emInfo['Filter'], minIndex=emInfo['minI'], maxIndex=emInfo['maxI'])
-        emLineProfile = EmissionLineProfile(wave1, flux1, restWave=emInfo['restWavelength'], lineName=emName)
-        vel1 = emLineProfile.vel
-        fittingProfile = FittingProfile(vel1, flux1, restWave=emInfo['restWavelength'], lineName=emName, fluxError=flux1Error, zone=emInfo['zone'])
-        ion1, lambdaZero1 = line_label(emName, emInfo['restWavelength'])
-        emLabel = (ion1 + ' ' + lambdaZero1)
-
-        if emInfo['zone'] == 'low':
-            if emName == 'H-Alpha':
-                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, centerListLowZone, sigmaListLowZone, emInfo['ampList'], linSlopeLowZone, linIntLowZone)
-                emProfiles[emName]['centerList'] = []
-                emProfiles[emName]['sigmaList'] = []
-                for idx in range(numComps):
-                    emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
-                    emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
-
-            elif emName in ['SII-6717A', 'NII-6584A', 'OII-3729A', 'HeI-5876A', 'SIII-9069A']:
-                emProfiles[emName]['centerList'] = emProfiles['H-Alpha']['centerList']
-                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, emProfiles['H-Alpha']['centerList'], emProfiles['H-Alpha']['sigmaList'], emInfo['ampList'], linSlopeLowZone, linIntLowZone)
-                emProfiles[emName]['sigmaList'] = []
-                for idx in range(numComps):
-                    emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
-            else:
-                emProfiles[emName]['centerList'] = emProfiles['H-Alpha']['centerList']
-                if emName in ['NII-6548A', 'NII-5755A']:
-                    emProfiles[emName]['sigmaList'] = emProfiles['NII-6584A']['sigmaList']
-                elif emName == 'SII-6731A':
-                    emProfiles[emName]['sigmaList'] = emProfiles['SII-6717A']['sigmaList']
-                elif emName == 'OII-3726A':
-                    emProfiles[emName]['sigmaList'] = emProfiles['OII-3729A']['sigmaList']
-                elif emName in ['HeI-6678A', 'HeI-7065A', 'HeI-4471A']:
-                    emProfiles[emName]['sigmaList'] = emProfiles['HeI-5876A']['sigmaList']
-                elif emName == 'SIII-6312A':
-                    emProfiles[emName]['sigmaList'] = emProfiles['SIII-9069A']['sigmaList']
-                else:
-                    emProfiles[emName]['sigmaList'] = emProfiles['H-Alpha']['sigmaList']
-                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, emProfiles[emName]['centerList'], emProfiles[emName]['sigmaList'], emInfo['ampList'], linSlopeLowZone, linIntLowZone)
-            lowZoneProfiles.append([emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel])
-
-        elif emInfo['zone'] == 'high':
-            if emName == 'OIII-5007A':
-                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, centerListHighZone, sigmaListHighZone, emInfo['ampList'], linSlopeHighZone, linIntHighZone)
-                emProfiles[emName]['centerList'] = []
-                emProfiles[emName]['sigmaList'] = []
-                for idx in range(numComps):
-                    emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
-                    emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
-            else:
-                emProfiles[emName]['centerList'] = emProfiles['OIII-5007A']['centerList']
-                emProfiles[emName]['sigmaList'] = emProfiles['OIII-5007A']['sigmaList']
-                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, emProfiles[emName]['centerList'], emProfiles[emName]['sigmaList'], emInfo['ampList'], linSlopeHighZone, linIntHighZone)
-            highZoneProfiles.append([emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel])
-
-    #Print Amplitudes
-        ampComponentList = []
-        o = model1
-        eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, numComps)
-        for idx in range(numComps):
-            ampComponentList.append(round(model1.best_values['g%d_amplitude' % (idx + 1)], 7))
-            sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'])
-            tableLine = [lambdaZero1, ion1, componentLabels[idx], round(o.params['g%d_center' % (idx + 1)].value, 1), round(o.params['g%d_center' % (idx + 1)].stderr, 1), round(sigInt, 1), round(sigIntErr, 1), round(fluxList[idx], 2), round(fluxListErr[idx], 2), round(eMFList[idx], 1), round(globalFlux, 2), round(globalFluxErr, 2)]
-            if idx != 0:
-                tableLine[0:2] = ['', '']
-                tableLine[-2:] = ['', '']
-            allModelComponents.append(tableLine)
-        ampListAll.append([emName, ampComponentList, emInfo, emName])
-    table_to_latex(allModelComponents)
-
-    print "------------ List all Amplitudes -------"
-    for ampComps in ampListAll:
-        #print ampComps[0], ampComps[1]
-        ampCompsList, emInfo, emName = ampComps[1:4]
-        print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + "}),"
-
-    print "------------ Component information ------------"
-    for mod in allModelComponents:
-        print mod
-
-    # Combined Plots
-    plt.figure("Low Zone Profiles")
-    plt.title("Low Zone Profiles") #Recombination Emission Lines")
-    plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-    plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
-    for profile in lowZoneProfiles:
-        name, x, y, mod, col, comps, lab = profile
-        plt.plot(x, y, color=col, label=lab)
-        plt.plot(x, mod, color=col, linestyle='--')
-        if name == 'H-Delta':
-            for idx in range(numComps):
-                plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
-    plt.xlim(plottingXRange)
-    plt.legend()
-    plt.savefig(regionName + '/' + 'LowZoneProfiles.png')
-
-    plt.figure("High Zone Profiles")
-    plt.title("High Zone Profiles")
-    plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-    plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
-    for profile in highZoneProfiles:
-        name, x, y, mod, col, comps, lab = profile
-        plt.plot(x, y, color=col, label=lab)
-        plt.plot(x, mod, color=col, linestyle='--')
-        if name == 'OIII-4959A':
-            for idx in range(numComps):
-                plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
-    plt.xlim(plottingXRange)
-    plt.savefig(regionName + '/' + 'HighZoneProfiles.png')
-    plt.legend()
-
-    plt.figure(regionName)
-    ax = plt.subplot(1,1,1)
-    plt.title(regionName)
-    plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-    plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
-    for profile in (lowZoneProfiles + highZoneProfiles):
-        name, x, y, mod, col, comps, lab = profile
-        if name in ['H-Alpha', 'OIII-5007A', 'H-Beta', 'NII-6584A', 'SII-6717A']:
-            ax.plot(x, y, color=col, label=lab)
-            ax.plot(x, mod, color=col, linestyle='--')
-            if name == 'SII-6717A':
-                for idx in range(numComps):
-                    ax.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=componentColours[idx], linestyle=':')
-    plt.xlim(plottingXRange)
-    handles, labels = ax.get_legend_handles_labels()
-    sortedIndex = [1, 4, 0, 2, 3]
-    handles2 = [handles[idx] for idx in sortedIndex]
-    labels2 = [labels[idx] for idx in sortedIndex]
-    ax.legend(handles2, labels2)
-    plt.savefig(regionName + '/' + 'StrongestEmissionLines.png')
-    plt.show()
+    for regionParameters in regions:
+        RegionCalculations(regionParameters)

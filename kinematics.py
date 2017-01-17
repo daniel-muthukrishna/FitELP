@@ -34,28 +34,46 @@ def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter):
         sigmaInstr = 4.9
     elif filter == 'red':
         sigmaInstr = 5.6
-    intrinsic = np.sqrt(sigmaObs**2 - sigmaInstr**2 - sigmaTemp2)
-    squareError = 2 * sigmaObsError/sigmaObs * sigmaObs**2
-    intrinsicError = 0.5 * squareError/sigmaObs**2 * intrinsic
+
+    totalSigmaSquared = sigmaObs**2 - sigmaInstr**2 - sigmaTemp2
+    totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError
+    intrinsic = np.sqrt(totalSigmaSquared)
+    intrinsicError = 0.5 * totalSigmaSquared**(-0.5) * totalSigmaSquaredError
 
     return intrinsic, intrinsicError
 
 
-def calculate_flux(height, sigmaObs):
-    calcFlux = height * np.sqrt(2 * np.pi * sigmaObs**2)
+def calculate_flux(height, sigmaObs, heightError, sigmaObsError):
+    insideSqrt = 2 * np.pi * sigmaObs**2
+    insideSqrtError = 2 * sigmaObs * sigmaObsError
+    sqrt = np.sqrt(insideSqrt)
+    sqrtError = 0.5 * insideSqrt**(-0.5) * insideSqrtError
 
-    return calcFlux
+
+    calcFlux = height * sqrt
+    calcFluxError = calcFlux * np.sqrt((heightError/height)**2 + (sqrtError/sqrt)**2)
+
+    return calcFlux, calcFluxError
 
 
 def calculate_em_f(model, numComponents):
     componentFluxes = []
+    componentFluxErrors = []
     for i in range(numComponents):
-        componentFluxes.append(calculate_flux(model.params['g%d_height' % (i + 1)], model.params['g%d_sigma'% (i + 1)]))
+        height = model.params['g%d_height' % (i + 1)]
+        sigmaObs = model.params['g%d_sigma' % (i + 1)]
+        heightError = model.params['g%d_height' % (i + 1)].stderr
+        sigmaObsError = model.params['g%d_height' % (i + 1)].stderr
+        calcFlux, calcFluxError = calculate_flux(height, sigmaObs, heightError, sigmaObsError)
+
+        componentFluxes.append(calcFlux)
+        componentFluxErrors.append(calcFluxError)
     componentFluxes = np.array(componentFluxes)
+    componentFluxErrors = np.array(componentFluxErrors)
 
     calcEMF = componentFluxes/sum(componentFluxes) * 100
 
-    return calcEMF
+    return calcEMF, componentFluxes, componentFluxErrors
 
 
 def line_label(emLineName, emRestWave):
@@ -362,12 +380,12 @@ if __name__ == '__main__':
     #Print Amplitudes
         ampComponentList = []
         o = model1
-        eMFList = calculate_em_f(model1, numComps)
+        eMFList, fluxList, fluxListErr = calculate_em_f(model1, numComps)
         for idx in range(numComps):
             ampComponentList.append(round(model1.best_values['g%d_amplitude' % (idx + 1)], 7))
             sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'])
             labelComponent = ['Narrow 1', 'Broad', 'Narrow 2']  # 'g%d_' % (i+1)
-            allModelComponents.append([lambdaZero1, ion1, labelComponent[idx], round(o.params['g%d_center' % (idx + 1)].value, 2), round(o.params['g%d_center' % (idx + 1)].stderr, 2), round(sigInt, 2), round(sigIntErr, 2), round(o.params['g%d_amplitude' % (idx + 1)].value, 2), round(o.params['g%d_amplitude' % (idx + 1)].stderr, 2), round(o.params['g%d_height' % (idx + 1)].value, 3), round(o.params['g%d_height' % (idx + 1)].stderr, 3), round(eMFList[idx], 3)])
+            allModelComponents.append([lambdaZero1, ion1, labelComponent[idx], round(o.params['g%d_center' % (idx + 1)].value, 2), round(o.params['g%d_center' % (idx + 1)].stderr, 2), round(sigInt, 2), round(sigIntErr, 2), round(o.params['g%d_amplitude' % (idx + 1)].value, 2), round(o.params['g%d_amplitude' % (idx + 1)].stderr, 2), round(o.params['g%d_height' % (idx + 1)].value, 3), round(o.params['g%d_height' % (idx + 1)].stderr, 3), round(fluxList[idx], 2), round(fluxListErr[idx], 2), round(eMFList[idx], 3)])
         ampListAll.append([emName, ampComponentList, emInfo, emName])
 
     print "------------ List all Amplitudes -------"

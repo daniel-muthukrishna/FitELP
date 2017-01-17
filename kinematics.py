@@ -59,20 +59,24 @@ def calculate_em_f(model, numComponents):
     componentFluxes = []
     componentFluxErrors = []
     for i in range(numComponents):
-        height = model.params['g%d_height' % (i + 1)]
-        sigmaObs = model.params['g%d_sigma' % (i + 1)]
+        height = model.params['g%d_height' % (i + 1)].value
+        sigmaObs = model.params['g%d_sigma' % (i + 1)].value
         heightError = model.params['g%d_height' % (i + 1)].stderr
         sigmaObsError = model.params['g%d_height' % (i + 1)].stderr
-        calcFlux, calcFluxError = calculate_flux(height, sigmaObs, heightError, sigmaObsError)
+        amplitude = model.params['g%d_amplitude' % (i + 1)].value
+        amplitudeError = model.params['g%d_amplitude' % (i + 1)].stderr
+        calcFlux, calcFluxError = amplitude, amplitudeError  # calculate_flux(height, sigmaObs, heightError, sigmaObsError)
 
         componentFluxes.append(calcFlux)
         componentFluxErrors.append(calcFluxError)
     componentFluxes = np.array(componentFluxes)
     componentFluxErrors = np.array(componentFluxErrors)
+    totalFlux = sum(componentFluxes)
+    totalFluxError = np.std(componentFluxes)
 
     calcEMF = componentFluxes/sum(componentFluxes) * 100
 
-    return calcEMF, componentFluxes, componentFluxErrors
+    return calcEMF, componentFluxes, componentFluxErrors, totalFlux, totalFluxError
 
 
 def line_label(emLineName, emRestWave):
@@ -91,6 +95,37 @@ def line_label(emLineName, emRestWave):
         lambdaZero = '$%s$' % emLineName.split('-')[1][:-1]
 
     return ion, lambdaZero
+
+
+def table_to_latex(componentArray):
+    saveFileName = 'componentTable'
+    texFile = open(regionName + '/' + saveFileName + '.tex', 'w')
+    texFile.write('\\documentclass{article}\n')
+    texFile.write('\\usepackage[landscape, margin=0.5in]{geometry}\n')
+    texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
+    texFile.write('\\usepackage[utf8]{inputenc}\n')
+    texFile.write('\\begin{document}\n')
+    texFile.write('\n')
+    texFile.write('\\begin{table}[]\n')
+    texFile.write('\\centering\n')
+    texFile.write('\\begin{tabular}{%s}\n' % ('l'*len(componentArray[0])))
+    headings = ['$\lambda_0$', '$Ion$', '$Comp.$', '$v_r$', '${v_r}_{err}$', '$\sigma_{int}$', '${\sigma_{int}}_{err}$',
+                '$Flux$', '$Flux_{err}$', '$Height$', '$Height_{err}$', '$EM_f$', '$GlobalFlux$', '$GlobalFlux_{err}$']
+    texFile.write('\\hline\n')
+    texFile.write(' & '.join(str(e) for e in headings) + ' \\\\ \\hline\n')
+    for line in componentArray:
+        texFile.write(' & '.join(str(e) for e in line) + ' \\\\ \n')
+
+    texFile.write('\\end{tabular}\n')
+    texFile.write('\\end{table}\n')
+    texFile.write('\n')
+    texFile.write('\\end{document}\n')
+
+    texFile.close()
+
+    os.system("pdflatex ./'" + regionName + "'/" + saveFileName + ".tex")
+    os.system("mv " + saveFileName + ".pdf ./'" + regionName + "'")
+    os.system("rm " + saveFileName + ".*")
 
 
 class GalaxyRegion(object):
@@ -306,38 +341,6 @@ class FittingProfile(object):
         return out, components
 
 
-def table_to_latex(componentArray):
-    saveFileName = 'componentTable'
-    texFile = open(regionName + '/' + saveFileName + '.tex', 'w')
-    texFile.write('\\documentclass{article}\n')
-    texFile.write('\\usepackage[landscape, margin=0.5in]{geometry}\n')
-    texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
-    texFile.write('\\usepackage[utf8]{inputenc}\n')
-    texFile.write('\\begin{document}\n')
-    texFile.write('\n')
-    texFile.write('\\begin{table}[]\n')
-    texFile.write('\\centering\n')
-    texFile.write('\\begin{tabular}{%s}\n' % ('l'*len(componentArray[0])))
-    headings = ['$\lambda_0$', '$Ion$', '$Comp.$', '$v_r$', '${v_r}_{Err}$', '$\sigma_{int}$', '${\sigma_{int}}_{Err}$',
-                '$Flux$', '$Flux_{Err}$', '$Height$', '$Height_{Err}$', '$EM_f$']
-    texFile.write('\\hline\n')
-    texFile.write(' & '.join(str(e) for e in headings) + ' \\\\ \\hline\n')
-    for line in componentArray:
-        texFile.write(' & '.join(str(e) for e in line) + ' \\\\ \n')
-
-    texFile.write('\\end{tabular}\n')
-    texFile.write('\\end{table}\n')
-    texFile.write('\n')
-    texFile.write('\\end{document}\n')
-
-    texFile.close()
-
-    os.system("pdflatex ./'" + regionName + "'/" + saveFileName + ".tex")
-    os.system("mv " + saveFileName + ".pdf ./'" + regionName + "'")
-    os.system("rm " + saveFileName + ".*")
-
-
-
 if __name__ == '__main__':
     # ONLY CHANGE THIS IMPORT LINE TO THE APPROPRIATE REGION
     from profile_info_NGC6845_Region7 import *
@@ -409,16 +412,18 @@ if __name__ == '__main__':
     #Print Amplitudes
         ampComponentList = []
         o = model1
-        eMFList, fluxList, fluxListErr = calculate_em_f(model1, numComps)
+        eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, numComps)
         for idx in range(numComps):
             ampComponentList.append(round(model1.best_values['g%d_amplitude' % (idx + 1)], 7))
             sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'])
             labelComponent = ['Narrow 1', 'Broad', 'Narrow 2']  # 'g%d_' % (i+1)
-            tableLine = [lambdaZero1, ion1, labelComponent[idx], round(o.params['g%d_center' % (idx + 1)].value, 1), round(o.params['g%d_center' % (idx + 1)].stderr, 1), round(sigInt, 1), round(sigIntErr, 1), round(o.params['g%d_amplitude' % (idx + 1)].value, 2), round(o.params['g%d_amplitude' % (idx + 1)].stderr, 2), round(o.params['g%d_height' % (idx + 1)].value, 3), round(o.params['g%d_height' % (idx + 1)].stderr, 3), round(eMFList[idx], 1)]
+            tableLine = [lambdaZero1, ion1, labelComponent[idx], round(o.params['g%d_center' % (idx + 1)].value, 1), round(o.params['g%d_center' % (idx + 1)].stderr, 1), round(sigInt, 1), round(sigIntErr, 1), round(fluxList[idx], 2), round(fluxListErr[idx], 2), round(o.params['g%d_height' % (idx + 1)].value, 3), round(o.params['g%d_height' % (idx + 1)].stderr, 3), round(eMFList[idx], 1), round(globalFlux, 2), round(globalFluxErr, 2)]
             if idx != 0:
                 tableLine[0:2] = ['', '']
+                tableLine[-2:] = ['', '']
             allModelComponents.append(tableLine)
         ampListAll.append([emName, ampComponentList, emInfo, emName])
+    table_to_latex(allModelComponents)
 
     print "------------ List all Amplitudes -------"
     for ampComps in ampListAll:
@@ -429,7 +434,6 @@ if __name__ == '__main__':
     print "------------ Component information ------------"
     for mod in allModelComponents:
         print mod
-    table_to_latex(allModelComponents)
 
     # Combined Plots
     plt.figure("Low Zone Profiles")

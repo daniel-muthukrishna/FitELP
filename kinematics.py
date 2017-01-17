@@ -307,8 +307,10 @@ class FittingProfile(object):
 
 
 def table_to_latex(componentArray):
-    texFile = open(regionName + '/' + 'componentTable.tex', 'w')
+    saveFileName = 'componentTable'
+    texFile = open(regionName + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
+    texFile.write('\\usepackage[landscape, margin=0.5in]{geometry}\n')
     texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
     texFile.write('\\usepackage[utf8]{inputenc}\n')
     texFile.write('\\begin{document}\n')
@@ -316,8 +318,8 @@ def table_to_latex(componentArray):
     texFile.write('\\begin{table}[]\n')
     texFile.write('\\centering\n')
     texFile.write('\\begin{tabular}{%s}\n' % ('l'*len(componentArray[0])))
-    headings = ['$\lambda_0$', '$Ion$', '$Comp.$', '$Centre$', '$Centre_{Error}$', '$\sigma_{int}$', '${\sigma_{int}}_{Error}$',
-                '$Amp$', '$Amp_{Error}$', '$Height$', '$Height_{Error}$', '$Flux$', '$Flux_{Error}$', '$EM_f$']
+    headings = ['$\lambda_0$', '$Ion$', '$Comp.$', '$v_r$', '${v_r}_{Err}$', '$\sigma_{int}$', '${\sigma_{int}}_{Err}$',
+                '$Flux$', '$Flux_{Err}$', '$Height$', '$Height_{Err}$', '$EM_f$']
     texFile.write('\\hline\n')
     texFile.write(' & '.join(str(e) for e in headings) + ' \\\\ \\hline\n')
     for line in componentArray:
@@ -329,6 +331,11 @@ def table_to_latex(componentArray):
     texFile.write('\\end{document}\n')
 
     texFile.close()
+
+    os.system("pdflatex ./'" + regionName + "'/" + saveFileName + ".tex")
+    os.system("mv " + saveFileName + ".pdf ./'" + regionName + "'")
+    os.system("rm " + saveFileName + ".*")
+
 
 
 if __name__ == '__main__':
@@ -407,7 +414,10 @@ if __name__ == '__main__':
             ampComponentList.append(round(model1.best_values['g%d_amplitude' % (idx + 1)], 7))
             sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'])
             labelComponent = ['Narrow 1', 'Broad', 'Narrow 2']  # 'g%d_' % (i+1)
-            allModelComponents.append([lambdaZero1, ion1, labelComponent[idx], round(o.params['g%d_center' % (idx + 1)].value, 1), round(o.params['g%d_center' % (idx + 1)].stderr, 1), round(sigInt, 1), round(sigIntErr, 1), round(o.params['g%d_amplitude' % (idx + 1)].value, 2), round(o.params['g%d_amplitude' % (idx + 1)].stderr, 2), round(o.params['g%d_height' % (idx + 1)].value, 3), round(o.params['g%d_height' % (idx + 1)].stderr, 3), round(fluxList[idx], 2), round(fluxListErr[idx], 2), round(eMFList[idx], 1)])
+            tableLine = [lambdaZero1, ion1, labelComponent[idx], round(o.params['g%d_center' % (idx + 1)].value, 1), round(o.params['g%d_center' % (idx + 1)].stderr, 1), round(sigInt, 1), round(sigIntErr, 1), round(o.params['g%d_amplitude' % (idx + 1)].value, 2), round(o.params['g%d_amplitude' % (idx + 1)].stderr, 2), round(o.params['g%d_height' % (idx + 1)].value, 3), round(o.params['g%d_height' % (idx + 1)].stderr, 3), round(eMFList[idx], 1)]
+            if idx != 0:
+                tableLine[0:2] = ['', '']
+            allModelComponents.append(tableLine)
         ampListAll.append([emName, ampComponentList, emInfo, emName])
 
     print "------------ List all Amplitudes -------"

@@ -49,7 +49,6 @@ def calculate_flux(height, sigmaObs, heightError, sigmaObsError):
     sqrt = np.sqrt(insideSqrt)
     sqrtError = 0.5 * insideSqrt**(-0.5) * insideSqrtError
 
-
     calcFlux = height * sqrt
     calcFluxError = calcFlux * np.sqrt((heightError/height)**2 + (sqrtError/sqrt)**2)
 
@@ -92,8 +91,6 @@ def line_label(emLineName, emRestWave):
         lambdaZero = '$%s$' % emLineName.split('-')[1][:-1]
 
     return ion, lambdaZero
-
-
 
 
 class GalaxyRegion(object):
@@ -309,6 +306,31 @@ class FittingProfile(object):
         return out, components
 
 
+def table_to_latex(componentArray):
+    texFile = open(regionName + '/' + 'componentTable.tex', 'w')
+    texFile.write('\\documentclass{article}\n')
+    texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
+    texFile.write('\\usepackage[utf8]{inputenc}\n')
+    texFile.write('\\begin{document}\n')
+    texFile.write('\n')
+    texFile.write('\\begin{table}[]\n')
+    texFile.write('\\centering\n')
+    texFile.write('\\begin{tabular}{%s}\n' % ('l'*len(componentArray[0])))
+    headings = ['$\lambda_0$', '$Ion$', '$Comp.$', '$Centre$', '$Centre_{Error}$', '$\sigma_{int}$', '${\sigma_{int}}_{Error}$',
+                '$Amp$', '$Amp_{Error}$', '$Height$', '$Height_{Error}$', '$Flux$', '$Flux_{Error}$', '$EM_f$']
+    texFile.write('\\hline\n')
+    texFile.write(' & '.join(str(e) for e in headings) + ' \\\\ \\hline\n')
+    for line in componentArray:
+        texFile.write(' & '.join(str(e) for e in line) + ' \\\\ \n')
+
+    texFile.write('\\end{tabular}\n')
+    texFile.write('\\end{table}\n')
+    texFile.write('\n')
+    texFile.write('\\end{document}\n')
+
+    texFile.close()
+
+
 if __name__ == '__main__':
     # ONLY CHANGE THIS IMPORT LINE TO THE APPROPRIATE REGION
     from profile_info_NGC6845_Region7 import *
@@ -385,7 +407,7 @@ if __name__ == '__main__':
             ampComponentList.append(round(model1.best_values['g%d_amplitude' % (idx + 1)], 7))
             sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'])
             labelComponent = ['Narrow 1', 'Broad', 'Narrow 2']  # 'g%d_' % (i+1)
-            allModelComponents.append([lambdaZero1, ion1, labelComponent[idx], round(o.params['g%d_center' % (idx + 1)].value, 2), round(o.params['g%d_center' % (idx + 1)].stderr, 2), round(sigInt, 2), round(sigIntErr, 2), round(o.params['g%d_amplitude' % (idx + 1)].value, 2), round(o.params['g%d_amplitude' % (idx + 1)].stderr, 2), round(o.params['g%d_height' % (idx + 1)].value, 3), round(o.params['g%d_height' % (idx + 1)].stderr, 3), round(fluxList[idx], 2), round(fluxListErr[idx], 2), round(eMFList[idx], 3)])
+            allModelComponents.append([lambdaZero1, ion1, labelComponent[idx], round(o.params['g%d_center' % (idx + 1)].value, 1), round(o.params['g%d_center' % (idx + 1)].stderr, 1), round(sigInt, 1), round(sigIntErr, 1), round(o.params['g%d_amplitude' % (idx + 1)].value, 2), round(o.params['g%d_amplitude' % (idx + 1)].stderr, 2), round(o.params['g%d_height' % (idx + 1)].value, 3), round(o.params['g%d_height' % (idx + 1)].stderr, 3), round(fluxList[idx], 2), round(fluxListErr[idx], 2), round(eMFList[idx], 1)])
         ampListAll.append([emName, ampComponentList, emInfo, emName])
 
     print "------------ List all Amplitudes -------"
@@ -397,7 +419,7 @@ if __name__ == '__main__':
     print "------------ Component information ------------"
     for mod in allModelComponents:
         print mod
-    # np.savetxt(regionName + '/' + 'ComponentInfo.csv', np.array(allModelComponents))
+    table_to_latex(allModelComponents)
 
     # Combined Plots
     plt.figure("Low Zone Profiles")

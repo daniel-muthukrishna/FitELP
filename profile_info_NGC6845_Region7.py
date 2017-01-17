@@ -11,13 +11,13 @@ scaleFlux = 1e14                                # 1
 # SPECTRAL LINE INFO FOR ALL EMISSION LINES
 emProfiles = OrderedDict([
     ('H-Alpha', {'Colour': 'b', 'Order': 21, 'Filter': 'red', 'minI': 1180, 'maxI': 1650, 'restWavelength': 6562.82, 'ampList': [17.1348547, 15.3253165, 25.9916418], 'zone': 'low', 'sigmaT2': 164.96}),
-    ('OIII-5007A', {'Colour': 'b', 'Order': 5, 'Filter': 'red', 'minI': 1600, 'maxI': 2100, 'restWavelength': 5006.84, 'ampList': [22.1758318, 26.5388225, 27.2491339], 'zone': 'high', 'sigmaT2': 41.54}),
-    ('H-Beta', {'Colour': 'g', 'Order': 36, 'Filter': 'blue', 'minI': 2150, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [7.1698698, 7.755471, 8.1177551], 'zone': 'low', 'sigmaT2': 164.96}),
+    ('OIII-5007A', {'Colour': 'y', 'Order': 5, 'Filter': 'red', 'minI': 1600, 'maxI': 2100, 'restWavelength': 5006.84, 'ampList': [22.1758318, 26.5388225, 27.2491339], 'zone': 'high', 'sigmaT2': 41.54}),
+    ('H-Beta', {'Colour': 'c', 'Order': 36, 'Filter': 'blue', 'minI': 2150, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [7.1698698, 7.755471, 8.1177551], 'zone': 'low', 'sigmaT2': 164.96}),
     ('H-Gamma', {'Colour': 'r', 'Order': 28, 'Filter': 'blue', 'minI': 700, 'maxI': 1200, 'restWavelength': 4340.47, 'ampList': [3.5975999, 4.4061048, 4.9858671], 'zone': 'low', 'sigmaT2': 164.96}),
     ('H-Delta', {'Colour': 'c', 'Order': 23, 'Filter': 'blue', 'minI': 1400, 'maxI': 2000, 'restWavelength': 4101.74, 'ampList': [1.6033944, 3.2888546, 2.4343534], 'zone': 'low', 'sigmaT2': 164.96}),
-    ('NII-6584A', {'Colour': 'y', 'Order': 21, 'Filter': 'red', 'minI': 1750, 'maxI': 2050, 'restWavelength': 6583.41, 'ampList': [1.972511, 2.2863479, 1.5251916], 'zone': 'low', 'sigmaT2': 11.87}),
-    ('NII-6548A', {'Colour': 'm', 'Order': 21, 'Filter': 'red', 'minI': 1000, 'maxI': 1300, 'restWavelength': 6548.03, 'ampList': [0.6269966, 0.7363489, 0.5324121], 'zone': 'low', 'sigmaT2': 11.87}),
-    ('SII-6717A', {'Colour': 'k', 'Order': 22, 'Filter': 'red', 'minI': 1850, 'maxI': 2000, 'restWavelength': 6716.47, 'ampList': [1.6193512, 2.2161298, 1.2806394], 'zone': 'low', 'sigmaT2': 5.19}),
+    ('NII-6584A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 1750, 'maxI': 2050, 'restWavelength': 6583.41, 'ampList': [1.972511, 2.2863479, 1.5251916], 'zone': 'low', 'sigmaT2': 11.87}),
+    ('NII-6548A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 1000, 'maxI': 1300, 'restWavelength': 6548.03, 'ampList': [0.6269966, 0.7363489, 0.5324121], 'zone': 'low', 'sigmaT2': 11.87}),
+    ('SII-6717A', {'Colour': 'r', 'Order': 22, 'Filter': 'red', 'minI': 1850, 'maxI': 2000, 'restWavelength': 6716.47, 'ampList': [1.6193512, 2.2161298, 1.2806394], 'zone': 'low', 'sigmaT2': 5.19}),
     #('SII-6731A', {'Colour': '#58D68D', 'Order': 22, 'Filter': 'red', 'minI': 2100, 'maxI': 2350, 'restWavelength': 6730.85, 'ampList': [1.0147012, 1.8904696, 0.4226622], 'zone': 'low', 'sigmaT2': 5.19}),
     #('OII-3729A', {'Colour': '#5D6D7E', 'Order': 14, 'Filter': 'blue', 'minI': 2800, 'maxI': 3000, 'restWavelength': 3728.82, 'ampList': [7.9383342, 21.2342271, 6.6933551], 'zone': 'low', 'sigmaT2': 10.39}),
     #('OII-3726A', {'Colour': '#EC7063', 'Order': 14, 'Filter': 'blue', 'minI': 2660, 'maxI': 2829, 'restWavelength': 3726.03, 'ampList': [5.1740013, 14.9580542, 3.9498718], 'zone': 'low', 'sigmaT2': 10.39}),

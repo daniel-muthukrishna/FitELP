@@ -70,7 +70,7 @@ def calculate_em_f(model, numComponents):
     componentFluxes = np.array(componentFluxes)
     componentFluxErrors = np.array(componentFluxErrors)
     totalFlux = sum(componentFluxes)
-    totalFluxError = np.std(componentFluxes)
+    totalFluxError = np.sqrt(sum([s**2 for s in componentFluxErrors]))
 
     calcEMF = componentFluxes/sum(componentFluxes) * 100
 
@@ -108,7 +108,7 @@ def table_to_latex(componentArray):
     texFile.write('\\centering\n')
     texFile.write('\\begin{tabular}{%s}\n' % ('l'*len(componentArray[0])))
     headings = ['$\lambda_0$', '$Ion$', '$Comp.$', '$v_r$', '${v_r}_{err}$', '$\sigma_{int}$', '${\sigma_{int}}_{err}$',
-                '$Flux$', '$Flux_{err}$', '$Height$', '$Height_{err}$', '$EM_f$', '$GlobalFlux$', '$GlobalFlux_{err}$']
+                '$Flux$', '$Flux_{err}$', '$EM_f$', '$GlobalFlux$', '$GlobalFlux_{err}$']
     texFile.write('\\hline\n')
     texFile.write(' & '.join(str(e) for e in headings) + ' \\\\ \\hline\n')
     for line in componentArray:
@@ -339,6 +339,18 @@ class FittingProfile(object):
         return out, components
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     # ONLY CHANGE THIS IMPORT LINE TO THE APPROPRIATE REGION
     from profile_info_NGC6845_Region7 import *
@@ -414,8 +426,7 @@ if __name__ == '__main__':
         for idx in range(numComps):
             ampComponentList.append(round(model1.best_values['g%d_amplitude' % (idx + 1)], 7))
             sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'])
-            labelComponent = ['Narrow 1', 'Broad', 'Narrow 2']  # 'g%d_' % (i+1)
-            tableLine = [lambdaZero1, ion1, labelComponent[idx], round(o.params['g%d_center' % (idx + 1)].value, 1), round(o.params['g%d_center' % (idx + 1)].stderr, 1), round(sigInt, 1), round(sigIntErr, 1), round(fluxList[idx], 2), round(fluxListErr[idx], 2), round(o.params['g%d_height' % (idx + 1)].value, 3), round(o.params['g%d_height' % (idx + 1)].stderr, 3), round(eMFList[idx], 1), round(globalFlux, 2), round(globalFluxErr, 2)]
+            tableLine = [lambdaZero1, ion1, componentLabels[idx], round(o.params['g%d_center' % (idx + 1)].value, 1), round(o.params['g%d_center' % (idx + 1)].stderr, 1), round(sigInt, 1), round(sigIntErr, 1), round(fluxList[idx], 2), round(fluxListErr[idx], 2), round(eMFList[idx], 1), round(globalFlux, 2), round(globalFluxErr, 2)]
             if idx != 0:
                 tableLine[0:2] = ['', '']
                 tableLine[-2:] = ['', '']

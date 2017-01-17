@@ -52,3 +52,5 @@ linIntHighZone = -0.00147764
 numComps = 3
 componentColours = ['r', 'g', 'b']
 plottingXRange = [6150, 6500]  # velocities
+sigmaInstrBlue = 4.9
+sigmaInstrRed = 5.6

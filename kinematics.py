@@ -5,8 +5,6 @@ from lmfit import Parameters
 import matplotlib.pyplot as plt
 import astropy.units as u
 from specutils.io import read_fits
-import pandas as pd
-from collections import OrderedDict
 
 SpOfLi = 300000.  # km/s
 
@@ -31,9 +29,9 @@ def read_spectra(filename, scaleFlux):
 def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter):
     # Assuming negligible error in temp or instrument
     if filter == 'blue':
-        sigmaInstr = 4.9
+        sigmaInstr = sigmaInstrBlue
     elif filter == 'red':
-        sigmaInstr = 5.6
+        sigmaInstr = sigmaInstrRed
 
     totalSigmaSquared = sigmaObs**2 - sigmaInstr**2 - sigmaTemp2
     totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError

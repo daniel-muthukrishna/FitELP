@@ -58,3 +58,4 @@ class RegionParameters(object):
     sigmaInstrBlue = 4.9
     sigmaInstrRed = 5.6
     distance = 2.8e26  # Distance to region in centimetres (same units as flux)
+    # test

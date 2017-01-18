@@ -60,4 +60,4 @@ class RegionParameters(object):
     plottingXRange = [5900, 6500]  # velocities
     sigmaInstrBlue = 5.1
     sigmaInstrRed = 5.7
-    distance = 2e28  # Distance to region in centimetres
+    distance = 2.8e26  # Distance to region in centimetres (same units as flux)

@@ -140,9 +140,9 @@ def table_to_latex(tableArray, headings, saveFileName, directory):
 
 def calc_luminosity(rp):
     calcLuminosity = 4 * np.pi * rp.emProfiles['H-Alpha']['globalFlux'] * rp.distance**2
-    calcLuminosityError = rp.emProfiles['H-Alpha']['globalFluxErr'] * calcLuminosity
+    calcLuminosityError = 4 * np.pi * rp.distance**2 * rp.emProfiles['H-Alpha']['globalFluxErr']
     starFormRate = 5.5e-42 * calcLuminosity
-    starFormRateError = calcLuminosityError * starFormRate
+    starFormRateError = 5.5e-42 * calcLuminosityError
 
     return calcLuminosity, calcLuminosityError, starFormRate, starFormRateError
 
@@ -465,7 +465,7 @@ class RegionCalculations(object):
 
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
-        self.lineInArray = [rp.regionName, round(sfr, -2), round(sfrError, -2), round(luminosity, -2), round(luminosityError, -2), round(ratioNII, -2), round(ratioOIII, -2)]
+        self.lineInArray = [rp.regionName, "%.2E" % sfr, "%.0E" % sfrError, "%.0E" % luminosity, "%.0E" % luminosityError, "%.2E" % ratioNII, "%.2E" % ratioOIII]
 
         # Combined Plots
         plt.figure(rp.regionName + " Low Zone Profiles")

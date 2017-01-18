@@ -95,9 +95,22 @@ def line_label(emLineName, emRestWave, rp):
     return ion, lambdaZero
 
 
-def table_to_latex(componentArray, rp):
-    saveFileName = 'componentTable'
-    texFile = open(rp.regionName + '/' + saveFileName + '.tex', 'w')
+def halpha_regions_table_to_latex(regionInfoArray, directory="."):
+    saveFileName = 'RegionInfo'
+    headings = [r'Region Name', r'SFR', r'$\mathrm{SFR_{err}}$', r'$\mathrm{L(H}\alpha)$', r'$\mathrm{L(H}\alpha)_{\mathrm{err}}$', r'$\mathrm{NII/H}\alpha$', r'$\mathrm{OIII/H}\beta$']
+    table_to_latex(regionInfoArray, headings, saveFileName, directory)
+
+def comp_table_to_latex(componentArray, rp):
+    saveFileName = 'ComponentTable'
+    headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
+                r'$\mathrm{{v_r}_{err}}$', r'$\mathrm{\sigma_{int}}$', r'$\mathrm{{\sigma_{int}}_{err}}$',
+                r'$\mathrm{Flux}$', r'$\mathrm{Flux_{err}}$', r'$\mathrm{EM_f}$', r'$\mathrm{GlobalFlux}$',
+                r'$\mathrm{GlobalFlux_{err}}$']
+    table_to_latex(componentArray, headings, saveFileName, rp.regionName)
+
+
+def table_to_latex(tableArray, headings, saveFileName, directory):
+    texFile = open(directory + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
     texFile.write('\\usepackage[landscape, margin=0.5in]{geometry}\n')
     # texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
@@ -106,17 +119,12 @@ def table_to_latex(componentArray, rp):
     texFile.write('\n')
     texFile.write('\\begin{table}[tbp]\n')
     texFile.write('\\centering\n')
-    texFile.write('\\begin{tabular}{%s}\n' % ('l'*len(componentArray[0])))
-    headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
-                r'$\mathrm{{v_r}_{err}}$', r'$\mathrm{\sigma_{int}}$', r'$\mathrm{{\sigma_{int}}_{err}}$',
-                r'$\mathrm{Flux}$', r'$\mathrm{Flux_{err}}$', r'$\mathrm{EM_f}$', r'$\mathrm{GlobalFlux}$',
-                r'$\mathrm{GlobalFlux_{err}}$']
-
+    texFile.write('\\begin{tabular}{%s}\n' % ('l' * len(headings[0])))
     texFile.write('\\hline\n')
     texFile.write(' & '.join(str(e) for e in headings) + ' \\\\ \\hline\n')
-    for line in componentArray:
+    for line in tableArray:
         texFile.write(' & '.join(str(e) for e in line) + ' \\\\ \n')
-
+    texFile.write('\\hline\n')
     texFile.write('\\end{tabular}\n')
     texFile.write('\\end{table}\n')
     texFile.write('\n')
@@ -124,9 +132,19 @@ def table_to_latex(componentArray, rp):
 
     texFile.close()
 
-    os.system("pdflatex ./'" + rp.regionName + "'/" + saveFileName + ".tex")
-    os.system("mv " + saveFileName + ".pdf ./'" + rp.regionName + "'")
-    os.system("rm " + saveFileName + ".*")
+    os.system("pdflatex ./'" + directory + "'/" + saveFileName + ".tex")
+    if directory != ".":
+        os.system("mv " + saveFileName + ".pdf ./'" + directory + "'")
+        os.system("rm " + saveFileName + ".*")
+
+
+def calc_luminosity(rp):
+    calcLuminosity = 4 * np.pi * rp.emProfiles['H-Alpha']['globalFlux'] * rp.distance**2
+    calcLuminosityError = rp.emProfiles['H-Alpha']['globalFluxErr'] * calcLuminosity
+    starFormRate = 5.5e-42 * calcLuminosity
+    starFormRateError = calcLuminosityError * starFormRate
+
+    return calcLuminosity, calcLuminosityError, starFormRate, starFormRateError
 
 
 class GalaxyRegion(object):
@@ -414,7 +432,9 @@ class RegionCalculations(object):
         #Print Amplitudes
             ampComponentList = []
             o = model1
-            eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, rp.numComps )
+            eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, rp.numComps)
+            rp.emProfiles[emName]['globalFlux'] = globalFlux
+            rp.emProfiles[emName]['globalFluxErr'] = globalFluxErr
             for idx in range(rp.numComps ):
                 ampComponentList.append(round(model1.best_values['g%d_amplitude' % (idx + 1)], 7))
                 sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'], rp)
@@ -424,7 +444,7 @@ class RegionCalculations(object):
                     tableLine[-2:] = ['', '']
                 allModelComponents.append(tableLine)
             ampListAll.append([emName, ampComponentList, emInfo, emName])
-        table_to_latex(allModelComponents, rp)
+        comp_table_to_latex(allModelComponents, rp)
 
         print "------------ List all Amplitudes -------"
         for ampComps in ampListAll:
@@ -436,9 +456,20 @@ class RegionCalculations(object):
         for mod in allModelComponents:
             print mod
 
+        try:
+            ratioNII = (rp.emProfiles['NII-6584A']['globalFlux'] + rp.emProfiles['NII-6548A']['globalFlux'])/(rp.emProfiles['H-Alpha']['globalFlux'])
+            ratioOIII = (rp.emProfiles['OIII-5007A']['globalFlux'] + rp.emProfiles['OIII-4959A']['globalFlux']) / (rp.emProfiles['H-Beta']['globalFlux'])
+        except KeyError:
+            ratioNII, ratioOIII = ('', '')
+            print "NII or OIII are not defined"
+
+        luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
+
+        self.lineInArray = [rp.regionName, round(sfr, -2), round(sfrError, -2), round(luminosity, -2), round(luminosityError, -2), round(ratioNII, -2), round(ratioOIII, -2)]
+
         # Combined Plots
         plt.figure(rp.regionName + " Low Zone Profiles")
-        plt.title("Low Zone Profiles") #Recombination Emission Lines")
+        plt.title("Low Zone Profiles")  #Recombination Emission Lines")
         plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
         plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
         for profile in lowZoneProfiles:
@@ -499,10 +530,16 @@ class RegionCalculations(object):
 
 
 if __name__ == '__main__':
-    from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
+    from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
 
-    region26 = RegionCalculations(NGC6845Region26Params)
-    region7 = RegionCalculations(NGC6845Region7Params)
+    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params]
+
+    regionArray = []
+    for regParam in regionsParameters:
+        region = RegionCalculations(regParam)
+        regionArray.append(region.lineInArray)
+
+    halpha_regions_table_to_latex(regionArray)
 
     plt.show()

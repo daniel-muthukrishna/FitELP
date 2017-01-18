@@ -139,8 +139,8 @@ def table_to_latex(tableArray, headings, saveFileName, directory):
 
 
 def calc_luminosity(rp):
-    calcLuminosity = 4 * np.pi * rp.emProfiles['H-Alpha']['globalFlux'] * rp.distance**2
-    calcLuminosityError = 4 * np.pi * rp.distance**2 * rp.emProfiles['H-Alpha']['globalFluxErr']
+    calcLuminosity = 4 * np.pi * rp.emProfiles['H-Alpha']['globalFlux'] * rp.distance**2 / rp.scaleFlux
+    calcLuminosityError = 4 * np.pi * rp.distance**2 * rp.emProfiles['H-Alpha']['globalFluxErr'] /l rp.scaleFlux
     starFormRate = 5.5e-42 * calcLuminosity
     starFormRateError = 5.5e-42 * calcLuminosityError
 
@@ -465,7 +465,7 @@ class RegionCalculations(object):
 
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
-        self.lineInArray = [rp.regionName, "%.2E" % sfr, "%.0E" % sfrError, "%.0E" % luminosity, "%.0E" % luminosityError, round(ratioNII, 2), round(ratioOIII, 2)]
+        self.lineInArray = [rp.regionName, "%.2E" % sfr, "%.0E" % sfrError, "%.1E" % luminosity, "%.0E" % luminosityError, round(ratioNII, 2), round(ratioOIII, 2)]
 
         # # Combined Plots
         # plt.figure(rp.regionName + " Low Zone Profiles")
@@ -540,6 +540,6 @@ if __name__ == '__main__':
         region = RegionCalculations(regParam)
         regionArray.append(region.lineInArray)
 
-    #halpha_regions_table_to_latex(regionArray)
+    halpha_regions_table_to_latex(regionArray)
 
     plt.show()

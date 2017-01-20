@@ -348,9 +348,9 @@ class FittingProfile(object):
         init = mod.eval(self.linGaussParams, x=self.vel)
         out = mod.fit(self.flux, self.linGaussParams, x=self.vel, weights=self.weights)
         f = open(self.rp.regionName + '/' + "%s_Log.txt" % self.rp.regionName, "a")
-        print "######## %s %s Linear and Multi-gaussian Model ##########" % (self.rp.regionName, self.lineName)
+        print "######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName)
         print (out.fit_report())
-        f.write("######## %s %s Linear and Multi-gaussian Model ##########" % (self.rp.regionName, self.lineName))
+        f.write("######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName))
         f.write(out.fit_report())
         f.close()
         components = out.eval_components()
@@ -388,12 +388,12 @@ class RegionCalculations(object):
         allModelComponents = []
         # Iterate through emission lines
         f = open(rp.regionName + '/' + "%s_Log.txt" % rp.regionName, "w")
-        f.write("LOG INFORMATION FOR %s" % rp.regionName)
+        f.write("LOG INFORMATION FOR %s\n" % rp.regionName)
         f.close()
         for emName, emInfo in rp.emProfiles.items():
             print "------------------ %s : %s ----------------" %(rp.regionName, emName)
-            f = open(rp.regionName + '/' + "%s_Log.txt" % rp.regionName, "a")
-            f.write("------------------ %s : %s ----------------" %(rp.regionName, emName))
+            f = open(rp.regionName + '/' + "%s_Log.txt\n" % rp.regionName, "a")
+            f.write("------------------ %s : %s ----------------\n" %(rp.regionName, emName))
             f.close()
             wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(emInfo['Order'], filt=emInfo['Filter'], minIndex=emInfo['minI'], maxIndex=emInfo['maxI'])
             emLineProfile = EmissionLineProfile(wave1, flux1, restWave=emInfo['restWavelength'], lineName=emName, rp=rp)

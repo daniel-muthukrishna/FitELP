@@ -473,7 +473,7 @@ class RegionCalculations(object):
 
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
-        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.2f" % (luminosity, luminosityError), round(ratioNII, 3), round(ratioOIII, 3)]
+        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), round(ratioNII, 3), round(ratioOIII, 3)]
 
         # Combined Plots
         plt.figure(rp.regionName + " Low Zone Profiles")

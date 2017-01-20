@@ -131,7 +131,7 @@ def table_to_latex(tableArray, headings, headingUnits, saveFileName, directory, 
         texFile.write(' & '.join(str(e) for e in line) + ' \\\\ \n')
     texFile.write('\\hline\n')
     texFile.write('\\end{tabular}\n')
-    texFile.write('\\caption{"%s"}\n' % caption)
+    texFile.write('\\caption{%s}\n' % caption)
     texFile.write('\\end{table}\n')
     texFile.write('\n')
     texFile.write('\\end{document}\n')
@@ -457,7 +457,7 @@ class RegionCalculations(object):
             for idx in range(rp.numComps ):
                 ampComponentList.append(round(model1.best_values['g%d_amplitude' % (idx + 1)], 7))
                 sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'], rp)
-                tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], "%.1f $\pm$ %.1f" % (o.params['g%d_center' % (idx + 1)].value, o.params['g%d_center' % (idx + 1)].stderr), r"%.1f $\pm$ %.1f" % (sigInt, sigIntErr), "%.1f $\pm$ %.1f" % (fluxList[idx], fluxListErr[idx]), round(eMFList[idx], 1), "%.1f $\pm$ %.1f" % (globalFlux, globalFluxErr)]
+                tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], "%.1f $\pm$ %.1f" % (o.params['g%d_center' % (idx + 1)].value, o.params['g%d_center' % (idx + 1)].stderr), r"%.1f $\pm$ %.1f" % (sigInt, sigIntErr), "%.1f $\pm$ %.2f" % (fluxList[idx], fluxListErr[idx]), round(eMFList[idx], 1), "%.1f $\pm$ %.2f" % (globalFlux, globalFluxErr)]
                 if idx != 0:
                     tableLine[0:2] = ['', '']
                     tableLine[-1] = ''

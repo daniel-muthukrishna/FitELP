@@ -14,7 +14,7 @@ class RegionParameters(object):
     emProfiles = OrderedDict([
         ('H-Alpha', {'Colour': 'b', 'Order': 21, 'Filter': 'red', 'minI': 1180, 'maxI': 1650, 'restWavelength': 6562.82, 'ampList': [17.1348547, 15.3253165, 25.9916418], 'zone': 'low', 'sigmaT2': 164.96}),
         ('OIII-5007A', {'Colour': 'y', 'Order': 5, 'Filter': 'red', 'minI': 1600, 'maxI': 2100, 'restWavelength': 5006.84, 'ampList': [22.1758318, 26.5388225, 27.2491339], 'zone': 'high', 'sigmaT2': 41.54}),
-        # ('H-Beta', {'Colour': 'c', 'Order': 36, 'Filter': 'blue', 'minI': 2150, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [7.1698698, 7.755471, 8.1177551], 'zone': 'low', 'sigmaT2': 164.96}),
+        ('H-Beta', {'Colour': 'c', 'Order': 36, 'Filter': 'blue', 'minI': 2150, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [7.1698698, 7.755471, 8.1177551], 'zone': 'low', 'sigmaT2': 164.96}),
         # ('H-Gamma', {'Colour': 'r', 'Order': 28, 'Filter': 'blue', 'minI': 700, 'maxI': 1200, 'restWavelength': 4340.47, 'ampList': [3.5975999, 4.4061048, 4.9858671], 'zone': 'low', 'sigmaT2': 164.96}),
         # ('H-Delta', {'Colour': 'c', 'Order': 23, 'Filter': 'blue', 'minI': 1400, 'maxI': 2000, 'restWavelength': 4101.74, 'ampList': [1.6033944, 3.2888546, 2.4343534], 'zone': 'low', 'sigmaT2': 164.96}),
         # ('NII-6584A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 1750, 'maxI': 2050, 'restWavelength': 6583.41, 'ampList': [1.972511, 2.2863479, 1.5251916], 'zone': 'low', 'sigmaT2': 11.87}),
@@ -31,7 +31,7 @@ class RegionParameters(object):
         # #('HeI-4471A', {'Colour': '#78281F', 'Order': 30, 'Filter': 'blue', 'minI': 1750, 'maxI': 1900, 'restWavelength': 4471.48, 'ampList': [0.2630987, 0.3833942, 0.3665488], 'zone': 'low', 'sigmaT2': 41.54}),
         # #('HeI-6678A', {'Colour': '#D5D8DC', 'Order': 22, 'Filter': 'red', 'minI': 1050, 'maxI': 1240, 'restWavelength': 6678.15, 'ampList': [0.2486772, 0.0866339, 0.2718688], 'zone': 'low', 'sigmaT2': 41.54}),
         # #('HeI-7065A', {'Colour': '#E8DAEF', 'Order': 24, 'Filter': 'red', 'minI': 3150, 'maxI': 3450, 'restWavelength': 7065.19, 'ampList': [0.1232987, 0.1179755, 0.1180976], 'zone': 'low', 'sigmaT2': 41.54}),
-        # ('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2300, 'maxI': 2800, 'restWavelength': 4958.91, 'ampList': [7.3440469, 12.0616428, 8.8580286], 'zone': 'high', 'sigmaT2': 10.39}),
+        ('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2300, 'maxI': 2800, 'restWavelength': 4958.91, 'ampList': [7.3440469, 12.0616428, 8.8580286], 'zone': 'high', 'sigmaT2': 10.39}),
         # #('NeIII-3868A', {'Colour': 'r', 'Order': 18, 'Filter': 'blue', 'minI': 1430, 'maxI': 1650, 'restWavelength': 3868.75, 'ampList': [1.7808936, 7.5984469, 2.6727271], 'zone': 'high', 'sigmaT2': 8.24}),
         #('NeIII-3970A', {'Colour': 'c', 'Order': 20, 'Filter': 'blue', 'minI': 2110, 'maxI': 2290, 'restWavelength': 3970.07, 'ampList': [1.238593, 1.6775335, 1.2004524], 'zone': 'high', 'sigmaT2': 8.24}),
         #('NeIII-3967A', {'Colour': 'm', 'Order': 20, 'Filter': 'blue', 'minI': 1950, 'maxI': 2135, 'restWavelength': 3967.46, 'ampList': [0.1400479, 2.1556011, 0.3788218], 'zone': 'high', 'sigmaT2': 8.24}),

@@ -12,10 +12,10 @@ class RegionParameters(object):
 
     # SPECTRAL LINE INFO FOR ALL EMISSION LINES
     emProfiles = OrderedDict([
-        ('H-Alpha', {'Colour': 'g', 'Order': 21, 'Filter': 'red', 'minI': 1180, 'maxI': 1700, 'restWavelength': 6562.82, 'ampList': [21.1627678, 42.7127487, 106.4544557], 'zone': 'low', 'sigmaT2': 164.96}),
-        ('OIII-5007A', {'Colour': 'y', 'Order': 5, 'Filter': 'red', 'minI': 1600, 'maxI': 2100, 'restWavelength': 5006.84, 'ampList': [2.3401692, 12.4310285, 5.4627832], 'zone': 'high', 'sigmaT2': 41.54}),
-        # ('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2300, 'maxI': 2700, 'restWavelength': 4958.91, 'ampList': [0.9514157, 4.4864315, 1.4672211], 'zone': 'high', 'sigmaT2': 10.39}),
-        # ('H-Beta', {'Colour': 'c', 'Order': 36, 'Filter': 'blue', 'minI': 2000, 'maxI': 2700, 'restWavelength': 4861.33, 'ampList': [6.7331836, 5.8943255, 36.9484921], 'zone': 'low', 'sigmaT2': 164.96}),
+        ('H-Alpha', {'Colour': 'g', 'Order': 21, 'Filter': 'red', 'minI': 1180, 'maxI': 1700, 'restWavelength': 6562.82, 'ampList': [21.1627678, 42.7127468, 106.4544578], 'zone': 'low', 'sigmaT2': 164.96}),
+        ('OIII-5007A', {'Colour': 'y', 'Order': 5, 'Filter': 'red', 'minI': 1600, 'maxI': 2100, 'restWavelength': 5006.84, 'ampList': [2.3894212, 9.5687333, 9.6015654], 'zone': 'high', 'sigmaT2': 41.54}),
+        #('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2300, 'maxI': 2700, 'restWavelength': 4958.91, 'ampList': [0.9514157, 4.4864315, 1.4672211], 'zone': 'high', 'sigmaT2': 10.39}),
+        #('H-Beta', {'Colour': 'c', 'Order': 36, 'Filter': 'blue', 'minI': 2000, 'maxI': 2700, 'restWavelength': 4861.33, 'ampList': [6.7331836, 5.8943255, 36.9484921], 'zone': 'low', 'sigmaT2': 164.96}),
         # ('H-Gamma', {'Colour': 'c', 'Order': 28, 'Filter': 'blue', 'minI': 600, 'maxI': 1100, 'restWavelength': 4340.47, 'ampList': [3.4047672, 4.6305949, 14.342868], 'zone': 'low', 'sigmaT2': 164.96}),
         # ('H-Delta', {'Colour': 'c', 'Order': 23, 'Filter': 'blue', 'minI': 1550, 'maxI': 1850, 'restWavelength': 4101.74, 'ampList': [2.1928573, -1.3182295, 8.0487164], 'zone': 'low', 'sigmaT2': 164.96}),
         # ('NII-6584A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 1650, 'maxI': 2100, 'restWavelength': 6583.41, 'ampList': [7.1287471, 12.7879381, 37.1149414], 'zone': 'low', 'sigmaT2': 11.87}),

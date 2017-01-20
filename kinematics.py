@@ -346,7 +346,7 @@ class FittingProfile(object):
 
         init = mod.eval(self.linGaussParams, x=self.vel)
         out = mod.fit(self.flux, self.linGaussParams, x=self.vel, weights=self.weights)
-        print "######## %s Linear and Multi-gaussian Model ##########" % self.lineName
+        print "######## %s %s Linear and Multi-gaussian Model ##########" % (self.rp.regionName, self.lineName)
         print (out.fit_report())
         components = out.eval_components()
 
@@ -383,7 +383,7 @@ class RegionCalculations(object):
         allModelComponents = []
         # Iterate through emission lines
         for emName, emInfo in rp.emProfiles.items():
-            print "------------------ %s ----------------" %emName
+            print "------------------ %s : %s ----------------" %(rp.regionName, emName)
             wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(emInfo['Order'], filt=emInfo['Filter'], minIndex=emInfo['minI'], maxIndex=emInfo['maxI'])
             emLineProfile = EmissionLineProfile(wave1, flux1, restWave=emInfo['restWavelength'], lineName=emName, rp=rp)
             vel1 = emLineProfile.vel
@@ -454,13 +454,13 @@ class RegionCalculations(object):
             ampListAll.append([emName, ampComponentList, emInfo, emName])
         comp_table_to_latex(allModelComponents, rp)
 
-        print "------------ List all Amplitudes -------"
+        print "------------ List all Amplitudes  %s ----------" % rp.regionName
         for ampComps in ampListAll:
             #print ampComps[0], ampComps[1]
             ampCompsList, emInfo, emName = ampComps[1:4]
             print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + "}),"
 
-        print "------------ Component information ------------"
+        print "------------ Component information %s ------------"  % rp.regionName
         for mod in allModelComponents:
             print mod
 

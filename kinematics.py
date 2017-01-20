@@ -97,22 +97,19 @@ def line_label(emLineName, emRestWave, rp):
 
 def halpha_regions_table_to_latex(regionInfoArray, directory="."):
     saveFileName = 'RegionInfo'
-    headings = [r'Region Name', r'SFR', r'$\mathrm{L(H}\alpha)$', r'$\mathrm{[NII]/H}\alpha$', r'$\mathrm{[OIII]/H}\beta$']
-    headingUnits = ['', r'$(\mathrm{M_{\odot} \ yr^{-1}})$', '', '', '']
-    table_to_latex(regionInfoArray, headings, headingUnits, saveFileName, directory)
-
+    headings = [r'Region Name', r'SFR', r'$\mathrm{SFR_{err}}$', r'$\mathrm{L(H}\alpha)$', r'$\mathrm{L(H}\alpha)_{\mathrm{err}}$', r'$\mathrm{NII/H}\alpha$', r'$\mathrm{OIII/H}\beta$']
+    table_to_latex(regionInfoArray, headings, saveFileName, directory)
 
 def comp_table_to_latex(componentArray, rp):
     saveFileName = 'ComponentTable'
     headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
-                r'$\mathrm{\sigma_{int}}$', r'$\mathrm{Flux}$', r'$\mathrm{EM_f}$', r'$\mathrm{GlobalFlux}$']
-    headingUnits = [r'$(\mathrm{\AA})$', '', '', r'$(\mathrm{km \ s^{-1}})$',
-                    r'$(\mathrm{km \ s^{-1}})$', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$',
-                    '', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$']
-    table_to_latex(componentArray, headings, headingUnits, saveFileName, rp.regionName)
+                r'$\mathrm{{v_r}_{err}}$', r'$\mathrm{\sigma_{int}}$', r'$\mathrm{{\sigma_{int}}_{err}}$',
+                r'$\mathrm{Flux}$', r'$\mathrm{Flux_{err}}$', r'$\mathrm{EM_f}$', r'$\mathrm{GlobalFlux}$',
+                r'$\mathrm{GlobalFlux_{err}}$']
+    table_to_latex(componentArray, headings, saveFileName, rp.regionName)
 
 
-def table_to_latex(tableArray, headings, headingUnits, saveFileName, directory):
+def table_to_latex(tableArray, headings, saveFileName, directory):
     texFile = open(directory + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
     texFile.write('\\usepackage[landscape, margin=0.5in]{geometry}\n')
@@ -124,9 +121,7 @@ def table_to_latex(tableArray, headings, headingUnits, saveFileName, directory):
     texFile.write('\\centering\n')
     texFile.write('\\begin{tabular}{%s}\n' % ('l' * len(headings[0])))
     texFile.write('\\hline\n')
-    texFile.write(' & '.join(str(e) for e in headings) + ' \\\\ \n')
-    texFile.write(' & '.join(str(e) for e in headingUnits) + ' \\\\ \n')
-    texFile.write('\\hline\n')
+    texFile.write(' & '.join(str(e) for e in headings) + ' \\\\ \\hline\n')
     for line in tableArray:
         texFile.write(' & '.join(str(e) for e in line) + ' \\\\ \n')
     texFile.write('\\hline\n')
@@ -149,10 +144,7 @@ def calc_luminosity(rp):
     starFormRate = 5.5e-42 * calcLuminosity
     starFormRateError = 5.5e-42 * calcLuminosityError
 
-    logLuminosity = np.log10(calcLuminosity)
-    logLuminosityError = 0.434 * calcLuminosityError/calcLuminosity
-
-    return logLuminosity, logLuminosityError, starFormRate, starFormRateError
+    return calcLuminosity, calcLuminosityError, starFormRate, starFormRateError
 
 
 class GalaxyRegion(object):
@@ -315,7 +307,7 @@ class FittingProfile(object):
             if self.lineName == 'OIII-5007A':  # Find solutions
                 varyCentre = True
                 varySigma = True
-                varyAmp = True
+                varyAmp = False
             else:                               # Copy center from OIII-5007 (all others vary)
                 varyCentre = False
                 varySigma = True
@@ -354,7 +346,7 @@ class FittingProfile(object):
         plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
         plt.title("%s %s" % (ion, lambdaZero))
         plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
         plt.plot(self.vel, self.flux, label='Data')
         for i in range(numOfComponents):
             labelComp = ['Narrow 1', 'Broad', 'Narrow 2']  # 'g%d_' % (i+1)
@@ -446,10 +438,10 @@ class RegionCalculations(object):
             for idx in range(rp.numComps ):
                 ampComponentList.append(round(model1.best_values['g%d_amplitude' % (idx + 1)], 7))
                 sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'], rp)
-                tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], "%.1f $\pm$ %.1f" % (o.params['g%d_center' % (idx + 1)].value, o.params['g%d_center' % (idx + 1)].stderr), r"%.1f $\pm$ %.1f" % (sigInt, sigIntErr), "%.1f $\pm$ %.1f" % (fluxList[idx], fluxListErr[idx]), round(eMFList[idx], 1), "%.1f $\pm$ %.1f" % (globalFlux, globalFluxErr)]
+                tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], round(o.params['g%d_center' % (idx + 1)].value, 1), round(o.params['g%d_center' % (idx + 1)].stderr, 1), round(sigInt, 1), round(sigIntErr, 1), round(fluxList[idx], 2), round(fluxListErr[idx], 2), round(eMFList[idx], 1), round(globalFlux, 2), round(globalFluxErr, 2)]
                 if idx != 0:
                     tableLine[0:2] = ['', '']
-                    tableLine[-1] = ''
+                    tableLine[-2:] = ['', '']
                 allModelComponents.append(tableLine)
             ampListAll.append([emName, ampComponentList, emInfo, emName])
         comp_table_to_latex(allModelComponents, rp)
@@ -468,49 +460,49 @@ class RegionCalculations(object):
             ratioNII = (rp.emProfiles['NII-6584A']['globalFlux'] + rp.emProfiles['NII-6548A']['globalFlux'])/(rp.emProfiles['H-Alpha']['globalFlux'])
             ratioOIII = (rp.emProfiles['OIII-5007A']['globalFlux'] + rp.emProfiles['OIII-4959A']['globalFlux']) / (rp.emProfiles['H-Beta']['globalFlux'])
         except KeyError:
-            ratioNII, ratioOIII = (0, 0)
+            ratioNII, ratioOIII = (1, 1)
             print "NII or OIII are not defined"
 
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
-        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.3f $\pm$ %.3f" % (luminosity, luminosityError), round(ratioNII, 3), round(ratioOIII, 3)]
+        self.lineInArray = [rp.regionName, "%.2E" % sfr, "%.0E" % sfrError, "%.1E" % luminosity, "%.0E" % luminosityError, round(ratioNII, 2), round(ratioOIII, 2)]
 
-        # Combined Plots
-        plt.figure(rp.regionName + " Low Zone Profiles")
-        plt.title("Low Zone Profiles")  # Recombination Emission Lines")
-        plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
-        for profile in lowZoneProfiles:
-            name, x, y, mod, col, comps, lab = profile
-            plt.plot(x, y, color=col, label=lab)
-            plt.plot(x, mod, color=col, linestyle='--')
-            if name == 'H-Delta':
-                for idx in range(rp.numComps ):
-                    plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
-        plt.xlim(rp.plottingXRange)
-        plt.legend()
-        plt.savefig(rp.regionName + '/' + 'LowZoneProfiles.png')
-
-        plt.figure(rp.regionName + " High Zone Profiles")
-        plt.title("High Zone Profiles")
-        plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
-        for profile in highZoneProfiles:
-            name, x, y, mod, col, comps, lab = profile
-            plt.plot(x, y, color=col, label=lab)
-            plt.plot(x, mod, color=col, linestyle='--')
-            if name == 'OIII-4959A':
-                for idx in range(rp.numComps ):
-                    plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
-        plt.xlim(rp.plottingXRange)
-        plt.savefig(rp.regionName + '/' + 'HighZoneProfiles.png')
-        plt.legend()
-
+        # # Combined Plots
+        # plt.figure(rp.regionName + " Low Zone Profiles")
+        # plt.title("Low Zone Profiles")  #Recombination Emission Lines")
+        # plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
+        # plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
+        # for profile in lowZoneProfiles:
+        #     name, x, y, mod, col, comps, lab = profile
+        #     plt.plot(x, y, color=col, label=lab)
+        #     plt.plot(x, mod, color=col, linestyle='--')
+        #     if name == 'H-Delta':
+        #         for idx in range(rp.numComps ):
+        #             plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
+        # plt.xlim(rp.plottingXRange)
+        # plt.legend()
+        # plt.savefig(rp.regionName + '/' + 'LowZoneProfiles.png')
+        #
+        # plt.figure(rp.regionName + " High Zone Profiles")
+        # plt.title("High Zone Profiles")
+        # plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
+        # plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
+        # for profile in highZoneProfiles:
+        #     name, x, y, mod, col, comps, lab = profile
+        #     plt.plot(x, y, color=col, label=lab)
+        #     plt.plot(x, mod, color=col, linestyle='--')
+        #     if name == 'OIII-4959A':
+        #         for idx in range(rp.numComps ):
+        #             plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
+        # plt.xlim(rp.plottingXRange)
+        # plt.savefig(rp.regionName + '/' + 'HighZoneProfiles.png')
+        # plt.legend()
+        #
         # plt.figure(rp.regionName)
         # ax = plt.subplot(1,1,1)
         # plt.title(rp.regionName)
         # plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-        # plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
+        # plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
         # for profile in (lowZoneProfiles + highZoneProfiles):
         #     name, x, y, mod, col, comps, lab = profile
         #     if name in ['H-Alpha', 'OIII-5007A', 'H-Beta', 'NII-6584A', 'SII-6717A']:
@@ -541,7 +533,7 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params]
+    regionsParameters = [ NGC6845Region26Params] #NGC6845Region7Params,
 
     regionArray = []
     for regParam in regionsParameters:

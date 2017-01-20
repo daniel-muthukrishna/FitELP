@@ -359,7 +359,7 @@ class FittingProfile(object):
         plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
         plt.title("%s %s" % (ion, lambdaZero))
         plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
         plt.plot(self.vel, self.flux, label='Data')
         for i in range(numOfComponents):
             labelComp = ['Narrow 1', 'Broad', 'Narrow 2']  # 'g%d_' % (i+1)
@@ -490,7 +490,7 @@ class RegionCalculations(object):
         plt.figure(rp.regionName + " Low Zone Profiles")
         plt.title("Low Zone Profiles")  # Recombination Emission Lines")
         plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
         for profile in lowZoneProfiles:
             name, x, y, mod, col, comps, lab = profile
             plt.plot(x, y, color=col, label=lab)
@@ -505,7 +505,7 @@ class RegionCalculations(object):
         plt.figure(rp.regionName + " High Zone Profiles")
         plt.title("High Zone Profiles")
         plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
         for profile in highZoneProfiles:
             name, x, y, mod, col, comps, lab = profile
             plt.plot(x, y, color=col, label=lab)

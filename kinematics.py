@@ -387,7 +387,7 @@ class RegionCalculations(object):
         ampListAll = []
         allModelComponents = []
         # Iterate through emission lines
-        f = open(rp.regionName + '/' + "%s_Log.txt" % self.rp.regionName, "w")
+        f = open(rp.regionName + '/' + "%s_Log.txt" % rp.regionName, "w")
         f.write("LOG INFORMATION FOR %s" % rp.regionName)
         f.close()
         for emName, emInfo in rp.emProfiles.items():

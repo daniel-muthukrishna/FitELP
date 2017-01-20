@@ -97,7 +97,7 @@ def line_label(emLineName, emRestWave, rp):
 
 def halpha_regions_table_to_latex(regionInfoArray, directory="."):
     saveFileName = 'RegionInfo'
-    headings = [r'Region Name', r'SFR', r'$\mathrm{L(H}\alpha)$', r'$\mathrm{[NII]/H}\alpha$', r'$\mathrm{[OIII]/H}\beta$']
+    headings = [r'Region Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{[NII]/H}\alpha$', r'$\mathrm{[OIII]/H}\beta$']
     headingUnits = ['', r'$(\mathrm{M_{\odot} \ yr^{-1}})$', '', '', '']
     table_to_latex(regionInfoArray, headings, headingUnits, saveFileName, directory)
 
@@ -473,7 +473,7 @@ class RegionCalculations(object):
 
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
-        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.3f $\pm$ %.3f" % (luminosity, luminosityError), round(ratioNII, 3), round(ratioOIII, 3)]
+        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.1f" % (luminosity, luminosityError), round(ratioNII, 3), round(ratioOIII, 3)]
 
         # Combined Plots
         plt.figure(rp.regionName + " Low Zone Profiles")

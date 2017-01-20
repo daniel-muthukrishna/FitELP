@@ -99,7 +99,7 @@ def halpha_regions_table_to_latex(regionInfoArray, directory="."):
     saveFileName = 'RegionInfo'
     headings = [r'Region Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{[NII]/H}\alpha$', r'$\mathrm{[OIII]/H}\beta$']
     headingUnits = ['', r'$(\mathrm{M_{\odot} \ yr^{-1}})$', '', '', '']
-    table_to_latex(regionInfoArray, headings, headingUnits, saveFileName, directory)
+    table_to_latex(regionInfoArray, headings, headingUnits, saveFileName, directory, 'Region Information')
 
 
 def comp_table_to_latex(componentArray, rp):
@@ -109,10 +109,10 @@ def comp_table_to_latex(componentArray, rp):
     headingUnits = [r'$(\mathrm{\AA})$', '', '', r'$(\mathrm{km \ s^{-1}})$',
                     r'$(\mathrm{km \ s^{-1}})$', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$',
                     '', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$']
-    table_to_latex(componentArray, headings, headingUnits, saveFileName, rp.regionName)
+    table_to_latex(componentArray, headings, headingUnits, saveFileName, rp.regionName, rp.regionName)
 
 
-def table_to_latex(tableArray, headings, headingUnits, saveFileName, directory):
+def table_to_latex(tableArray, headings, headingUnits, saveFileName, directory, caption):
     texFile = open(directory + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
     texFile.write('\\usepackage[landscape, margin=0.5in]{geometry}\n')
@@ -131,6 +131,7 @@ def table_to_latex(tableArray, headings, headingUnits, saveFileName, directory):
         texFile.write(' & '.join(str(e) for e in line) + ' \\\\ \n')
     texFile.write('\\hline\n')
     texFile.write('\\end{tabular}\n')
+    texFile.write('\\caption{"%s"}\n' % caption)
     texFile.write('\\end{table}\n')
     texFile.write('\n')
     texFile.write('\\end{document}\n')
@@ -348,6 +349,9 @@ class FittingProfile(object):
         out = mod.fit(self.flux, self.linGaussParams, x=self.vel, weights=self.weights)
         print "######## %s %s Linear and Multi-gaussian Model ##########" % (self.rp.regionName, self.lineName)
         print (out.fit_report())
+        f = open(self.rp.regionName + '/' + "%s_Log.txt" % self.rp.regionName, "w")
+        f.write(out.fit_report())
+        f.close()
         components = out.eval_components()
 
         ion, lambdaZero = line_label(self.lineName, self.restWave, self.rp)

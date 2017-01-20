@@ -551,3 +551,4 @@ if __name__ == '__main__':
     halpha_regions_table_to_latex(regionArray)
 
     plt.show()
+    #test

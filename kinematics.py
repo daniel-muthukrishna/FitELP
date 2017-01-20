@@ -392,8 +392,8 @@ class RegionCalculations(object):
         f.close()
         for emName, emInfo in rp.emProfiles.items():
             print "------------------ %s : %s ----------------" %(rp.regionName, emName)
-            f = open(rp.regionName + '/' + "%s_Log.txt\n" % rp.regionName, "a")
-            f.write("------------------ %s : %s ----------------\n" %(rp.regionName, emName))
+            f = open(rp.regionName + '/' + "%s_Log.txt" % rp.regionName, "a")
+            f.write("------------------ %s : %s ----------------\n" % (rp.regionName, emName))
             f.close()
             wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(emInfo['Order'], filt=emInfo['Filter'], minIndex=emInfo['minI'], maxIndex=emInfo['maxI'])
             emLineProfile = EmissionLineProfile(wave1, flux1, restWave=emInfo['restWavelength'], lineName=emName, rp=rp)

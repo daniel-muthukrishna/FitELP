@@ -12,15 +12,15 @@ class RegionParameters(object):
 
     # SPECTRAL LINE INFO FOR ALL EMISSION LINES
     emProfiles = OrderedDict([
-        ('H-Alpha', {'Colour': 'g', 'Order': 21, 'Filter': 'red', 'minI': 1180, 'maxI': 1700, 'restWavelength': 6562.82, 'ampList': [21.1627678, 42.7127468, 106.4544578], 'zone': 'low', 'sigmaT2': 164.96}),
-        ('OIII-5007A', {'Colour': 'y', 'Order': 5, 'Filter': 'red', 'minI': 1600, 'maxI': 2100, 'restWavelength': 5006.84, 'ampList': [2.3894212, 9.5687333, 9.6015654], 'zone': 'high', 'sigmaT2': 41.54}),
-        #('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2300, 'maxI': 2700, 'restWavelength': 4958.91, 'ampList': [0.9514157, 4.4864315, 1.4672211], 'zone': 'high', 'sigmaT2': 10.39}),
-        #('H-Beta', {'Colour': 'c', 'Order': 36, 'Filter': 'blue', 'minI': 2000, 'maxI': 2700, 'restWavelength': 4861.33, 'ampList': [6.7331836, 5.8943255, 36.9484921], 'zone': 'low', 'sigmaT2': 164.96}),
+        ('H-Alpha', {'Colour': 'y', 'Order': 21, 'Filter': 'red', 'minI': 1180, 'maxI': 1700, 'restWavelength': 6562.82, 'ampList': [21.1627678, 42.7127468, 106.4544578], 'zone': 'low', 'sigmaT2': 164.96}),
+        ('OIII-5007A', {'Colour': 'c', 'Order': 5, 'Filter': 'red', 'minI': 1600, 'maxI': 2100, 'restWavelength': 5006.84, 'ampList': [2.3894212, 9.5687333, 9.6015654], 'zone': 'high', 'sigmaT2': 41.54}),
+        ('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2300, 'maxI': 2700, 'restWavelength': 4958.91, 'ampList': [0.9514157, 4.4864315, 1.4672211], 'zone': 'high', 'sigmaT2': 10.39}),
+        ('H-Beta', {'Colour': 'b', 'Order': 36, 'Filter': 'blue', 'minI': 2000, 'maxI': 2700, 'restWavelength': 4861.33, 'ampList': [6.7331836, 5.8943255, 36.9484921], 'zone': 'low', 'sigmaT2': 164.96}),
         # ('H-Gamma', {'Colour': 'c', 'Order': 28, 'Filter': 'blue', 'minI': 600, 'maxI': 1100, 'restWavelength': 4340.47, 'ampList': [3.4047672, 4.6305949, 14.342868], 'zone': 'low', 'sigmaT2': 164.96}),
         # ('H-Delta', {'Colour': 'c', 'Order': 23, 'Filter': 'blue', 'minI': 1550, 'maxI': 1850, 'restWavelength': 4101.74, 'ampList': [2.1928573, -1.3182295, 8.0487164], 'zone': 'low', 'sigmaT2': 164.96}),
-        # ('NII-6584A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 1650, 'maxI': 2100, 'restWavelength': 6583.41, 'ampList': [7.1287471, 12.7879381, 37.1149414], 'zone': 'low', 'sigmaT2': 11.87}),
-        # ('NII-6548A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 900, 'maxI': 1210, 'restWavelength': 6548.03, 'ampList': [2.2041386, 2.7154357, 12.7231992], 'zone': 'low', 'sigmaT2': 11.87}),
-        # ('SII-6717A', {'Colour': 'r', 'Order': 22, 'Filter': 'red', 'minI': 1700, 'maxI': 2006, 'restWavelength': 6716.47, 'ampList': [1.8448349, 4.3243951, 11.3964914], 'zone': 'low', 'sigmaT2': 5.19}),
+        ('NII-6584A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 1650, 'maxI': 2100, 'restWavelength': 6583.41, 'ampList': [7.1287471, 12.7879381, 37.1149414], 'zone': 'low', 'sigmaT2': 11.87}),
+        ('NII-6548A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 900, 'maxI': 1210, 'restWavelength': 6548.03, 'ampList': [2.2041386, 2.7154357, 12.7231992], 'zone': 'low', 'sigmaT2': 11.87}),
+        ('SII-6717A', {'Colour': 'r', 'Order': 22, 'Filter': 'red', 'minI': 1700, 'maxI': 2006, 'restWavelength': 6716.47, 'ampList': [1.8448349, 4.3243951, 11.3964914], 'zone': 'low', 'sigmaT2': 5.19}),
         # #('SII-6731A', {'Colour': '#58D68D', 'Order': 22, 'Filter': 'red', 'minI': 2068, 'maxI': 2273, 'restWavelength': 6730.85, 'ampList': [1.3593845, 5.9234259, 7.3026765], 'zone': 'low', 'sigmaT2': 5.19}),
         #('HeI-5876A', {'Colour': '#641E16', 'Order': 15, 'Filter': 'red', 'minI': 1350, 'maxI': 1650, 'restWavelength': 5875.64, 'ampList': [0.4850817, 0.1915922, 4.6927829], 'zone': 'low', 'sigmaT2': 41.54}),
         #('OII-3729A', {'Colour': '#5D6D7E', 'Order': 14, 'Filter': 'blue', 'minI': 2720, 'maxI': 3000, 'restWavelength': 3728.82, 'ampList': [5.0112717, -22679.7862692, -5.7298895], 'zone': 'low', 'sigmaT2': 10.39}),
@@ -47,12 +47,12 @@ class RegionParameters(object):
     # Information for the center, sigma and linear for the low (H-alpha) and high (OIII) zones
     centerListLowZone = [6170.97557, 6185.89437, 6190.04683]
     sigmaListLowZone = [17.1864991, 114.190155, 47.3997052]
-    linSlopeLowZone = -3.9251e-06
-    linIntLowZone = 0.07198545
+    linSlopeLowZone = -4.2702e-06
+    linIntLowZone = 0.07401082
     centerListHighZone = [6170.97557, 6185.89437, 6190.04683]
     sigmaListHighZone = [17.1864991, 114.190155, 47.3997052]
-    linSlopeHighZone = 2.6129e-06
-    linIntHighZone = -0.00147764
+    linSlopeHighZone = 3.7183e-06
+    linIntHighZone = 0.04636879
 
     numComps = 3
     componentLabels = ['Narrow 1', 'Broad', 'Narrow 2']

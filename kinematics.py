@@ -316,10 +316,10 @@ class FittingProfile(object):
             if self.lineName == 'OIII-5007A':  # Find solutions
                 varyCentre = True
                 varySigma = True
-                varyAmp = True
+                varyAmp = False
             else:                               # Copy center from OIII-5007 (all others vary)
                 varyCentre = False
-                varySigma = True
+                varySigma = False
                 varyAmp = True
 
         g = GaussianModel(prefix=prefix)
@@ -337,8 +337,8 @@ class FittingProfile(object):
         lin = LinearModel(prefix='lin_')
         self.linGaussParams = lin.guess(self.flux, x=self.vel)
         self.linGaussParams.update(lin.make_params())
-        self.linGaussParams['lin_slope'].set(lS)
-        self.linGaussParams['lin_intercept'].set(lI)
+        self.linGaussParams['lin_slope'].set(lS, vary=True)
+        self.linGaussParams['lin_intercept'].set(lI, vary=True)
 
         for i in range(numOfComponents):
             gList.append(self._gaussian_component(self.linGaussParams,'g%d_' % (i+1), cList[i], sList[i], aList[i]))
@@ -495,7 +495,7 @@ class RegionCalculations(object):
             name, x, y, mod, col, comps, lab = profile
             plt.plot(x, y, color=col, label=lab)
             plt.plot(x, mod, color=col, linestyle='--')
-            if name == 'H-Delta':
+            if name == 'SII-6717A':
                 for idx in range(rp.numComps ):
                     plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
         plt.xlim(rp.plottingXRange)
@@ -514,29 +514,30 @@ class RegionCalculations(object):
                 for idx in range(rp.numComps ):
                     plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
         plt.xlim(rp.plottingXRange)
-        plt.savefig(rp.regionName + '/' + 'HighZoneProfiles.png')
         plt.legend()
+        plt.savefig(rp.regionName + '/' + 'HighZoneProfiles.png')
 
-        # plt.figure(rp.regionName)
-        # ax = plt.subplot(1,1,1)
-        # plt.title(rp.regionName)
-        # plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-        # plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
-        # for profile in (lowZoneProfiles + highZoneProfiles):
-        #     name, x, y, mod, col, comps, lab = profile
-        #     if name in ['H-Alpha', 'OIII-5007A', 'H-Beta', 'NII-6584A', 'SII-6717A']:
-        #         ax.plot(x, y, color=col, label=lab)
-        #         ax.plot(x, mod, color=col, linestyle='--')
-        #         if name == 'SII-6717A':
-        #             for idx in range(rp.numComps ):
-        #                 ax.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
-        # plt.xlim(rp.plottingXRange)
-        # handles, labels = ax.get_legend_handles_labels()
-        # sortedIndex = [1, 4, 0, 2, 3]
-        # handles2 = [handles[idx] for idx in sortedIndex]
-        # labels2 = [labels[idx] for idx in sortedIndex]
-        # ax.legend(handles2, labels2)
-        # plt.savefig(rp.regionName + '/' + 'StrongestEmissionLines.png')
+
+        plt.figure(rp.regionName)
+        ax = plt.subplot(1,1,1)
+        plt.title(rp.regionName)
+        plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
+        for profile in (lowZoneProfiles + highZoneProfiles):
+            name, x, y, mod, col, comps, lab = profile
+            if name in ['H-Beta', 'OIII-5007A', 'H-Alpha', 'NII-6584A', 'SII-6717A']:
+                ax.plot(x, y, color=col, label=lab)
+                ax.plot(x, mod, color=col, linestyle='--')
+                if name == 'SII-6717A':
+                    for idx in range(rp.numComps ):
+                        ax.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
+        plt.xlim(rp.plottingXRange)
+        handles, labels = ax.get_legend_handles_labels()
+        sortedIndex = [1, 4, 0, 2, 3]
+        handles2 = [handles[idx] for idx in sortedIndex]
+        labels2 = [labels[idx] for idx in sortedIndex]
+        ax.legend(handles2, labels2)
+        plt.savefig(rp.regionName + '/' + 'StrongestEmissionLines.png')
 
 
 

@@ -479,8 +479,8 @@ class RegionCalculations(object):
         try:
             ratioNII = (rp.emProfiles['NII-6584A']['globalFlux'] + rp.emProfiles['NII-6548A']['globalFlux'])/(rp.emProfiles['H-Alpha']['globalFlux'])
             ratioOIII = (rp.emProfiles['OIII-5007A']['globalFlux'] + rp.emProfiles['OIII-4959A']['globalFlux']) / (rp.emProfiles['H-Beta']['globalFlux'])
-            ratioNII = np.log(ratioNII)
-            ratioOIII = np.log(ratioOIII)
+            ratioNII = np.log10(ratioNII)
+            ratioOIII = np.log10(ratioOIII)
         except KeyError:
             ratioNII, ratioOIII = (0, 0)
             print "NII or OIII are not defined"

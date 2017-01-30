@@ -97,8 +97,9 @@ def line_label(emLineName, emRestWave, rp):
 
 def halpha_regions_table_to_latex(regionInfoArray, directory="."):
     saveFileName = 'RegionInfo'
-    headings = [r'Region Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{[NII]/H}\alpha$', r'$\mathrm{[OIII]/H}\beta$']
+    headings = [r'Region Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{log([NII]/H}\alpha)$', r'$\mathrm{log([OIII]/H}\beta)$']
     headingUnits = ['', r'$(\mathrm{M_{\odot} \ yr^{-1}})$', '', '', '']
+
     table_to_latex(regionInfoArray, headings, headingUnits, saveFileName, directory, 'Region Information')
 
 
@@ -478,6 +479,8 @@ class RegionCalculations(object):
         try:
             ratioNII = (rp.emProfiles['NII-6584A']['globalFlux'] + rp.emProfiles['NII-6548A']['globalFlux'])/(rp.emProfiles['H-Alpha']['globalFlux'])
             ratioOIII = (rp.emProfiles['OIII-5007A']['globalFlux'] + rp.emProfiles['OIII-4959A']['globalFlux']) / (rp.emProfiles['H-Beta']['globalFlux'])
+            ratioNII = np.log(ratioNII)
+            ratioOIII = np.log(ratioOIII)
         except KeyError:
             ratioNII, ratioOIII = (0, 0)
             print "NII or OIII are not defined"

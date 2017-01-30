@@ -290,9 +290,9 @@ class FittingProfile(object):
         a is amplitude. Returns the Gaussian model"""
         if self.zone == 'low':
             if self.lineName == 'H-Alpha':  # Find solutions
-                varyCentre = False
+                varyCentre = True
                 varySigma = True
-                varyAmp = True
+                varyAmp = False
             elif self.lineName in ['SII-6717A', 'NII-6584A', 'OII-3729A', 'HeI-5876A', 'SIII-9069A']:  # Copy center from Halpha, others vary
                 varyCentre = False
                 varySigma = True

@@ -15,7 +15,7 @@ class RegionParameters(object):
         ('H-Alpha', {'Colour': 'y', 'Order': 21, 'Filter': 'red', 'minI': 1180, 'maxI': 1700, 'restWavelength': 6562.82, 'ampList': [21.1627753, 106.4546176, 42.7126099], 'zone': 'low', 'sigmaT2': 164.96}),
         ('OIII-5007A', {'Colour': 'c', 'Order': 5, 'Filter': 'red', 'minI': 1600, 'maxI': 2100, 'restWavelength': 5006.84, 'ampList': [2.3894212, 9.5687333, 9.6015654], 'zone': 'high', 'sigmaT2': 41.54}),
         ('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2300, 'maxI': 2700, 'restWavelength': 4958.91, 'ampList': [0.6901857, 3.7348318, 2.7152026], 'zone': 'high', 'sigmaT2': 10.39}),
-        # ('H-Beta', {'Colour': 'b', 'Order': 36, 'Filter': 'blue', 'minI': 2000, 'maxI': 2700, 'restWavelength': 4861.33, 'ampList': [6.7333334, 36.9536855, 5.8906862], 'zone': 'low', 'sigmaT2': 164.96}),
+        ('H-Beta', {'Colour': 'b', 'Order': 36, 'Filter': 'blue', 'minI': 2000, 'maxI': 2700, 'restWavelength': 4861.33, 'ampList': [6.7333334, 36.9536855, 5.8906862], 'zone': 'low', 'sigmaT2': 164.96}),
         # ('H-Gamma', {'Colour': 'c', 'Order': 28, 'Filter': 'blue', 'minI': 600, 'maxI': 1100, 'restWavelength': 4340.47, 'ampList': [3.4047666, 14.3428947, 4.6305676], 'zone': 'low', 'sigmaT2': 164.96}),
         ('H-Delta', {'Colour': 'c', 'Order': 23, 'Filter': 'blue', 'minI': 1550, 'maxI': 1850, 'restWavelength': 4101.74, 'ampList': [2.1928076, 8.0472948, -1.3214173], 'zone': 'low', 'sigmaT2': 164.96}),
         ('NII-6584A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 1650, 'maxI': 2100, 'restWavelength': 6583.41, 'ampList': [7.1287141, 37.1143507, 12.7885056], 'zone': 'low', 'sigmaT2': 11.87}),
@@ -56,7 +56,7 @@ class RegionParameters(object):
 
     numComps = 3
     componentLabels = ['Narrow 1', 'Narrow 2', 'Broad']
-    componentColours = ['b', 'g', 'r']
+    componentColours = ['b', 'r', 'g']
     plottingXRange = [5900, 6500]  # velocities
     sigmaInstrBlue = 5.1
     sigmaInstrRed = 5.7

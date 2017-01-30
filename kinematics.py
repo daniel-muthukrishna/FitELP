@@ -290,7 +290,7 @@ class FittingProfile(object):
         a is amplitude. Returns the Gaussian model"""
         if self.zone == 'low':
             if self.lineName == 'H-Alpha':  # Find solutions
-                varyCentre = True
+                varyCentre = False
                 varySigma = True
                 varyAmp = True
             elif self.lineName in ['SII-6717A', 'NII-6584A', 'OII-3729A', 'HeI-5876A', 'SIII-9069A']:  # Copy center from Halpha, others vary
@@ -363,7 +363,7 @@ class FittingProfile(object):
         plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
         plt.plot(self.vel, self.flux, label='Data')
         for i in range(numOfComponents):
-            labelComp = ['Narrow 1', 'Broad', 'Narrow 2']  # 'g%d_' % (i+1)
+            labelComp = self.rp.componentLabels  # 'g%d_' % (i+1)
             plt.plot(self.vel, components['g%d_' % (i+1)]+components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])
         # plt.plot(self.vel, components['lin_'], label='lin_')
         plt.plot(self.vel, out.best_fit, color='black', linestyle='--', label='Fit')

@@ -463,6 +463,7 @@ class RegionCalculations(object):
                     tableLine[0:2] = ['', '']
                     tableLine[-1] = ''
                 allModelComponents.append(tableLine)
+            allModelComponents.append([''] * len(tableLine))
             ampListAll.append([emName, ampComponentList, emInfo, emName])
         comp_table_to_latex(allModelComponents, rp)
 

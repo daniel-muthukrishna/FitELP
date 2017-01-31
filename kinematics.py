@@ -36,7 +36,11 @@ def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
     totalSigmaSquared = sigmaObs**2 - sigmaInstr**2 - sigmaTemp2
     totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError
     intrinsic = np.sqrt(totalSigmaSquared)
-    intrinsicError = 0.5 * totalSigmaSquared**(-0.5) * totalSigmaSquaredError
+    try:
+        intrinsicError = 0.5 * totalSigmaSquared**(-0.5) * totalSigmaSquaredError
+    except ValueError:
+        intrinsicError = np.nan
+        print "INVALID SIGMA"
 
     return intrinsic, intrinsicError
 
@@ -116,7 +120,7 @@ def comp_table_to_latex(componentArray, rp):
 def table_to_latex(tableArray, headings, headingUnits, saveFileName, directory, caption):
     texFile = open(directory + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
-    texFile.write('\\usepackage[landscape, margin=0.5in]{geometry}\n')
+    texFile.write('\\usepackage[a2paper, portrait, margin=0.5in]{geometry}\n')
     # texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
     # texFile.write('\\usepackage[utf8]{inputenc}\n')
     texFile.write('\\begin{document}\n')
@@ -284,7 +288,7 @@ class FittingProfile(object):
 
         return amplitudeFinal
 
-    def _gaussian_component(self, pars, prefix, c, s, a, cMin=-np.inf, cMax=np.inf, sMin=-np.inf, sMax=np.inf, aMin=-np.inf, aMax=np.inf):
+    def _gaussian_component(self, pars, prefix, c, s, a, limits):
         """Fits a gaussian with given parameters.
         pars is the lmfit Parameters for the fit, prefix is the label of the gaussian, c is the center, s is sigma,
         a is amplitude. Returns the Gaussian model"""
@@ -292,36 +296,38 @@ class FittingProfile(object):
             if self.lineName == 'H-Alpha':  # Find solutions
                 varyCentre = True
                 varySigma = True
-                varyAmp = False
+                varyAmp = True
             elif self.lineName in ['SII-6717A', 'NII-6584A', 'OII-3729A', 'HeI-5876A', 'SIII-9069A']:  # Copy center from Halpha, others vary
-                varyCentre = False
+                varyCentre = True
                 varySigma = True
                 varyAmp = True
             elif self.lineName in ['SII-6731A', 'NII-6548A', 'NII-5755A', 'OII-3726A', 'HeI-6678A', 'HeI-7065A', 'HeI-4471A', 'SIII-6312A']:  # Copy center from Halpha, sigma from above
-                varyCentre = False
-                varySigma = False
+                varyCentre = True
+                varySigma = True
                 varyAmp = True
             elif self.lineName in ['H-Gamma', 'OI-6300A', 'ArIII-7136A', 'HeIH8-3889A', 'NeIII-3976A', 'NeIII-3970A', 'NeIII-3868A']:  # Copy center and sigma from Halpha
                 varyCentre = False
                 varySigma = False
                 varyAmp = True
             else:               # Copy center from Halpha, others vary
-                varyCentre = False
+                varyCentre = True
                 varySigma = True
                 varyAmp = True
-                # cMin = c - c*0.01
-                # cMax = c + c*0.01
-                # sMin = s - s*0.03
-                # sMax = s + s*0.03
         elif self.zone == 'high':
             if self.lineName == 'OIII-5007A':  # Find solutions
                 varyCentre = True
                 varySigma = True
-                varyAmp = False
-            else:                               # Copy center from OIII-5007 (all others vary)
-                varyCentre = False
-                varySigma = False
                 varyAmp = True
+            else:                               # Copy center from OIII-5007 (all others vary)
+                varyCentre = True
+                varySigma = True
+                varyAmp = True
+        cMin = c - c*limits['c']
+        cMax = c + c*limits['c']
+        sMin = s - s*limits['s']
+        sMax = s + s*limits['s']
+        aMin = a - a*limits['a']
+        aMax = a + a*limits['a']
 
         g = GaussianModel(prefix=prefix)
         pars.update(g.make_params())
@@ -331,7 +337,7 @@ class FittingProfile(object):
 
         return g
 
-    def lin_and_multi_gaussian(self, numOfComponents, cList, sList, aList, lS, lI):
+    def lin_and_multi_gaussian(self, numOfComponents, cList, sList, aList, lS, lI, limits):
         """All lists should be the same length"""
         gList = []
 
@@ -342,7 +348,7 @@ class FittingProfile(object):
         self.linGaussParams['lin_intercept'].set(lI, vary=True)
 
         for i in range(numOfComponents):
-            gList.append(self._gaussian_component(self.linGaussParams,'g%d_' % (i+1), cList[i], sList[i], aList[i]))
+            gList.append(self._gaussian_component(self.linGaussParams,'g%d_' % (i+1), cList[i], sList[i], aList[i], limits))
         gList = np.array(gList)
         mod = lin + gList.sum()
 
@@ -405,16 +411,16 @@ class RegionCalculations(object):
 
             if emInfo['zone'] == 'low':
                 if emName == 'H-Alpha':
-                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps , rp.centerListLowZone, rp.sigmaListLowZone, emInfo['ampList'], rp.linSlopeLowZone, rp.linIntLowZone)
+                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.centerListLowZone, rp.sigmaListLowZone, emInfo['ampList'], rp.linSlopeLowZone, rp.linIntLowZone, emInfo['compLimits'])
                     rp.emProfiles[emName]['centerList'] = []
                     rp.emProfiles[emName]['sigmaList'] = []
-                    for idx in range(rp.numComps ):
+                    for idx in range(rp.numComps):
                         rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
                         rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
 
                 elif emName in ['SII-6717A', 'NII-6584A', 'OII-3729A', 'HeI-5876A', 'SIII-9069A']:
                     rp.emProfiles[emName]['centerList'] = rp.emProfiles['H-Alpha']['centerList']
-                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps , rp.emProfiles['H-Alpha']['centerList'], rp.emProfiles['H-Alpha']['sigmaList'], emInfo['ampList'], rp.linSlopeLowZone, rp.linIntLowZone)
+                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.emProfiles['H-Alpha']['centerList'], rp.emProfiles['H-Alpha']['sigmaList'], emInfo['ampList'], rp.linSlopeLowZone, rp.linIntLowZone, emInfo['compLimits'])
                     rp.emProfiles[emName]['sigmaList'] = []
                     for idx in range(rp.numComps ):
                         rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
@@ -432,21 +438,21 @@ class RegionCalculations(object):
                         rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['SIII-9069A']['sigmaList']
                     else:
                         rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['H-Alpha']['sigmaList']
-                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps , rp.emProfiles[emName]['centerList'], rp.emProfiles[emName]['sigmaList'], emInfo['ampList'], rp.linSlopeLowZone, rp.linIntLowZone)
+                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.emProfiles[emName]['centerList'], rp.emProfiles[emName]['sigmaList'], emInfo['ampList'], rp.linSlopeLowZone, rp.linIntLowZone, emInfo['compLimits'])
                 lowZoneProfiles.append([emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel])
 
             elif emInfo['zone'] == 'high':
                 if emName == 'OIII-5007A':
-                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps , rp.centerListHighZone, rp.sigmaListHighZone, emInfo['ampList'], rp.linSlopeHighZone, rp.linIntHighZone)
+                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.centerListHighZone, rp.sigmaListHighZone, emInfo['ampList'], rp.linSlopeHighZone, rp.linIntHighZone, emInfo['compLimits'])
                     rp.emProfiles[emName]['centerList'] = []
                     rp.emProfiles[emName]['sigmaList'] = []
-                    for idx in range(rp.numComps ):
+                    for idx in range(rp.numComps):
                         rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
                         rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
                 else:
                     rp.emProfiles[emName]['centerList'] = rp.emProfiles['OIII-5007A']['centerList']
                     rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['OIII-5007A']['sigmaList']
-                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps , rp.emProfiles[emName]['centerList'], rp.emProfiles[emName]['sigmaList'], emInfo['ampList'], rp.linSlopeHighZone, rp.linIntHighZone)
+                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.emProfiles[emName]['centerList'], rp.emProfiles[emName]['sigmaList'], emInfo['ampList'], rp.linSlopeHighZone, rp.linIntHighZone, emInfo['compLimits'])
                 highZoneProfiles.append([emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel])
 
         #Print Amplitudes
@@ -557,7 +563,7 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params]
+    regionsParameters = [NGC6845Region7Params]#, NGC6845Region26Params]
 
     regionArray = []
     for regParam in regionsParameters:

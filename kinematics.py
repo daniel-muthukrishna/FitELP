@@ -314,36 +314,36 @@ class FittingProfile(object):
         """Fits a gaussian with given parameters.
         pars is the lmfit Parameters for the fit, prefix is the label of the gaussian, c is the center, s is sigma,
         a is amplitude. Returns the Gaussian model"""
-        if self.zone == 'low':
-            if self.lineName == 'H-Alpha':  # Find solutions
-                varyCentre = True
-                varySigma = True
-                varyAmp = True
-            elif self.lineName in ['SII-6717A', 'NII-6584A', 'OII-3729A', 'HeI-5876A', 'SIII-9069A']:  # Copy center from Halpha, others vary
-                varyCentre = True
-                varySigma = True
-                varyAmp = True
-            elif self.lineName in ['SII-6731A', 'NII-6548A', 'NII-5755A', 'OII-3726A', 'HeI-6678A', 'HeI-7065A', 'HeI-4471A', 'SIII-6312A']:  # Copy center from Halpha, sigma from above
-                varyCentre = True
-                varySigma = True
-                varyAmp = True
-            elif self.lineName in ['H-Gamma', 'OI-6300A', 'ArIII-7136A', 'HeIH8-3889A', 'NeIII-3976A', 'NeIII-3970A', 'NeIII-3868A']:  # Copy center and sigma from Halpha
-                varyCentre = True
-                varySigma = True
-                varyAmp = True
-            else:               # Copy center from Halpha, others vary
-                varyCentre = True
-                varySigma = True
-                varyAmp = True
-        elif self.zone == 'high':
-            if self.lineName == 'OIII-5007A':  # Find solutions
-                varyCentre = True
-                varySigma = True
-                varyAmp = True
-            else:                               # Copy center from OIII-5007 (all others vary)
-                varyCentre = True
-                varySigma = True
-                varyAmp = True
+        # if self.zone == 'low':
+        #     if self.lineName == 'H-Alpha':  # Find solutions
+        #         varyCentre = True
+        #         varySigma = True
+        #         varyAmp = True
+        #     elif self.lineName in ['SII-6717A', 'NII-6584A', 'OII-3729A', 'HeI-5876A', 'SIII-9069A']:  # Copy center from Halpha, others vary
+        #         varyCentre = True
+        #         varySigma = True
+        #         varyAmp = True
+        #     elif self.lineName in ['SII-6731A', 'NII-6548A', 'NII-5755A', 'OII-3726A', 'HeI-6678A', 'HeI-7065A', 'HeI-4471A', 'SIII-6312A']:  # Copy center from Halpha, sigma from above
+        #         varyCentre = True
+        #         varySigma = True
+        #         varyAmp = True
+        #     elif self.lineName in ['H-Gamma', 'OI-6300A', 'ArIII-7136A', 'HeIH8-3889A', 'NeIII-3976A', 'NeIII-3970A', 'NeIII-3868A']:  # Copy center and sigma from Halpha
+        #         varyCentre = True
+        #         varySigma = True
+        #         varyAmp = True
+        #     else:               # Copy center from Halpha, others vary
+        #         varyCentre = True
+        #         varySigma = True
+        #         varyAmp = True
+        # elif self.zone == 'high':
+        #     if self.lineName == 'OIII-5007A':  # Find solutions
+        #         varyCentre = True
+        #         varySigma = True
+        #         varyAmp = True
+        #     else:                               # Copy center from OIII-5007 (all others vary)
+        #         varyCentre = True
+        #         varySigma = True
+        #         varyAmp = True
         cMin = c - c*limits['c']
         cMax = c + c*limits['c']
         sMin = s - s*limits['s']
@@ -353,9 +353,9 @@ class FittingProfile(object):
 
         g = GaussianModel(prefix=prefix)
         pars.update(g.make_params())
-        pars[prefix+'center'].set(c, min=cMin, max=cMax, vary=varyCentre)
-        pars[prefix + 'sigma'].set(s, min=sMin, max=sMax, vary=varySigma)
-        pars[prefix + 'amplitude'].set(a, min=aMin, max=aMax, vary=varyAmp)
+        pars[prefix+'center'].set(c, min=cMin, max=cMax, vary=True)
+        pars[prefix + 'sigma'].set(s, min=sMin, max=sMax, vary=True)
+        pars[prefix + 'amplitude'].set(a, min=aMin, max=aMax, vary=True)
 
         return g
 
@@ -502,7 +502,7 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [NGC6845Region26Params]
+    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params]
 
     regionArray = []
     for regParam in regionsParameters:

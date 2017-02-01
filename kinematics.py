@@ -36,11 +36,7 @@ def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
     totalSigmaSquared = sigmaObs**2 - sigmaInstr**2 - sigmaTemp2
     totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError
     intrinsic = np.sqrt(totalSigmaSquared)
-    try:
-        intrinsicError = 0.5 * totalSigmaSquared**(-0.5) * totalSigmaSquaredError
-    except ValueError:
-        intrinsicError = np.nan
-        print "INVALID SIGMA"
+    intrinsicError = 0.5 * totalSigmaSquared**(-0.5) * totalSigmaSquaredError
 
     return intrinsic, intrinsicError
 
@@ -159,6 +155,32 @@ def calc_luminosity(rp):
     logLuminosityError = 0.434 * calcLuminosityError/calcLuminosity
 
     return logLuminosity, logLuminosityError, starFormRate, starFormRateError
+
+
+def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
+    plt.figure(title)
+    ax = plt.subplot(1, 1, 1)
+    plt.title(title)  # Recombination Emission Lines")
+    plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
+    plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
+    for i in range(len(lineNames)):
+        name, x, y, mod, col, comps, lab = rp.emProfiles[lineNames[i]]['plotInfo']
+        ax.plot(x, y, color=col, label=lab)
+        ax.plot(x, mod, color=col, linestyle='--')
+        if name == nameForComps:
+            for idx in range(rp.numComps):
+                plt.plot(x, comps['g%d_' % (idx + 1)] + comps['lin_'], color=rp.componentColours[idx],
+                         linestyle=':')
+    plt.xlim(rp.plottingXRange)
+    if sortedIndex is not None:
+        handles, labels = ax.get_legend_handles_labels()
+        sortedIndex = [1, 4, 0, 2, 3]
+        handles2 = [handles[idx] for idx in sortedIndex]
+        labels2 = [labels[idx] for idx in sortedIndex]
+        ax.legend(handles2, labels2)
+    else:
+        ax.legend()
+    plt.savefig(rp.regionName + '/' + title.strip(' ') + '.png')
 
 
 class GalaxyRegion(object):
@@ -306,8 +328,8 @@ class FittingProfile(object):
                 varySigma = True
                 varyAmp = True
             elif self.lineName in ['H-Gamma', 'OI-6300A', 'ArIII-7136A', 'HeIH8-3889A', 'NeIII-3976A', 'NeIII-3970A', 'NeIII-3868A']:  # Copy center and sigma from Halpha
-                varyCentre = False
-                varySigma = False
+                varyCentre = True
+                varySigma = True
                 varyAmp = True
             else:               # Copy center from Halpha, others vary
                 varyCentre = True
@@ -389,8 +411,7 @@ class RegionCalculations(object):
         # galaxyRegion.plot_order(26, filt='red', maxIndex=-10, title="")
         # plt.show()
 
-        lowZoneProfiles = []
-        highZoneProfiles = []
+        zoneNames = {'low': [], 'high': []}
         ampListAll = []
         allModelComponents = []
         # Iterate through emission lines
@@ -409,51 +430,19 @@ class RegionCalculations(object):
             ion1, lambdaZero1 = line_label(emName, emInfo['restWavelength'], rp)
             emLabel = (ion1 + ' ' + lambdaZero1)
 
-            if emInfo['zone'] == 'low':
-                if emName == 'H-Alpha':
-                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.centerListLowZone, rp.sigmaListLowZone, emInfo['ampList'], rp.linSlopeLowZone, rp.linIntLowZone, emInfo['compLimits'])
-                    rp.emProfiles[emName]['centerList'] = []
-                    rp.emProfiles[emName]['sigmaList'] = []
-                    for idx in range(rp.numComps):
-                        rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
-                        rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
-
-                elif emName in ['SII-6717A', 'NII-6584A', 'OII-3729A', 'HeI-5876A', 'SIII-9069A']:
-                    rp.emProfiles[emName]['centerList'] = rp.emProfiles['H-Alpha']['centerList']
-                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.emProfiles['H-Alpha']['centerList'], rp.emProfiles['H-Alpha']['sigmaList'], emInfo['ampList'], rp.linSlopeLowZone, rp.linIntLowZone, emInfo['compLimits'])
-                    rp.emProfiles[emName]['sigmaList'] = []
-                    for idx in range(rp.numComps ):
-                        rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
-                else:
-                    rp.emProfiles[emName]['centerList'] = rp.emProfiles['H-Alpha']['centerList']
-                    if emName in ['NII-6548A', 'NII-5755A']:
-                        rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['NII-6584A']['sigmaList']
-                    elif emName == 'SII-6731A':
-                        rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['SII-6717A']['sigmaList']
-                    elif emName == 'OII-3726A':
-                        rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['OII-3729A']['sigmaList']
-                    elif emName in ['HeI-6678A', 'HeI-7065A', 'HeI-4471A']:
-                        rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['HeI-5876A']['sigmaList']
-                    elif emName == 'SIII-6312A':
-                        rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['SIII-9069A']['sigmaList']
-                    else:
-                        rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['H-Alpha']['sigmaList']
-                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.emProfiles[emName]['centerList'], rp.emProfiles[emName]['sigmaList'], emInfo['ampList'], rp.linSlopeLowZone, rp.linIntLowZone, emInfo['compLimits'])
-                lowZoneProfiles.append([emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel])
-
-            elif emInfo['zone'] == 'high':
-                if emName == 'OIII-5007A':
-                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.centerListHighZone, rp.sigmaListHighZone, emInfo['ampList'], rp.linSlopeHighZone, rp.linIntHighZone, emInfo['compLimits'])
-                    rp.emProfiles[emName]['centerList'] = []
-                    rp.emProfiles[emName]['sigmaList'] = []
-                    for idx in range(rp.numComps):
-                        rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
-                        rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
-                else:
-                    rp.emProfiles[emName]['centerList'] = rp.emProfiles['OIII-5007A']['centerList']
-                    rp.emProfiles[emName]['sigmaList'] = rp.emProfiles['OIII-5007A']['sigmaList']
-                    model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.emProfiles[emName]['centerList'], rp.emProfiles[emName]['sigmaList'], emInfo['ampList'], rp.linSlopeHighZone, rp.linIntHighZone, emInfo['compLimits'])
-                highZoneProfiles.append([emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel])
+            if emInfo['copyFrom'] is None:
+                model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.centerList[emInfo['zone']], rp.sigmaList[emInfo['zone']], emInfo['ampList'], rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
+                rp.emProfiles[emName]['centerList'] = []
+                rp.emProfiles[emName]['sigmaList'] = []
+                for idx in range(rp.numComps):
+                    rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
+                    rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
+            else:
+                rp.emProfiles[emName]['centerList'] = rp.emProfiles[emInfo['copyFrom']]['centerList']
+                rp.emProfiles[emName]['sigmaList'] = rp.emProfiles[emInfo['copyFrom']]['sigmaList']
+                model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.emProfiles[emName]['centerList'], rp.emProfiles[emName]['sigmaList'], emInfo['ampList'], rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
+            zoneNames[emInfo['zone']].append(emName)
+            rp.emProfiles[emName]['plotInfo'] = [emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel]
 
         #Print Amplitudes
             ampComponentList = []
@@ -497,59 +486,9 @@ class RegionCalculations(object):
         self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), round(ratioNII, 3), round(ratioOIII, 3)]
 
         # Combined Plots
-        plt.figure(rp.regionName + " Low Zone Profiles")
-        plt.title("Low Zone Profiles")  # Recombination Emission Lines")
-        plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
-        for profile in lowZoneProfiles:
-            name, x, y, mod, col, comps, lab = profile
-            plt.plot(x, y, color=col, label=lab)
-            plt.plot(x, mod, color=col, linestyle='--')
-            if name == 'SII-6717A':
-                for idx in range(rp.numComps ):
-                    plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
-        plt.xlim(rp.plottingXRange)
-        plt.legend()
-        plt.savefig(rp.regionName + '/' + 'LowZoneProfiles.png')
-
-        plt.figure(rp.regionName + " High Zone Profiles")
-        plt.title("High Zone Profiles")
-        plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
-        for profile in highZoneProfiles:
-            name, x, y, mod, col, comps, lab = profile
-            plt.plot(x, y, color=col, label=lab)
-            plt.plot(x, mod, color=col, linestyle='--')
-            if name == 'OIII-4959A':
-                for idx in range(rp.numComps ):
-                    plt.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
-        plt.xlim(rp.plottingXRange)
-        plt.legend()
-        plt.savefig(rp.regionName + '/' + 'HighZoneProfiles.png')
-
-
-        plt.figure(rp.regionName)
-        ax = plt.subplot(1,1,1)
-        plt.title(rp.regionName)
-        plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}}$)")
-        for profile in (lowZoneProfiles + highZoneProfiles):
-            name, x, y, mod, col, comps, lab = profile
-            if name in ['H-Beta', 'OIII-5007A', 'H-Alpha', 'NII-6584A', 'SII-6717A']:
-                ax.plot(x, y, color=col, label=lab)
-                ax.plot(x, mod, color=col, linestyle='--')
-                if name == 'SII-6717A':
-                    for idx in range(rp.numComps ):
-                        ax.plot(x, comps['g%d_' % (idx + 1)]+comps['lin_'], color=rp.componentColours[idx], linestyle=':')
-        plt.xlim(rp.plottingXRange)
-        handles, labels = ax.get_legend_handles_labels()
-        sortedIndex = [1, 4, 0, 2, 3]
-        handles2 = [handles[idx] for idx in sortedIndex]
-        labels2 = [labels[idx] for idx in sortedIndex]
-        ax.legend(handles2, labels2)
-        plt.savefig(rp.regionName + '/' + 'StrongestEmissionLines.png')
-
-
+        plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
+        plot_profiles(zoneNames['high'], rp, nameForComps='OIII-4959A', title=rp.regionName + " High Zone Profiles")
+        plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines')
 
 
 
@@ -563,7 +502,7 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [NGC6845Region7Params]#, NGC6845Region26Params]
+    regionsParameters = [NGC6845Region26Params]
 
     regionArray = []
     for regParam in regionsParameters:

@@ -344,18 +344,39 @@ class FittingProfile(object):
         #         varyCentre = True
         #         varySigma = True
         #         varyAmp = True
-        cMin = c - c*limits['c']
-        cMax = c + c*limits['c']
-        sMin = s - s*limits['s']
-        sMax = s + s*limits['s']
-        aMin = a - a*limits['a']
-        aMax = a + a*limits['a']
+        varyCentre = True
+        varySigma = True
+        varyAmp = True
+        if limits['c'] == False:
+            varyCentre = False
+            cMin = -np.inf
+            cMax = np.inf
+        else:
+            cMin = c - c*limits['c']
+            cMax = c + c*limits['c']
+        if limits['s'] == False:
+            varyCentre = False
+            sMin = -np.inf
+            sMax = np.inf
+        else:
+            sMin = s - s * limits['s']
+            sMax = s + s * limits['s']
+        if limits['a'] == False:
+            varyCentre = False
+            aMin = -np.inf
+            aMax = np.inf
+        else:
+            aMin = a - a * limits['a']
+            aMax = a + a * limits['a']
+
+
+
 
         g = GaussianModel(prefix=prefix)
         pars.update(g.make_params())
-        pars[prefix+'center'].set(c, min=cMin, max=cMax, vary=True)
-        pars[prefix + 'sigma'].set(s, min=sMin, max=sMax, vary=True)
-        pars[prefix + 'amplitude'].set(a, min=aMin, max=aMax, vary=True)
+        pars[prefix+'center'].set(c, min=cMin, max=cMax, vary=varyCentre)
+        pars[prefix + 'sigma'].set(s, min=sMin, max=sMax, vary=varySigma)
+        pars[prefix + 'amplitude'].set(a, min=aMin, max=aMax, vary=varyAmp)
 
         return g
 
@@ -370,7 +391,10 @@ class FittingProfile(object):
         self.linGaussParams['lin_intercept'].set(lI, vary=True)
 
         for i in range(numOfComponents):
-            gList.append(self._gaussian_component(self.linGaussParams,'g%d_' % (i+1), cList[i], sList[i], aList[i], limits))
+            if type(limits) = List:
+                gList.append(self._gaussian_component(self.linGaussParams,'g%d_' % (i+1), cList[i], sList[i], aList[i], limits))
+            else:
+                gList.append(self._gaussian_component(self.linGaussParams,'g%d_' % (i+1), cList[i], sList[i], aList[i], limits[i]))
         gList = np.array(gList)
         mod = lin + gList.sum()
 
@@ -485,11 +509,11 @@ class RegionCalculations(object):
 
         self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), round(ratioNII, 3), round(ratioOIII, 3)]
 
-        # Combined Plots
-        plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
-        plot_profiles(zoneNames['high'], rp, nameForComps='OIII-4959A', title=rp.regionName + " High Zone Profiles")
-        plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines')
-
+        # # Combined Plots
+        # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
+        # plot_profiles(zoneNames['high'], rp, nameForComps='OIII-4959A', title=rp.regionName + " High Zone Profiles")
+        # plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines')
+        #
 
 
 
@@ -501,8 +525,9 @@ class RegionCalculations(object):
 if __name__ == '__main__':
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
+    # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params]
+    regionsParameters = [NGC6845Region7Params]#, NGC6845Region26Params]
 
     regionArray = []
     for regParam in regionsParameters:

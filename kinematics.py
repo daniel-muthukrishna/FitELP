@@ -314,63 +314,30 @@ class FittingProfile(object):
         """Fits a gaussian with given parameters.
         pars is the lmfit Parameters for the fit, prefix is the label of the gaussian, c is the center, s is sigma,
         a is amplitude. Returns the Gaussian model"""
-        # if self.zone == 'low':
-        #     if self.lineName == 'H-Alpha':  # Find solutions
-        #         varyCentre = True
-        #         varySigma = True
-        #         varyAmp = True
-        #     elif self.lineName in ['SII-6717A', 'NII-6584A', 'OII-3729A', 'HeI-5876A', 'SIII-9069A']:  # Copy center from Halpha, others vary
-        #         varyCentre = True
-        #         varySigma = True
-        #         varyAmp = True
-        #     elif self.lineName in ['SII-6731A', 'NII-6548A', 'NII-5755A', 'OII-3726A', 'HeI-6678A', 'HeI-7065A', 'HeI-4471A', 'SIII-6312A']:  # Copy center from Halpha, sigma from above
-        #         varyCentre = True
-        #         varySigma = True
-        #         varyAmp = True
-        #     elif self.lineName in ['H-Gamma', 'OI-6300A', 'ArIII-7136A', 'HeIH8-3889A', 'NeIII-3976A', 'NeIII-3970A', 'NeIII-3868A']:  # Copy center and sigma from Halpha
-        #         varyCentre = True
-        #         varySigma = True
-        #         varyAmp = True
-        #     else:               # Copy center from Halpha, others vary
-        #         varyCentre = True
-        #         varySigma = True
-        #         varyAmp = True
-        # elif self.zone == 'high':
-        #     if self.lineName == 'OIII-5007A':  # Find solutions
-        #         varyCentre = True
-        #         varySigma = True
-        #         varyAmp = True
-        #     else:                               # Copy center from OIII-5007 (all others vary)
-        #         varyCentre = True
-        #         varySigma = True
-        #         varyAmp = True
         varyCentre = True
         varySigma = True
         varyAmp = True
+
         if limits['c'] == False:
             varyCentre = False
-            cMin = -np.inf
-            cMax = np.inf
+            cMin, cMax = -np.inf, np.inf
         else:
             cMin = c - c*limits['c']
             cMax = c + c*limits['c']
+
         if limits['s'] == False:
             varyCentre = False
-            sMin = -np.inf
-            sMax = np.inf
+            sMin, sMax = -np.inf, np.inf
         else:
             sMin = s - s * limits['s']
             sMax = s + s * limits['s']
+
         if limits['a'] == False:
             varyCentre = False
-            aMin = -np.inf
-            aMax = np.inf
+            aMin, aMax = -np.inf, np.inf
         else:
             aMin = a - a * limits['a']
             aMax = a + a * limits['a']
-
-
-
 
         g = GaussianModel(prefix=prefix)
         pars.update(g.make_params())
@@ -391,10 +358,20 @@ class FittingProfile(object):
         self.linGaussParams['lin_intercept'].set(lI, vary=True)
 
         for i in range(numOfComponents):
-            if type(limits) = List:
-                gList.append(self._gaussian_component(self.linGaussParams,'g%d_' % (i+1), cList[i], sList[i], aList[i], limits))
+            if type(limits['c']) is list:
+                cLimit = limits['c'][i]
             else:
-                gList.append(self._gaussian_component(self.linGaussParams,'g%d_' % (i+1), cList[i], sList[i], aList[i], limits[i]))
+                cLimit = limits['c']
+            if type(limits['s']) is list:
+                sLimit = limits['s'][i]
+            else:
+                sLimit = limits['s']
+            if type(limits['a']) is list:
+                aLimit = limits['a'][i]
+            else:
+                aLimit = limits['a']
+            lims = {'c': cLimit, 's': sLimit, 'a': aLimit}
+            gList.append(self._gaussian_component(self.linGaussParams,'g%d_' % (i+1), cList[i], sList[i], aList[i], lims))
         gList = np.array(gList)
         mod = lin + gList.sum()
 
@@ -490,7 +467,7 @@ class RegionCalculations(object):
         for ampComps in ampListAll:
             #print ampComps[0], ampComps[1]
             ampCompsList, emInfo, emName = ampComps[1:4]
-            print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + "}),"
+            print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + ", " + "'compLimits': '" + str(emInfo['compLimits']) + "', " + "'copyFrom': '" + str(emInfo['copyFrom']) + "}),"
 
         print "------------ Component information %s ------------"  % rp.regionName
         for mod in allModelComponents:

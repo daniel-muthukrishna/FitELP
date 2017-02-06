@@ -93,9 +93,16 @@ def line_label(emLineName, emRestWave, rp):
             ion = r"$\mathrm{H}\gamma$"
         elif emLineName == 'H-Delta':
             ion = r"$\mathrm{H}\delta$"
+    elif emLineName == 'H-Beta_Blue':
+        lambdaZero = '$%s$' % str(int(round(emRestWave)))
+        ion = r"$\mathrm{H}\beta$ - Blue"
+    elif emLineName == 'H-Beta_Red':
+        lambdaZero = '$%s$' % str(int(round(emRestWave)))
+        ion = r"$\mathrm{H}\beta$ - Red"
     else:
         ion = r"$\mathrm{[%s]}$" % emLineName.split('-')[0]
         lambdaZero = '$%s$' % emLineName.split('-')[1][:-1]
+
 
     return ion, lambdaZero
 
@@ -444,9 +451,7 @@ class RegionCalculations(object):
                     rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
                     rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
             else:
-                rp.emProfiles[emName]['centerList'] = rp.emProfiles[emInfo['copyFrom']]['centerList']
-                rp.emProfiles[emName]['sigmaList'] = rp.emProfiles[emInfo['copyFrom']]['sigmaList']
-                model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.emProfiles[emName]['centerList'], rp.emProfiles[emName]['sigmaList'], emInfo['ampList'], rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
+                model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.emProfiles[emInfo['copyFrom']]['centerList'], rp.emProfiles[emInfo['copyFrom']]['sigmaList'], emInfo['ampList'], rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
                 rp.emProfiles[emName]['centerList'] = []
                 rp.emProfiles[emName]['sigmaList'] = []
                 for idx in range(rp.numComps):
@@ -503,7 +508,7 @@ class RegionCalculations(object):
         # plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines')
         #
 
-
+        plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
 
 
 

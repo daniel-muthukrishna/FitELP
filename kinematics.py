@@ -128,7 +128,7 @@ def comp_table_to_latex(componentArray, rp):
 def table_to_latex(tableArray, headings, headingUnits, saveFileName, directory, caption):
     texFile = open(directory + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
-    texFile.write('\\usepackage[a2paper, portrait, margin=0.5in]{geometry}\n')
+    texFile.write('\\usepackage[a4paper, portrait, margin=0.5in]{geometry}\n')
     # texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
     # texFile.write('\\usepackage[utf8]{inputenc}\n')
     texFile.write('\\begin{document}\n')
@@ -447,16 +447,24 @@ class RegionCalculations(object):
                 model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.centerList[emInfo['zone']], rp.sigmaList[emInfo['zone']], emInfo['ampList'], rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
                 rp.emProfiles[emName]['centerList'] = []
                 rp.emProfiles[emName]['sigmaList'] = []
+                rp.emProfiles[emName]['ampList'] = []
                 for idx in range(rp.numComps):
                     rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
                     rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
+                    rp.emProfiles[emName]['ampList'].append(model1.best_values['g%d_amplitude' % (idx + 1)])
             else:
-                model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.emProfiles[emInfo['copyFrom']]['centerList'], rp.emProfiles[emInfo['copyFrom']]['sigmaList'], emInfo['ampList'], rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
+                if type(rp.emProfiles[emName]['ampList']) is list:
+                    ampListInit = emInfo['ampList']
+                else:
+                    ampListInit = [a / emInfo['ampList'] for a in rp.emProfiles[emInfo['copyFrom']]['ampList']]  #Multiply elements in list by 3
+                model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.emProfiles[emInfo['copyFrom']]['centerList'], rp.emProfiles[emInfo['copyFrom']]['sigmaList'], ampListInit, rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
                 rp.emProfiles[emName]['centerList'] = []
                 rp.emProfiles[emName]['sigmaList'] = []
+                rp.emProfiles[emName]['ampList'] = []
                 for idx in range(rp.numComps):
                     rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
                     rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
+                    rp.emProfiles[emName]['ampList'].append(model1.best_values['g%d_amplitude' % (idx + 1)])
 
             zoneNames[emInfo['zone']].append(emName)
             rp.emProfiles[emName]['plotInfo'] = [emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel]
@@ -468,7 +476,7 @@ class RegionCalculations(object):
             rp.emProfiles[emName]['globalFlux'] = globalFlux
             rp.emProfiles[emName]['globalFluxErr'] = globalFluxErr
             for idx in range(rp.numComps ):
-                ampComponentList.append(round(model1.best_values['g%d_amplitude' % (idx + 1)], 7))
+                ampComponentList.append(round(rp.emProfiles[emName]['ampList'][idx], 7))
                 sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'], rp)
                 tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], "%.1f $\pm$ %.1f" % (o.params['g%d_center' % (idx + 1)].value, o.params['g%d_center' % (idx + 1)].stderr), r"%.1f $\pm$ %.1f" % (sigInt, sigIntErr), "%.1f $\pm$ %.2f" % (fluxList[idx], fluxListErr[idx]), round(eMFList[idx], 1), "%.1f $\pm$ %.2f" % (globalFlux, globalFluxErr)]
                 if idx != 0:
@@ -491,7 +499,7 @@ class RegionCalculations(object):
 
         try:
             ratioNII = (rp.emProfiles['NII-6584A']['globalFlux'] + rp.emProfiles['NII-6548A']['globalFlux'])/(rp.emProfiles['H-Alpha']['globalFlux'])
-            ratioOIII = (rp.emProfiles['OIII-5007A']['globalFlux'] + rp.emProfiles['OIII-4959A']['globalFlux']) / (rp.emProfiles['H-Beta']['globalFlux'])
+            ratioOIII = (rp.emProfiles['OIII-5007A']['globalFlux'] + rp.emProfiles['OIII-4959A']['globalFlux']) / (rp.emProfiles['H-Beta_Blue']['globalFlux'])
             ratioNII = np.log10(ratioNII)
             ratioOIII = np.log10(ratioOIII)
         except KeyError:
@@ -508,7 +516,7 @@ class RegionCalculations(object):
         # plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines')
         #
 
-        plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
+        # plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
 
 
 

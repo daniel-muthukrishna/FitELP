@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import numpy as np
+inf = np.inf
 
 
 class RegionParameters(object):
@@ -58,3 +59,10 @@ class RegionParameters(object):
     sigmaInstrBlue = 5.1
     sigmaInstrRed = 5.7
     distance = 2.68e26  # Distance to region in centimetres (same units as flux)
+
+""" NOTES ON HOW TO USE THE ABOVE TABLE
+The limits in 'compLimits' can be in the following forms:
+    - a list indicating the limits for each component
+    - a single number indicating the limits for ALL components
+    - False: indicating that the component cannot vary
+"""

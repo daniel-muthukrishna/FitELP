@@ -35,8 +35,13 @@ def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
 
     totalSigmaSquared = sigmaObs**2 - sigmaInstr**2 - sigmaTemp2
     totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError
-    intrinsic = np.sqrt(totalSigmaSquared)
-    intrinsicError = 0.5 * totalSigmaSquared**(-0.5) * totalSigmaSquaredError
+    try:
+        intrinsic = np.sqrt(totalSigmaSquared)
+        intrinsicError = 0.5 * totalSigmaSquared**(-0.5) * totalSigmaSquaredError
+    except ValueError:
+        "ERROR: INVALID SIGMA"
+        intrinsic = 0
+        intrinsicError = 0
 
     return intrinsic, intrinsicError
 
@@ -326,14 +331,14 @@ class FittingProfile(object):
             cMax = c + c*limits['c']
 
         if limits['s'] == False:
-            varyCentre = False
+            varySigma = False
             sMin, sMax = -np.inf, np.inf
         else:
             sMin = s - s * limits['s']
             sMax = s + s * limits['s']
 
         if limits['a'] == False:
-            varyCentre = False
+            varyAmp = False
             aMin, aMax = -np.inf, np.inf
         else:
             aMin = a - a * limits['a']
@@ -467,7 +472,7 @@ class RegionCalculations(object):
         for ampComps in ampListAll:
             #print ampComps[0], ampComps[1]
             ampCompsList, emInfo, emName = ampComps[1:4]
-            print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + ", " + "'compLimits': '" + str(emInfo['compLimits']) + "', " + "'copyFrom': '" + str(emInfo['copyFrom']) + "}),"
+            print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + ", " + "'compLimits': " + str(emInfo['compLimits']) + ", " + "'copyFrom': '" + str(emInfo['copyFrom']) + "'}),"
 
         print "------------ Component information %s ------------"  % rp.regionName
         for mod in allModelComponents:

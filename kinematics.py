@@ -447,6 +447,12 @@ class RegionCalculations(object):
                 rp.emProfiles[emName]['centerList'] = rp.emProfiles[emInfo['copyFrom']]['centerList']
                 rp.emProfiles[emName]['sigmaList'] = rp.emProfiles[emInfo['copyFrom']]['sigmaList']
                 model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.emProfiles[emName]['centerList'], rp.emProfiles[emName]['sigmaList'], emInfo['ampList'], rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
+                rp.emProfiles[emName]['centerList'] = []
+                rp.emProfiles[emName]['sigmaList'] = []
+                for idx in range(rp.numComps):
+                    rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
+                    rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
+
             zoneNames[emInfo['zone']].append(emName)
             rp.emProfiles[emName]['plotInfo'] = [emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel]
 

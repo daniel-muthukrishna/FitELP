@@ -106,6 +106,9 @@ def line_label(emLineName, emRestWave, rp):
 
     return ion, lambdaZero
 
+def average_velocities_table_to_latex():
+    pass
+
 
 def halpha_regions_table_to_latex(regionInfoArray, directory="."):
     saveFileName = 'RegionInfo'
@@ -186,7 +189,6 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
     plt.xlim(rp.plottingXRange)
     if sortedIndex is not None:
         handles, labels = ax.get_legend_handles_labels()
-        sortedIndex = [1, 4, 0, 2, 3]
         handles2 = [handles[idx] for idx in sortedIndex]
         labels2 = [labels[idx] for idx in sortedIndex]
         ax.legend(handles2, labels2)
@@ -475,7 +477,7 @@ class RegionCalculations(object):
             eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, rp.numComps)
             rp.emProfiles[emName]['globalFlux'] = globalFlux
             rp.emProfiles[emName]['globalFluxErr'] = globalFluxErr
-            for idx in range(rp.numComps ):
+            for idx in range(rp.numComps):
                 ampComponentList.append(round(rp.emProfiles[emName]['ampList'][idx], 7))
                 sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'], rp)
                 tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], "%.1f $\pm$ %.1f" % (o.params['g%d_center' % (idx + 1)].value, o.params['g%d_center' % (idx + 1)].stderr), r"%.1f $\pm$ %.1f" % (sigInt, sigIntErr), "%.1f $\pm$ %.2f" % (fluxList[idx], fluxListErr[idx]), round(eMFList[idx], 1), "%.1f $\pm$ %.2f" % (globalFlux, globalFluxErr)]
@@ -498,8 +500,10 @@ class RegionCalculations(object):
             print mod
 
         try:
-            ratioNII = (rp.emProfiles['NII-6584A']['globalFlux'] + rp.emProfiles['NII-6548A']['globalFlux'])/(rp.emProfiles['H-Alpha']['globalFlux'])
-            ratioOIII = (rp.emProfiles['OIII-5007A']['globalFlux'] + rp.emProfiles['OIII-4959A']['globalFlux']) / (rp.emProfiles['H-Beta_Blue']['globalFlux'])
+            # ratioNII = (rp.emProfiles['NII-6584A']['globalFlux'] + rp.emProfiles['NII-6548A']['globalFlux']) / (rp.emProfiles['H-Alpha']['globalFlux'])
+            # ratioOIII = (rp.emProfiles['OIII-5007A']['globalFlux'] + rp.emProfiles['OIII-4959A']['globalFlux']) / (rp.emProfiles['H-Beta_Blue']['globalFlux'])
+            ratioNII = (rp.emProfiles['NII-6584A']['globalFlux']) /( rp.emProfiles['H-Alpha']['globalFlux'])
+            ratioOIII = (rp.emProfiles['OIII-5007A']['globalFlux']) / (rp.emProfiles['H-Beta_Blue']['globalFlux'])
             ratioNII = np.log10(ratioNII)
             ratioOIII = np.log10(ratioOIII)
         except KeyError:
@@ -512,9 +516,8 @@ class RegionCalculations(object):
 
         # # Combined Plots
         # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
-        # plot_profiles(zoneNames['high'], rp, nameForComps='OIII-4959A', title=rp.regionName + " High Zone Profiles")
-        # plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines')
-        #
+        # plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
+        # plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta_Blue', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines', sortedIndex=[0, 1, 2, 3, 4])
 
         # plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
 
@@ -528,7 +531,7 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [NGC6845Region7Params]#, NGC6845Region26Params]
+    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params]
 
     regionArray = []
     for regParam in regionsParameters:

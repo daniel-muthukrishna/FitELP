@@ -60,9 +60,15 @@ class RegionParameters(object):
     sigmaInstrRed = 5.7
     distance = 2.68e26  # Distance to region in centimetres (same units as flux)
 
+    emLinesForAvgVelCalc = ['H-Alpha', 'H-Beta', 'OIII-5007A', 'NII-6584A', 'SII-6717A']
+
+
 """ NOTES ON HOW TO USE THE ABOVE TABLE
 The limits in 'compLimits' can be in the following forms:
     - a list indicating the limits for each component
     - a single number indicating the limits for ALL components
-    - False: indicating that the component cannot vary
+    - inf: indicating that the component cannot vary
+
+ampList
+    - if not list it will be take the copyFrom amplitude List and divide by the ampList scalar
 """

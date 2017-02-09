@@ -103,45 +103,104 @@ def line_label(emLineName, emRestWave, rp):
         ion = r"$\mathrm{[%s]}$" % emLineName.split('-')[0]
         lambdaZero = '$%s$' % emLineName.split('-')[1][:-1]
 
-
     return ion, lambdaZero
 
-def average_velocities_table_to_latex():
-    pass
+
+def calc_average_velocities(rpList):
+    regionsAllLines = []
+    for rp in rpList:
+        centres = []
+        sigmas = []
+        for emName, emInfo in rp.emProfiles.items():
+            if emName in rp.emLinesForAvgVelCalc:
+                centres.append(emInfo['centerList'])
+                sigmas.append(emInfo['sigIntList'])
+        centres = np.array(centres)
+        sigmas = np.array(sigmas)
+
+        avgCentres = np.zeros(rp.numComps)
+        avgSigmas = np.zeros(rp.numComps)
+        stdCentres = np.zeros(rp.numComps)
+        stdSigmas = np.zeros(rp.numComps)
+        for i in range(rp.numComps):
+            avgCentres[i] = np.mean(centres[:,i])
+            avgSigmas[i] = np.mean(sigmas[:, i])
+            stdCentres[i] = np.std(centres[:, i])
+            stdSigmas[i] = np.std(sigmas[:, i])
+
+        regionLines = []
+        for i in range(rp.numComps):
+            regionLines.append([r"%.2f $\pm$ %.2f" % (avgCentres[i], stdCentres[i]), r"%.2f $\pm$ %.2f" % (avgCentres[i], stdCentres[i])])
+
+        regionsAllLines.append(regionLines)
+
+    allLinesInArray = []
+    for i in range(rp.numComps):
+        lineInArray = [rp.componentLabels[i]]
+        for regionLine in regionsAllLines:
+            lineInArray += regionLine[i]
+
+        allLinesInArray.append(lineInArray)
+
+    return allLinesInArray
+
+
+def average_velocities_table_to_latex(rpList, directory="."):
+    saveFileName = 'AverageVelocitiesTable'
+    velArray = calc_average_velocities(rpList)
+    regionHeadings = ['']
+    headings = ['']
+    headingUnits = ['']
+    for rp in rpList:
+        regionHeadings += ["\multicolumn{2}{c}{%s}" % rp.regionName]
+        headings += [r'$\mathrm{v_r}$', r'$\mathrm{\sigma}$']
+        headingUnits += [r'$\mathrm{(km \ s^{-1})}$', r'$\mathrm{(km \ s^{-1})}$']
+
+    headingLines = [regionHeadings, headings, headingUnits]
+    caption = "Average radial velocities and velocity dispersions for all regions"
+    nCols = len(headings)
+    table_to_latex(velArray, headingLines, saveFileName, directory, caption, nCols)
 
 
 def halpha_regions_table_to_latex(regionInfoArray, directory="."):
     saveFileName = 'RegionInfo'
     headings = [r'Region Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{log([NII]/H}\alpha)$', r'$\mathrm{log([OIII]/H}\beta)$']
     headingUnits = ['', r'$(\mathrm{M_{\odot} \ yr^{-1}})$', '', '', '']
-
-    table_to_latex(regionInfoArray, headings, headingUnits, saveFileName, directory, 'Region Information')
+    headingLines = [headings, headingUnits]
+    caption = 'Region Information'
+    nCols = len(headings)
+    table_to_latex(regionInfoArray, headingLines, saveFileName, directory, caption, nCols)
 
 
 def comp_table_to_latex(componentArray, rp):
     saveFileName = 'ComponentTable'
+    directory = rp.regionName
     headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
                 r'$\mathrm{\sigma_{int}}$', r'$\mathrm{Flux}$', r'$\mathrm{EM_f}$', r'$\mathrm{GlobalFlux}$']
     headingUnits = [r'$(\mathrm{\AA})$', '', '', r'$(\mathrm{km \ s^{-1}})$',
                     r'$(\mathrm{km \ s^{-1}})$', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$',
                     '', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$']
-    table_to_latex(componentArray, headings, headingUnits, saveFileName, rp.regionName, rp.regionName)
+    headingLines = [headings, headingUnits]
+    caption = rp.regionName
+    nCols = len(headings)
+    table_to_latex(componentArray, headingLines, saveFileName, directory, caption, nCols)
 
 
-def table_to_latex(tableArray, headings, headingUnits, saveFileName, directory, caption):
+def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, nCols):
     texFile = open(directory + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
     texFile.write('\\usepackage[a4paper, portrait, margin=0.5in]{geometry}\n')
+    texFile.write('\\usepackage{booktabs}\n')
     # texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
     # texFile.write('\\usepackage[utf8]{inputenc}\n')
     texFile.write('\\begin{document}\n')
     texFile.write('\n')
     texFile.write('\\begin{table}[tbp]\n')
     texFile.write('\\centering\n')
-    texFile.write('\\begin{tabular}{%s}\n' % ('l' * len(headings[0])))
+    texFile.write('\\begin{tabular}{%s}\n' % ('l' + 'c' * (nCols-1)))
     texFile.write('\\hline\n')
-    texFile.write(' & '.join(str(e) for e in headings) + ' \\\\ \n')
-    texFile.write(' & '.join(str(e) for e in headingUnits) + ' \\\\ \n')
+    for heading in headingLines:
+        texFile.write(' & '.join(str(e) for e in heading) + ' \\\\ \n')
     texFile.write('\\hline\n')
     for line in tableArray:
         texFile.write(' & '.join(str(e) for e in line) + ' \\\\ \n')
@@ -477,9 +536,11 @@ class RegionCalculations(object):
             eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, rp.numComps)
             rp.emProfiles[emName]['globalFlux'] = globalFlux
             rp.emProfiles[emName]['globalFluxErr'] = globalFluxErr
+            rp.emProfiles[emName]['sigIntList'] = []
             for idx in range(rp.numComps):
                 ampComponentList.append(round(rp.emProfiles[emName]['ampList'][idx], 7))
                 sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'], rp)
+                rp.emProfiles[emName]['sigIntList'].append(sigInt)
                 tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], "%.1f $\pm$ %.1f" % (o.params['g%d_center' % (idx + 1)].value, o.params['g%d_center' % (idx + 1)].stderr), r"%.1f $\pm$ %.1f" % (sigInt, sigIntErr), "%.1f $\pm$ %.2f" % (fluxList[idx], fluxListErr[idx]), round(eMFList[idx], 1), "%.1f $\pm$ %.2f" % (globalFlux, globalFluxErr)]
                 if idx != 0:
                     tableLine[0:2] = ['', '']
@@ -525,7 +586,6 @@ class RegionCalculations(object):
 
 
 
-
 if __name__ == '__main__':
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
@@ -539,5 +599,6 @@ if __name__ == '__main__':
         regionArray.append(region.lineInArray)
 
     halpha_regions_table_to_latex(regionArray)
+    average_velocities_table_to_latex(regionsParameters)
 
     plt.show()

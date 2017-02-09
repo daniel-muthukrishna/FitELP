@@ -159,7 +159,8 @@ def average_velocities_table_to_latex(rpList, directory="."):
     headingLines = [regionHeadings, headings, headingUnits]
     caption = "Average radial velocities and velocity dispersions for all regions"
     nCols = len(headings)
-    table_to_latex(velArray, headingLines, saveFileName, directory, caption, nCols)
+    centering = 'l' + 'c' * (nCols-1)
+    table_to_latex(velArray, headingLines, saveFileName, directory, caption, centering)
 
 
 def halpha_regions_table_to_latex(regionInfoArray, directory="."):
@@ -169,7 +170,8 @@ def halpha_regions_table_to_latex(regionInfoArray, directory="."):
     headingLines = [headings, headingUnits]
     caption = 'Region Information'
     nCols = len(headings)
-    table_to_latex(regionInfoArray, headingLines, saveFileName, directory, caption, nCols)
+    centering = 'l' + 'c' * (nCols-1)
+    table_to_latex(regionInfoArray, headingLines, saveFileName, directory, caption, centering)
 
 
 def comp_table_to_latex(componentArray, rp):
@@ -183,10 +185,11 @@ def comp_table_to_latex(componentArray, rp):
     headingLines = [headings, headingUnits]
     caption = rp.regionName
     nCols = len(headings)
-    table_to_latex(componentArray, headingLines, saveFileName, directory, caption, nCols)
+    centering = 'lllccccc'
+    table_to_latex(componentArray, headingLines, saveFileName, directory, caption, centering)
 
 
-def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, nCols):
+def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, centering):
     texFile = open(directory + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
     texFile.write('\\usepackage[a4paper, portrait, margin=0.5in]{geometry}\n')
@@ -197,7 +200,7 @@ def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, n
     texFile.write('\n')
     texFile.write('\\begin{table}[tbp]\n')
     texFile.write('\\centering\n')
-    texFile.write('\\begin{tabular}{%s}\n' % ('l' + 'c' * (nCols-1)))
+    texFile.write('\\begin{tabular}{%s}\n' % (centering))
     texFile.write('\\hline\n')
     for heading in headingLines:
         texFile.write(' & '.join(str(e) for e in heading) + ' \\\\ \n')

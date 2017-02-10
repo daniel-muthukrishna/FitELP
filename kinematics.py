@@ -130,7 +130,7 @@ def calc_average_velocities(rpList):
 
         regionLines = []
         for i in range(rp.numComps):
-            regionLines.append([r"%.1f $\pm$ %.1f" % (avgCentres[i], stdCentres[i]), r"%.1f $\pm$ %.1f" % (avgCentres[i], stdCentres[i])])
+            regionLines.append([r"%.1f $\pm$ %.1f" % (avgCentres[i], stdCentres[i]), r"%.1f $\pm$ %.1f" % (avgSigmas[i], stdSigmas[i])])
 
         regionsAllLines.append(regionLines)
 

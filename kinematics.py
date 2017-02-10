@@ -130,7 +130,7 @@ def calc_average_velocities(rpList):
 
         regionLines = []
         for i in range(rp.numComps):
-            regionLines.append([r"%.2f $\pm$ %.2f" % (avgCentres[i], stdCentres[i]), r"%.2f $\pm$ %.2f" % (avgCentres[i], stdCentres[i])])
+            regionLines.append([r"%.1f $\pm$ %.1f" % (avgCentres[i], stdCentres[i]), r"%.1f $\pm$ %.1f" % (avgCentres[i], stdCentres[i])])
 
         regionsAllLines.append(regionLines)
 
@@ -192,7 +192,7 @@ def comp_table_to_latex(componentArray, rp):
 def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, centering):
     texFile = open(directory + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
-    texFile.write('\\usepackage[a4paper, portrait, margin=0.5in]{geometry}\n')
+    texFile.write('\\usepackage[a3paper, portrait, margin=0.5in]{geometry}\n')
     texFile.write('\\usepackage{booktabs}\n')
     # texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
     # texFile.write('\\usepackage[utf8]{inputenc}\n')

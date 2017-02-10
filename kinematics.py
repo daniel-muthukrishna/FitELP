@@ -16,7 +16,7 @@ def read_spectra(filename, scaleFlux):
     x and y are an array of the wavelengths and fluxes of each of the orders"""
     x = []
     y = []
-    spectra = read_fits.read_fits_spectrum1d(filename)  # , dispersion_unit=u.angstrom, flux_unit=u.cgs.erg/u.angstrom/u.cm**2/u.s)
+    spectra = read_fits.read_fits_spectrum1d(filename)
     for spectrum in spectra:
         x.append(spectrum.dispersion / u.angstrom)
         y.append(spectrum.flux * scaleFlux)
@@ -108,6 +108,7 @@ def line_label(emLineName, emRestWave, rp):
 
 def calc_average_velocities(rpList):
     regionsAllLines = []
+    numComps = [rp.numComps for rp in rpList]
     for rp in rpList:
         centres = []
         sigmas = []
@@ -129,8 +130,11 @@ def calc_average_velocities(rpList):
             stdSigmas[i] = np.std(sigmas[:, i])
 
         regionLines = []
-        for i in range(rp.numComps):
-            regionLines.append([r"%.1f $\pm$ %.1f" % (avgCentres[i], stdCentres[i]), r"%.1f $\pm$ %.1f" % (avgSigmas[i], stdSigmas[i])])
+        for i in range(max(numComps)):
+            try:
+                regionLines.append([r"%.1f $\pm$ %.1f" % (avgCentres[i], stdCentres[i]), r"%.1f $\pm$ %.1f" % (avgSigmas[i], stdSigmas[i])])
+            except IndexError:
+                regionLines.append(["-", "-"])
 
         regionsAllLines.append(regionLines)
 
@@ -582,7 +586,7 @@ class RegionCalculations(object):
         # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
         # plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
         # plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta_Blue', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines', sortedIndex=[0, 1, 2, 3, 4])
-
+        #
         # plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
 
 
@@ -594,7 +598,7 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params]
+    regionsParameters = [NGC6845Region7Params]#, NGC6845Region26Params]
 
     regionArray = []
     for regParam in regionsParameters:

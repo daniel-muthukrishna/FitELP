@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from lmfit.models import GaussianModel, LinearModel, PolynomialModel, VoigtModel
+from lmfit.models import GaussianModel, LinearModel
 from lmfit import Parameters
 import matplotlib.pyplot as plt
 import astropy.units as u
@@ -289,20 +289,18 @@ class GalaxyRegion(object):
         fig = plt.figure(self.rp.regionName + " Order Plot " + title)
         plt.title(title)
         ax1 = fig.add_subplot(111)
-        ax2 = ax1.twiny()
-        ax1.plot(y[orderNum][minIndex:maxIndex], label='Spectrum')
-        plt.xlim([0,4000])
-        ax1Ticks = ax1.get_xticks()
-        ax2Ticks = ax1Ticks
-        ax2.set_xticks(ax2Ticks)
-        ax2.set_xbound(ax1.get_xbound())
-        ax2.set_xticklabels("%.2f" % z for z in (x[orderNum][minIndex:maxIndex][t] for t in ax2Ticks[:-2]))
+        ax1.plot(x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex], label='Spectrum')
+        # ax1Ticks = ax1.get_xticks()
+        # ax2Ticks = ax1Ticks
+        # ax2.set_xticks(ax2Ticks)
+        # ax2.set_xbound(ax1.get_xbound())
+        # ax2.set_xticklabels("%.2f" % z for z in (x[orderNum][minIndex:maxIndex][t] for t in ax2Ticks[:-2]))
         #ax2.plot(y[orderNum][minIndex:maxIndex])
         if yE is not None:
             pass #plt.plot(xE[orderNum][minIndex:maxIndex], yE[orderNum][minIndex:maxIndex], label='Spectrum Error')
         plt.legend()
         plt.xlabel("Wavelength ($\AA$)")
-        plt.ylabel("Flux")
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
         plt.savefig(self.rp.regionName + '/' + title)
 
     def mask_emission_line(self, orderNum, filt='red', minIndex=0, maxIndex=-1):
@@ -473,9 +471,9 @@ class FittingProfile(object):
         plt.plot(self.vel, self.flux, label='Data')
         for i in range(numOfComponents):
             labelComp = self.rp.componentLabels  # 'g%d_' % (i+1)
-            plt.plot(self.vel, components['g%d_' % (i+1)]+components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])
+            #plt.plot(self.vel, components['g%d_' % (i+1)]+components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])
         # plt.plot(self.vel, components['lin_'], label='lin_')
-        plt.plot(self.vel, out.best_fit, color='black', linestyle='--', label='Fit')
+        #plt.plot(self.vel, out.best_fit, color='black', linestyle='--', label='Fit')
         # plt.plot(self.vel, init, label='init')
         plt.xlim(self.rp.plottingXRange)
         plt.legend(loc='upper left')
@@ -489,7 +487,7 @@ class FittingProfile(object):
 class RegionCalculations(object):
     def __init__(self, rp):
         galaxyRegion = GalaxyRegion(rp)  # Flux Calibrated
-        # galaxyRegion.plot_order(26, filt='red', maxIndex=-10, title="")
+        # galaxyRegion.plot_order(21, filt='red', minIndex=1300, maxIndex=1600, title="")
         # plt.show()
 
         zoneNames = {'low': [], 'high': []}
@@ -582,7 +580,7 @@ class RegionCalculations(object):
 
         self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), round(ratioNII, 3), round(ratioOIII, 3)]
 
-        # # Combined Plots
+        # Combined Plots
         # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
         # plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
         # plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta_Blue', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines', sortedIndex=[0, 1, 2, 3, 4])
@@ -598,7 +596,7 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [NGC6845Region7Params]#, NGC6845Region26Params]
+    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params]
 
     regionArray = []
     for regParam in regionsParameters:

@@ -471,9 +471,9 @@ class FittingProfile(object):
         plt.plot(self.vel, self.flux, label='Data')
         for i in range(numOfComponents):
             labelComp = self.rp.componentLabels  # 'g%d_' % (i+1)
-            #plt.plot(self.vel, components['g%d_' % (i+1)]+components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])
+            plt.plot(self.vel, components['g%d_' % (i+1)]+components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])
         # plt.plot(self.vel, components['lin_'], label='lin_')
-        #plt.plot(self.vel, out.best_fit, color='black', linestyle='--', label='Fit')
+        plt.plot(self.vel, out.best_fit, color='black', linestyle='--', label='Fit')
         # plt.plot(self.vel, init, label='init')
         plt.xlim(self.rp.plottingXRange)
         plt.legend(loc='upper left')
@@ -586,7 +586,8 @@ class RegionCalculations(object):
         # plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta_Blue', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines', sortedIndex=[0, 1, 2, 3, 4])
         #
         # plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
-
+        # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='NeIII-3868A', title=' ')
+        # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='OIII-5007A', title='')
 
 
 

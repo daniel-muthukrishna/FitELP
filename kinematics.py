@@ -99,9 +99,12 @@ def line_label(emLineName, emRestWave, rp):
     elif emLineName == 'H-Beta_Red':
         lambdaZero = '$%s$' % str(int(round(emRestWave)))
         ion = r"$\mathrm{H}\beta$ - Red"
-    else:
-        ion = r"$\mathrm{[%s]}$" % emLineName.split('-')[0]
+    elif 'He' in emLineName:
         lambdaZero = '$%s$' % emLineName.split('-')[1][:-1]
+        ion = r"$\mathrm{%s}$" % emLineName.split('-')[0]
+    else:
+        lambdaZero = '$%s$' % emLineName.split('-')[1][:-1]
+        ion = r"$\mathrm{[%s]}$" % emLineName.split('-')[0]
 
     return ion, lambdaZero
 
@@ -250,8 +253,7 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
         ax.plot(x, mod, color=col, linestyle='--')
         if name == nameForComps:
             for idx in range(rp.numComps):
-                plt.plot(x, comps['g%d_' % (idx + 1)] + comps['lin_'], color=rp.componentColours[idx],
-                         linestyle=':')
+                plt.plot(x, comps['g%d_' % (idx + 1)] + comps['lin_'], color=rp.componentColours[idx], linestyle=':')
     plt.xlim(rp.plottingXRange)
     if sortedIndex is not None:
         handles, labels = ax.get_legend_handles_labels()
@@ -581,10 +583,10 @@ class RegionCalculations(object):
         self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), round(ratioNII, 3), round(ratioOIII, 3)]
 
         # Combined Plots
-        # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
-        # plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
-        # plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta_Blue', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines', sortedIndex=[0, 1, 2, 3, 4])
-        #
+        plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
+        plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
+        plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta_Blue', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines', sortedIndex=[0, 1, 2, 3, 4])
+
         # plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
         # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='NeIII-3868A', title=' ')
         # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='OIII-5007A', title='')
@@ -597,7 +599,7 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params]
+    regionsParameters = [NGC6845Region7Params]#, NGC6845Region26Params]
 
     regionArray = []
     for regParam in regionsParameters:

@@ -65,7 +65,7 @@ def calculate_em_f(model, numComponents):
         height = model.params['g%d_height' % (i + 1)].value
         sigmaObs = model.params['g%d_sigma' % (i + 1)].value
         heightError = model.params['g%d_height' % (i + 1)].stderr
-        sigmaObsError = model.params['g%d_height' % (i + 1)].stderr
+        sigmaObsError = model.params['g%d_sigma' % (i + 1)].stderr
         amplitude = model.params['g%d_amplitude' % (i + 1)].value
         amplitudeError = model.params['g%d_amplitude' % (i + 1)].stderr
         calcFlux, calcFluxError = amplitude, amplitudeError  # calculate_flux(height, sigmaObs, heightError, sigmaObsError)
@@ -587,7 +587,7 @@ class RegionCalculations(object):
         plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
         plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta_Blue', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines', sortedIndex=[0, 1, 2, 3, 4])
 
-        # plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
+        plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
         # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='NeIII-3868A', title=' ')
         # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='OIII-5007A', title='')
 

@@ -65,7 +65,7 @@ def calculate_em_f(model, numComponents):
         height = model.params['g%d_height' % (i + 1)].value
         sigmaObs = model.params['g%d_sigma' % (i + 1)].value
         heightError = model.params['g%d_height' % (i + 1)].stderr
-        sigmaObsError = model.params['g%d_height' % (i + 1)].stderr
+        sigmaObsError = model.params['g%d_sigma' % (i + 1)].stderr
         amplitude = model.params['g%d_amplitude' % (i + 1)].value
         amplitudeError = model.params['g%d_amplitude' % (i + 1)].stderr
         calcFlux, calcFluxError = amplitude, amplitudeError  # calculate_flux(height, sigmaObs, heightError, sigmaObsError)

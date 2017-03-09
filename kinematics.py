@@ -33,15 +33,15 @@ def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
     elif filter == 'red':
         sigmaInstr = rp.sigmaInstrRed
 
-    totalSigmaSquared = sigmaObs**2 - sigmaInstr**2 - sigmaTemp2
-    totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError
-    try:
-        intrinsic = np.sqrt(totalSigmaSquared)
-        intrinsicError = 0.5 * totalSigmaSquared**(-0.5) * totalSigmaSquaredError
-    except ValueError:
-        "ERROR: INVALID SIGMA"
-        intrinsic = 0
-        intrinsicError = 0
+    if sigmaObs**2 > sigmaTemp2:
+        totalSigmaSquared = sigmaObs**2 - sigmaInstr**2 - sigmaTemp2
+        totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError
+    else:
+        totalSigmaSquared = (sigmaInstr + np.sqrt(sigmaTemp2))**2
+        totalSigmaSquaredError = 0
+
+    intrinsic = np.sqrt(totalSigmaSquared)
+    intrinsicError = 0.5 * totalSigmaSquared**(-0.5) * totalSigmaSquaredError
 
     return intrinsic, intrinsicError
 
@@ -111,29 +111,29 @@ def line_label(emLineName, emRestWave, rp):
 
 def calc_average_velocities(rpList):
     regionsAllLines = []
-    numComps = [rp.numComps for rp in rpList]
+    numCompsList = [min(rp.numComps['low'], rp.numComps['high']) for rp in rpList]
     for rp in rpList:
+        numComps = min(rp.numComps['low'], rp.numComps['high'])
         centres = []
         sigmas = []
         for emName, emInfo in rp.emProfiles.items():
             if emName in rp.emLinesForAvgVelCalc:
-                centres.append(emInfo['centerList'])
-                sigmas.append(emInfo['sigIntList'])
+                centres.append(emInfo['centerList'][0:numComps])
+                sigmas.append(emInfo['sigIntList'][0:numComps])
         centres = np.array(centres)
         sigmas = np.array(sigmas)
-
-        avgCentres = np.zeros(rp.numComps)
-        avgSigmas = np.zeros(rp.numComps)
-        stdCentres = np.zeros(rp.numComps)
-        stdSigmas = np.zeros(rp.numComps)
-        for i in range(rp.numComps):
+        avgCentres = np.zeros(numComps)
+        avgSigmas = np.zeros(numComps)
+        stdCentres = np.zeros(numComps)
+        stdSigmas = np.zeros(numComps)
+        for i in range(numComps):
             avgCentres[i] = np.mean(centres[:,i])
             avgSigmas[i] = np.mean(sigmas[:, i])
             stdCentres[i] = np.std(centres[:, i])
             stdSigmas[i] = np.std(sigmas[:, i])
 
         regionLines = []
-        for i in range(max(numComps)):
+        for i in range(max(numCompsList)):
             try:
                 regionLines.append([r"%.1f $\pm$ %.1f" % (avgCentres[i], stdCentres[i]), r"%.1f $\pm$ %.1f" % (avgSigmas[i], stdSigmas[i])])
             except IndexError:
@@ -142,7 +142,7 @@ def calc_average_velocities(rpList):
         regionsAllLines.append(regionLines)
 
     allLinesInArray = []
-    for i in range(rp.numComps):
+    for i in range(numComps):
         lineInArray = [rp.componentLabels[i]]
         for regionLine in regionsAllLines:
             lineInArray += regionLine[i]
@@ -252,7 +252,7 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
         ax.plot(x, y, color=col, label=lab)
         ax.plot(x, mod, color=col, linestyle='--')
         if name == nameForComps:
-            for idx in range(rp.numComps):
+            for idx in range(rp.numComps[lineNames[i]['zone']]):
                 plt.plot(x, comps['g%d_' % (idx + 1)] + comps['lin_'], color=rp.componentColours[idx], linestyle=':')
     plt.xlim(rp.plottingXRange)
     if sortedIndex is not None:
@@ -500,6 +500,7 @@ class RegionCalculations(object):
         f.write("LOG INFORMATION FOR %s\n" % rp.regionName)
         f.close()
         for emName, emInfo in rp.emProfiles.items():
+            numComps = rp.numComps[emInfo['zone']]
             print "------------------ %s : %s ----------------" %(rp.regionName, emName)
             f = open(rp.regionName + '/' + "%s_Log.txt" % rp.regionName, "a")
             f.write("------------------ %s : %s ----------------\n" % (rp.regionName, emName))
@@ -512,11 +513,11 @@ class RegionCalculations(object):
             emLabel = (ion1 + ' ' + lambdaZero1)
 
             if emInfo['copyFrom'] is None:
-                model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.centerList[emInfo['zone']], rp.sigmaList[emInfo['zone']], emInfo['ampList'], rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
+                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, rp.centerList[emInfo['zone']], rp.sigmaList[emInfo['zone']], emInfo['ampList'], rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
                 rp.emProfiles[emName]['centerList'] = []
                 rp.emProfiles[emName]['sigmaList'] = []
                 rp.emProfiles[emName]['ampList'] = []
-                for idx in range(rp.numComps):
+                for idx in range(numComps):
                     rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
                     rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
                     rp.emProfiles[emName]['ampList'].append(model1.best_values['g%d_amplitude' % (idx + 1)])
@@ -525,11 +526,11 @@ class RegionCalculations(object):
                     ampListInit = emInfo['ampList']
                 else:
                     ampListInit = [a / emInfo['ampList'] for a in rp.emProfiles[emInfo['copyFrom']]['ampList']]  #Multiply elements in list by 3
-                model1, comps = fittingProfile.lin_and_multi_gaussian(rp.numComps, rp.emProfiles[emInfo['copyFrom']]['centerList'], rp.emProfiles[emInfo['copyFrom']]['sigmaList'], ampListInit, rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
+                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, rp.emProfiles[emInfo['copyFrom']]['centerList'], rp.emProfiles[emInfo['copyFrom']]['sigmaList'], ampListInit, rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
                 rp.emProfiles[emName]['centerList'] = []
                 rp.emProfiles[emName]['sigmaList'] = []
                 rp.emProfiles[emName]['ampList'] = []
-                for idx in range(rp.numComps):
+                for idx in range(numComps):
                     rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
                     rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
                     rp.emProfiles[emName]['ampList'].append(model1.best_values['g%d_amplitude' % (idx + 1)])
@@ -540,11 +541,11 @@ class RegionCalculations(object):
         #Print Amplitudes
             ampComponentList = []
             o = model1
-            eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, rp.numComps)
+            eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, numComps)
             rp.emProfiles[emName]['globalFlux'] = globalFlux
             rp.emProfiles[emName]['globalFluxErr'] = globalFluxErr
             rp.emProfiles[emName]['sigIntList'] = []
-            for idx in range(rp.numComps):
+            for idx in range(numComps):
                 ampComponentList.append(round(rp.emProfiles[emName]['ampList'][idx], 7))
                 sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'], rp)
                 rp.emProfiles[emName]['sigIntList'].append(sigInt)
@@ -583,9 +584,9 @@ class RegionCalculations(object):
         self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), round(ratioNII, 3), round(ratioOIII, 3)]
 
         # Combined Plots
-        plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
-        plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
-        plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta_Blue', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines', sortedIndex=[0, 1, 2, 3, 4])
+        # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
+        # plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
+        # plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta_Blue', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines', sortedIndex=[0, 1, 2, 3, 4])
 
         # plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
         # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='NeIII-3868A', title=' ')

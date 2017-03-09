@@ -596,11 +596,12 @@ class RegionCalculations(object):
 
 
 if __name__ == '__main__':
+    from Mrk600A import RegionParameters as Mrk600AParams
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [NGC6845Region7Params]#, NGC6845Region26Params]
+    regionsParameters = [Mrk600AParams]#,NGC6845Region7Params]#, NGC6845Region26Params]
 
     regionArray = []
     for regParam in regionsParameters:

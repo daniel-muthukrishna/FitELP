@@ -53,9 +53,9 @@ class RegionParameters(object):
     linSlope = {'low': -4.2702e-06, 'high': 3.7183e-06}
     linInt = {'low': 0.07401082, 'high': 0.04636879}
 
-    numComps = 3
-    componentLabels = ['Narrow 1', 'Narrow 2', 'Broad']
-    componentColours = ['b', 'r', 'g']
+    numComps = {'low': 3, 'high': 3}
+    componentLabels = ['Narrow 1', 'Narrow 2', 'Broad', 'Label4', 'Label5']
+    componentColours = ['b', 'r', 'g', 'c', 'm']
     plottingXRange = [5900, 6500]  # velocities
     sigmaInstrBlue = 5.1
     sigmaInstrRed = 5.7

@@ -33,6 +33,17 @@ def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
     elif filter == 'red':
         sigmaInstr = rp.sigmaInstrRed
 
+    #Old version (added by Vero)
+    # totalSigmaSquared = sigmaObs ** 2 - sigmaInstr ** 2 - sigmaTemp2
+    # totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError
+    # try:
+    #     intrinsic = np.sqrt(totalSigmaSquared)
+    #     intrinsicError = 0.5 * totalSigmaSquared ** (-0.5) * totalSigmaSquaredError
+    # except ValueError:
+    #     "ERROR: INVALID SIGMA"
+    #     intrinsic = 0
+    #     intrinsicError = 0
+
     if sigmaObs**2 > sigmaTemp2:
         totalSigmaSquared = sigmaObs**2 - sigmaInstr**2 - sigmaTemp2
         totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError

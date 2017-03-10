@@ -1,0 +1,173 @@
+LOG INFORMATION FOR Mrk600A
+------------------ Mrk600A : H-Alpha ----------------
+######## Mrk600A H-Alpha Linear and Multi-gaussian Model ##########
+[[Model]]
+    (Model(linear, prefix='lin_') + (((Model(gaussian, prefix='g1_') + Model(gaussian, prefix='g2_')) + Model(gaussian, prefix='g3_')) + Model(gaussian, prefix='g4_')))
+[[Fit Statistics]]
+    # function evals   = 139
+    # data points      = 80
+    # variables        = 14
+    chi-square         = 70.385
+    reduced chi-square = 1.066
+    Akaike info crit   = 17.756
+    Bayesian info crit = 51.105
+[[Variables]]
+    lin_slope:       4.2889e-06 +/- 5.52e-06 (128.74%) (init= 1.9393e-07)
+    lin_intercept:   0.04486580 +/- 0.005769 (12.86%) (init= 0.0761986)
+    g1_sigma:        18.9303881 +/- 1.693032 (8.94%) (init= 19)
+    g1_center:       1023.35948 +/- 4.701414 (0.46%) (init= 1023)
+    g1_amplitude:    143.183917 +/- 44.91488 (31.37%) (init= 143.1228)
+    g1_fwhm:         44.5776565 +/- 3.986786 (8.94%)  == '2.3548200*g1_sigma'
+    g1_height:       3.01748285 +/- 0.679363 (22.51%)  == '0.3989423*g1_amplitude/max(1.e-15, g1_sigma)'
+    g2_sigma:        35.7927987 +/- 2.945618 (8.23%) (init= 35.7)
+    g2_center:       1025.63163 +/- 1.417716 (0.14%) (init= 1026)
+    g2_amplitude:    22.0746479 +/- 7.475462 (33.86%) (init= 22.09367)
+    g2_fwhm:         84.2855983 +/- 6.936401 (8.23%)  == '2.3548200*g2_sigma'
+    g2_height:       0.24604141 +/- 0.102949 (41.84%)  == '0.3989423*g2_amplitude/max(1.e-15, g2_sigma)'
+    g3_sigma:        12.0110581 +/- 1.816336 (15.12%) (init= 12)
+    g3_center:       1037.31108 +/- 1.601851 (0.15%) (init= 1037)
+    g3_amplitude:    46.1849351 +/- 40.55541 (87.81%) (init= 46.21605)
+    g3_fwhm:         28.2838798 +/- 4.277145 (15.12%)  == '2.3548200*g3_sigma'
+    g3_height:       1.53401341 +/- 1.119165 (72.96%)  == '0.3989423*g3_amplitude/max(1.e-15, g3_sigma)'
+    g4_sigma:        14.1856375 +/- 1.650082 (11.63%) (init= 14)
+    g4_center:       1056.21001 +/- 4.783467 (0.45%) (init= 1056)
+    g4_amplitude:    34.0534929 +/- 12.34178 (36.24%) (init= 34.06399)
+    g4_fwhm:         33.4046229 +/- 3.885648 (11.63%)  == '2.3548200*g4_sigma'
+    g4_height:       0.95768545 +/- 0.269422 (28.13%)  == '0.3989423*g4_amplitude/max(1.e-15, g4_sigma)'
+[[Correlations]] (unreported correlations are <  0.100)
+    C(g1_center, g1_amplitude)   =  0.997 
+    C(g1_sigma, g1_amplitude)    =  0.993 
+    C(lin_slope, lin_intercept)  = -0.988 
+    C(g1_sigma, g1_center)       =  0.988 
+    C(g3_sigma, g3_amplitude)    =  0.985 
+    C(g4_sigma, g4_center)       = -0.974 
+    C(g3_center, g4_center)      =  0.974 
+    C(g2_sigma, g2_amplitude)    = -0.962 
+    C(g1_amplitude, g3_amplitude)  = -0.950 
+    C(g1_center, g3_amplitude)   = -0.947 
+    C(g3_center, g4_sigma)       = -0.933 
+    C(g1_sigma, g3_amplitude)    = -0.920 
+    C(g3_center, g4_amplitude)   = -0.906 
+    C(g1_amplitude, g3_sigma)    = -0.903 
+    C(g1_center, g3_sigma)       = -0.902 
+    C(g1_sigma, g2_amplitude)    = -0.864 
+    C(g4_center, g4_amplitude)   = -0.863 
+    C(g1_sigma, g3_sigma)        = -0.858 
+    C(g1_amplitude, g2_amplitude)  = -0.834 
+    C(g3_sigma, g4_sigma)        = -0.797 
+    C(g1_center, g2_amplitude)   = -0.792 
+    C(g3_amplitude, g4_sigma)    = -0.790 
+    C(g1_sigma, g2_sigma)        =  0.787 
+    C(g4_sigma, g4_amplitude)    =  0.780 
+    C(g3_sigma, g4_center)       =  0.766 
+    C(g1_amplitude, g2_sigma)    =  0.753 
+    C(g2_amplitude, g3_amplitude)  =  0.751 
+    C(g3_amplitude, g4_center)   =  0.728 
+    C(g1_center, g2_sigma)       =  0.706 
+    C(g2_center, g4_sigma)       = -0.672 
+    C(g2_amplitude, g3_sigma)    =  0.671 
+    C(g3_sigma, g3_center)       =  0.660 
+    C(g2_sigma, g3_amplitude)    = -0.639 
+    C(g3_center, g3_amplitude)   =  0.620 
+    C(g1_amplitude, g4_sigma)    =  0.596 
+    C(g2_amplitude, g4_sigma)    = -0.575 
+    C(g2_center, g4_center)      =  0.574 
+    C(g1_center, g4_sigma)       =  0.574 
+    C(g2_sigma, g3_sigma)        = -0.561 
+    C(g1_sigma, g4_sigma)        =  0.559 
+    C(g2_center, g2_amplitude)   =  0.558 
+    C(g2_center, g3_center)      =  0.549 
+    C(g2_center, g4_amplitude)   = -0.510 
+    C(g1_amplitude, g4_center)   = -0.491 
+    C(g1_center, g4_center)      = -0.475 
+    C(g2_sigma, g2_center)       = -0.453 
+    C(g2_sigma, g4_sigma)        =  0.440 
+    C(g1_sigma, g4_center)       = -0.439 
+    C(g2_center, g3_amplitude)   =  0.434 
+    C(lin_intercept, g2_center)  =  0.434 
+    C(lin_slope, g2_center)      = -0.423 
+    C(g2_amplitude, g4_center)   =  0.421 
+    C(g2_center, g3_sigma)       =  0.409 
+    C(g1_amplitude, g3_center)   = -0.373 
+    C(g2_amplitude, g3_center)   =  0.370 
+    C(g3_sigma, g4_amplitude)    = -0.361 
+    C(g1_center, g3_center)      = -0.352 
+    C(g1_amplitude, g2_center)   = -0.346 
+    C(g1_sigma, g3_center)       = -0.334 
+    C(g1_sigma, g2_center)       = -0.330 
+    C(g1_center, g2_center)      = -0.308 
+    C(g2_sigma, g4_center)       = -0.295 
+    C(g3_amplitude, g4_amplitude)  = -0.289 
+    C(g2_sigma, g3_center)       = -0.258 
+    C(lin_intercept, g2_amplitude)  =  0.215 
+    C(lin_intercept, g2_sigma)   = -0.208 
+    C(lin_intercept, g4_sigma)   = -0.198 
+    C(lin_slope, g4_sigma)       =  0.185 
+    C(lin_intercept, g4_center)  =  0.159 
+    C(lin_slope, g4_amplitude)   =  0.157 
+    C(lin_slope, g4_center)      = -0.155 
+    C(lin_slope, g2_amplitude)   = -0.155 
+    C(lin_intercept, g3_center)  =  0.153 
+    C(lin_slope, g3_center)      = -0.149 
+    C(lin_intercept, g4_amplitude)  = -0.142 
+    C(lin_intercept, g3_amplitude)  =  0.129 
+    C(lin_slope, g2_sigma)       =  0.126 
+    C(lin_intercept, g3_sigma)   =  0.118 
+    C(lin_intercept, g1_amplitude)  = -0.114 
+    C(lin_intercept, g1_sigma)   = -0.110 
+------------------ Mrk600A : OIII-5007A ----------------
+######## Mrk600A OIII-5007A Linear and Multi-gaussian Model ##########
+[[Model]]
+    (Model(linear, prefix='lin_') + (((Model(gaussian, prefix='g1_') + Model(gaussian, prefix='g2_')) + Model(gaussian, prefix='g3_')) + Model(gaussian, prefix='g4_')))
+[[Fit Statistics]]
+    # function evals   = 373
+    # data points      = 110
+    # variables        = 14
+    chi-square         = 169.512
+    reduced chi-square = 1.766
+    Akaike info crit   = 75.569
+    Bayesian info crit = 113.375
+[[Variables]]
+    lin_slope:      -2.7349e-05 +/- 3.63e-05 (132.75%) (init= 0.026129)
+    lin_intercept:   0.16768087 +/- 0.035164 (20.97%) (init= 0.147)
+    g1_sigma:        20.0931416 +/- 0.115587 (0.58%) (init= 16)
+    g1_center:       1032.75577 +/- 0.129135 (0.01%) (init= 1019)
+    g1_amplitude:    613.726541 +/- 6.254299 (1.02%) (init= 293.7221)
+    g1_fwhm:         47.3157318 +/- 3.966662 (8.38%)  == '2.3548200*g1_sigma'
+    g1_height:       12.1853258 +/- 1.040146 (8.54%)  == '0.3989423*g1_amplitude/max(1.e-15, g1_sigma)'
+    g2_sigma:       -0.41598013 +/- nan      (nan%) (init= 10)
+    g2_center:       1037.05721 +/- nan      (nan%) (init= 1039)
+    g2_amplitude:    51.4066558 +/- nan      (nan%) (init= 52.78476)
+    g2_fwhm:        -0.97955834 +/- 5.26e+05 (53648294.93%)  == '2.3548200*g2_sigma'
+    g2_height:       2.0508e+16 +/- 3.77e+17 (1836.97%)  == '0.3989423*g2_amplitude/max(1.e-15, g2_sigma)'
+    g3_sigma:        6.82057640 +/- 0.445967 (6.54%) (init= 10)
+    g3_center:       1039.78306 +/- 0.436030 (0.04%) (init= 1060)
+    g3_amplitude:    66.0847381 +/- 6.275897 (9.50%) (init= 290.0539)
+    g3_fwhm:         16.0612297 +/- 112.0042 (697.36%)  == '2.3548200*g3_sigma'
+    g3_height:       3.86536208 +/- 27.16813 (702.86%)  == '0.3989423*g3_amplitude/max(1.e-15, g3_sigma)'
+    g4_sigma:        17.1619163 +/- 1.558746 (9.08%) (init= 9.5)
+    g4_center:       1130.15067 +/- 1.474091 (0.13%) (init= 1131)
+    g4_amplitude:    14.6123487 +/- 1.310495 (8.97%) (init= 71.84616)
+    g4_fwhm:         40.4132238 +/- 60.41642 (149.50%)  == '2.3548200*g4_sigma'
+    g4_height:       0.33967558 +/- 0.560963 (165.15%)  == '0.3989423*g4_amplitude/max(1.e-15, g4_sigma)'
+[[Correlations]] (unreported correlations are <  0.100)
+    C(lin_slope, lin_intercept)  = -0.988 
+    C(g1_amplitude, g3_amplitude)  = -0.790 
+    C(g1_amplitude, g3_sigma)    = -0.686 
+    C(g1_sigma, g3_amplitude)    =  0.612 
+    C(g3_sigma, g3_amplitude)    =  0.600 
+    C(g4_sigma, g4_amplitude)    =  0.591 
+    C(g1_sigma, g1_amplitude)    = -0.493 
+    C(g1_center, g1_amplitude)   =  0.478 
+    C(g3_center, g3_amplitude)   = -0.436 
+    C(lin_slope, g4_amplitude)   = -0.432 
+    C(g1_center, g3_sigma)       = -0.415 
+    C(g1_sigma, g3_sigma)        =  0.413 
+    C(g1_center, g3_amplitude)   = -0.403 
+    C(lin_intercept, g4_amplitude)  =  0.371 
+    C(g1_sigma, g3_center)       = -0.322 
+    C(lin_slope, g4_sigma)       = -0.287 
+    C(lin_intercept, g4_sigma)   =  0.248 
+    C(g1_sigma, g1_center)       = -0.205 
+    C(g1_center, g3_center)      = -0.193 
+    C(g1_amplitude, g3_center)   =  0.173 

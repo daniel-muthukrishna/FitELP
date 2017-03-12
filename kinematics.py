@@ -54,10 +54,11 @@ def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
     # intrinsic = np.sqrt(totalSigmaSquared)
     # intrinsicError = 0.5 * totalSigmaSquared ** (-0.5) * totalSigmaSquaredError
     #
-    if  sigmaObs**2 > (sigmaTemp2 + sigmaInstr**2):
+    if sigmaObs**2 > (sigmaTemp2 + sigmaInstr**2):
         totalSigmaSquared = sigmaObs**2 - sigmaInstr**2 - sigmaTemp2
         totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError
     else:
+        print("ERROR: INVALID SIGMA")
         totalSigmaSquared = 1e-99
         totalSigmaSquaredError = 0
     intrinsic = np.sqrt(totalSigmaSquared)

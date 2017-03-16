@@ -76,11 +76,14 @@ class RegionParameters(object):
  #  emLinesForAvgVelCalc = ['H-Alpha', 'H-Beta_Red', 'OIII-5007A','OIII-4959A']
  #  emLinesForAvgVelCalc = ['H-Alpha']
 
+
 """ NOTES ON HOW TO USE THE ABOVE TABLE
 The limits in 'compLimits' can be in the following forms:
     - a list indicating the limits for each component
-    - a single number indicating the limits for ALL components
+    - a single number indicating the percentage limits for ALL components
+    - a tuple (minValue, maxValue) indicating the min and max not in a percentage
     - inf: indicating that the component cannot vary
+    - False: indicating that the value is fixed
 
 ampList
     - if not list it will be take the copyFrom amplitude List and divide by the ampList scalar

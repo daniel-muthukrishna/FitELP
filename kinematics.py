@@ -54,10 +54,11 @@ def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
     # intrinsic = np.sqrt(totalSigmaSquared)
     # intrinsicError = 0.5 * totalSigmaSquared ** (-0.5) * totalSigmaSquaredError
     #
-    if  sigmaObs**2 > (sigmaTemp2 + sigmaInstr**2):
+    if sigmaObs**2 > (sigmaTemp2 + sigmaInstr**2):
         totalSigmaSquared = sigmaObs**2 - sigmaInstr**2 - sigmaTemp2
         totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError
     else:
+        print("ERROR: INVALID SIGMA")
         totalSigmaSquared = 1e-99
         totalSigmaSquaredError = 0
     intrinsic = np.sqrt(totalSigmaSquared)
@@ -421,6 +422,9 @@ class FittingProfile(object):
         if limits['c'] == False:
             varyCentre = False
             cMin, cMax = -np.inf, np.inf
+        elif type(limits['c']) is tuple:
+            cMin = limits['c'][0]
+            cMax = limits['c'][1]
         else:
             cMin = c - c*limits['c']
             cMax = c + c*limits['c']
@@ -428,6 +432,9 @@ class FittingProfile(object):
         if limits['s'] == False:
             varySigma = False
             sMin, sMax = -np.inf, np.inf
+        elif type(limits['s']) is tuple:
+            cMin = limits['s'][0]
+            cMax = limits['s'][1]
         else:
             sMin = s - s * limits['s']
             sMax = s + s * limits['s']
@@ -435,6 +442,9 @@ class FittingProfile(object):
         if limits['a'] == False:
             varyAmp = False
             aMin, aMax = -np.inf, np.inf
+        elif type(limits['a']) is tuple:
+            cMin = limits['a'][0]
+            cMax = limits['a'][1]
         else:
             aMin = a - a * limits['a']
             aMax = a + a * limits['a']
@@ -542,11 +552,23 @@ class RegionCalculations(object):
                     rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
                     rp.emProfiles[emName]['ampList'].append(model1.best_values['g%d_amplitude' % (idx + 1)])
             else:
+                if type(emInfo['copyFrom']) is list:
+                    copyAmpList, copyCenterList, copySigmaList = [], [], []
+                    for copyIdx in range(len(emInfo['copyFrom'])):
+                        copyAmpList.append(rp.emProfiles[emInfo]['ampList'][copyIdx])
+                        copyCenterList.append(rp.emProfiles[emInfo]['centerist'][copyIdx])
+                        copySigmaList.append(rp.emProfiles[emInfo]['sigmaList'][copyIdx])
+                else:
+                    copyAmpList = rp.emProfiles[emInfo['copyFrom']]['ampList']
+                    copyCenterList = rp.emProfiles[emInfo['copyFrom']]['centerList']
+                    copySigmaList = rp.emProfiles[emInfo['copyFrom']]['sigmaList']
+
                 if type(rp.emProfiles[emName]['ampList']) is list:
                     ampListInit = emInfo['ampList']
                 else:
-                    ampListInit = [a / emInfo['ampList'] for a in rp.emProfiles[emInfo['copyFrom']]['ampList']]  #Multiply elements in list by 3
-                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, rp.emProfiles[emInfo['copyFrom']]['centerList'], rp.emProfiles[emInfo['copyFrom']]['sigmaList'], ampListInit, rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
+                    ampListInit = [a / emInfo['ampList'] for a in copyAmpList]  #Multiply elements in list by 3
+
+                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, copyCenterList, copySigmaList, ampListInit, rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
                 rp.emProfiles[emName]['centerList'] = []
                 rp.emProfiles[emName]['sigmaList'] = []
                 rp.emProfiles[emName]['ampList'] = []

@@ -273,7 +273,7 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
         ax.plot(x, y, color=col, label=lab)
         ax.plot(x, mod, color=col, linestyle='--')
         if name == nameForComps:
-            for idx in range(rp.numComps[lineNames[i]['zone']]):
+            for idx in range(rp.empProfiles[lineNames[i]]['numComps']):
                 plt.plot(x, comps['g%d_' % (idx + 1)] + comps['lin_'], color=rp.componentColours[idx], linestyle=':')
     plt.xlim(rp.plottingXRange)
     if sortedIndex is not None:
@@ -530,7 +530,7 @@ class RegionCalculations(object):
         f.write("LOG INFORMATION FOR %s\n" % rp.regionName)
         f.close()
         for emName, emInfo in rp.emProfiles.items():
-            numComps = rp.numComps[emInfo['zone']]
+            numComps = emInfo['numComps']
             print "------------------ %s : %s ----------------" %(rp.regionName, emName)
             f = open(rp.regionName + '/' + "%s_Log.txt" % rp.regionName, "a")
             f.write("------------------ %s : %s ----------------\n" % (rp.regionName, emName))
@@ -555,9 +555,9 @@ class RegionCalculations(object):
                 if type(emInfo['copyFrom']) is list:
                     copyAmpList, copyCenterList, copySigmaList = [], [], []
                     for copyIdx in range(len(emInfo['copyFrom'])):
-                        copyAmpList.append(rp.emProfiles[emInfo]['ampList'][copyIdx])
-                        copyCenterList.append(rp.emProfiles[emInfo]['centerist'][copyIdx])
-                        copySigmaList.append(rp.emProfiles[emInfo]['sigmaList'][copyIdx])
+                        copyAmpList.append(rp.emProfiles[emInfo['copyFrom'][copyIdx]]['ampList'][copyIdx])
+                        copyCenterList.append(rp.emProfiles[emInfo['copyFrom'][copyIdx]]['centerList'][copyIdx])
+                        copySigmaList.append(rp.emProfiles[emInfo['copyFrom'][copyIdx]]['sigmaList'][copyIdx])
                 else:
                     copyAmpList = rp.emProfiles[emInfo['copyFrom']]['ampList']
                     copyCenterList = rp.emProfiles[emInfo['copyFrom']]['centerList']
@@ -566,7 +566,7 @@ class RegionCalculations(object):
                 if type(rp.emProfiles[emName]['ampList']) is list:
                     ampListInit = emInfo['ampList']
                 else:
-                    ampListInit = [a / emInfo['ampList'] for a in copyAmpList]  #Multiply elements in list by 3
+                    ampListInit = [float(a) / emInfo['ampList'] for a in copyAmpList]  #Divide each copyAmplitude by number
 
                 model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, copyCenterList, copySigmaList, ampListInit, rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
                 rp.emProfiles[emName]['centerList'] = []
@@ -604,7 +604,7 @@ class RegionCalculations(object):
         for ampComps in ampListAll:
             #print ampComps[0], ampComps[1]
             ampCompsList, emInfo, emName = ampComps[1:4]
-            print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + ", " + "'compLimits': " + str(emInfo['compLimits']) + ", " + "'copyFrom': '" + str(emInfo['copyFrom']) + "'}),"
+            print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + ", " + "'compLimits': " + str(emInfo['compLimits']) + ", " + "'copyFrom': '" + str(emInfo['copyFrom']) + ", " + "'numComps': " + str(emInfo['numComps']) + "'}),"
 
         print "------------ Component information %s ------------"  % rp.regionName
         for mod in allModelComponents:
@@ -643,14 +643,14 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [Mrk600AParams]#,NGC6845Region7Params]#, NGC6845Region26Params]
+    regionsParameters = [Mrk600AParams,NGC6845Region7Params]#, NGC6845Region26Params]
 
     regionArray = []
     for regParam in regionsParameters:
         region = RegionCalculations(regParam)
         regionArray.append(region.lineInArray)
 
-    halpha_regions_table_to_latex(regionArray)
-    average_velocities_table_to_latex(regionsParameters)
+    # halpha_regions_table_to_latex(regionArray)
+    # average_velocities_table_to_latex(regionsParameters)
 
     plt.show()

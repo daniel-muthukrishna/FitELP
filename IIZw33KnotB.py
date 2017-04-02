@@ -87,4 +87,8 @@ The limits in 'compLimits' can be in the following forms:
 
 ampList
     - if not list it will be take the copyFrom amplitude List and divide by the ampList scalar
+
+numComps:
+    - If numComps is not listed in the emProfile dictionary, then the number of components will be taken from the
+    numComps variable depending on the zone set in the emProfile dictionary
 """

@@ -132,9 +132,9 @@ def line_label(emLineName, emRestWave, rp):
 
 def calc_average_velocities(rpList):
     regionsAllLines = []
-    numCompsList = [min(rp.numComps['low'], rp.numComps['high']) for rp in rpList]
+    numCompsList = [min(rp.numComps.itervalues()) for rp in rpList]
     for rp in rpList:
-        numComps = min(rp.numComps['low'], rp.numComps['high'])
+        numComps = min(rp.numComps.itervalues())
         centres = []
         sigmas = []
         for emName, emInfo in rp.emProfiles.items():
@@ -530,7 +530,12 @@ class RegionCalculations(object):
         f.write("LOG INFORMATION FOR %s\n" % rp.regionName)
         f.close()
         for emName, emInfo in rp.emProfiles.items():
-            numComps = emInfo['numComps']
+            if 'numComps' in emInfo:
+                numComps = emInfo['numComps']
+            else:
+                numComps = rp.numComps[emInfo['zone']]
+                rp.emProfiles[emName]['numComps'] = numComps
+
             print("------------------ %s : %s ----------------" %(rp.regionName, emName))
             f = open(rp.regionName + '/' + "%s_Log.txt" % rp.regionName, "a")
             f.write("------------------ %s : %s ----------------\n" % (rp.regionName, emName))

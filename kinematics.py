@@ -273,7 +273,7 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
         ax.plot(x, y, color=col, label=lab)
         ax.plot(x, mod, color=col, linestyle='--')
         if name == nameForComps:
-            for idx in range(rp.empProfiles[lineNames[i]]['numComps']):
+            for idx in range(rp.emProfiles[lineNames[i]]['numComps']):
                 plt.plot(x, comps['g%d_' % (idx + 1)] + comps['lin_'], color=rp.componentColours[idx], linestyle=':')
     plt.xlim(rp.plottingXRange)
     if sortedIndex is not None:
@@ -405,9 +405,9 @@ class FittingProfile(object):
         amplitudeTotal = 0.
         for i in range(numOfComponents):
             amplitudeTotal = amplitudeTotal + modelFit.best_values['g%d_amplitude' % (i+1)]
-        print "Amplitude Total is %f" % amplitudeTotal
+        print("Amplitude Total is %f" % amplitudeTotal)
         amplitudeFinal = (amplitudeTotal/SpOfLi) * self.restWave
-        print "Amplitude Final is %f" % amplitudeFinal
+        print("Amplitude Final is %f" % amplitudeFinal)
 
         return amplitudeFinal
 
@@ -488,8 +488,8 @@ class FittingProfile(object):
         init = mod.eval(self.linGaussParams, x=self.vel)
         out = mod.fit(self.flux, self.linGaussParams, x=self.vel, weights=self.weights)
         f = open(self.rp.regionName + '/' + "%s_Log.txt" % self.rp.regionName, "a")
-        print "######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName)
-        print (out.fit_report())
+        print("######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName))
+        print(out.fit_report())
         f.write("######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName))
         f.write(out.fit_report())
         f.close()
@@ -531,7 +531,7 @@ class RegionCalculations(object):
         f.close()
         for emName, emInfo in rp.emProfiles.items():
             numComps = emInfo['numComps']
-            print "------------------ %s : %s ----------------" %(rp.regionName, emName)
+            print("------------------ %s : %s ----------------" %(rp.regionName, emName))
             f = open(rp.regionName + '/' + "%s_Log.txt" % rp.regionName, "a")
             f.write("------------------ %s : %s ----------------\n" % (rp.regionName, emName))
             f.close()
@@ -600,15 +600,15 @@ class RegionCalculations(object):
             ampListAll.append([emName, ampComponentList, emInfo, emName])
         comp_table_to_latex(allModelComponents, rp)
 
-        print "------------ List all Amplitudes  %s ----------" % rp.regionName
+        print("------------ List all Amplitudes  %s ----------" % rp.regionName)
         for ampComps in ampListAll:
             #print ampComps[0], ampComps[1]
             ampCompsList, emInfo, emName = ampComps[1:4]
-            print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + ", " + "'compLimits': " + str(emInfo['compLimits']) + ", " + "'copyFrom': '" + str(emInfo['copyFrom']) + ", " + "'numComps': " + str(emInfo['numComps']) + "'}),"
+            print("# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + ", " + "'compLimits': " + str(emInfo['compLimits']) + ", " + "'copyFrom': '" + str(emInfo['copyFrom']) + ", " + "'numComps': " + str(emInfo['numComps']) + "'}),")
 
-        print "------------ Component information %s ------------"  % rp.regionName
+        print("------------ Component information %s ------------"  % rp.regionName)
         for mod in allModelComponents:
-            print mod
+            print(mod)
 
         try:
             # ratioNII = (rp.emProfiles['NII-6584A']['globalFlux'] + rp.emProfiles['NII-6548A']['globalFlux']) / (rp.emProfiles['H-Alpha']['globalFlux'])
@@ -619,15 +619,15 @@ class RegionCalculations(object):
             ratioOIII = np.log10(ratioOIII)
         except KeyError:
             ratioNII, ratioOIII = (0, 0)
-            print "NII or OIII are not defined"
+            print("NII or OIII are not defined")
 
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
         self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), round(ratioNII, 3), round(ratioOIII, 3)]
 
         # Combined Plots
-        # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
-        # plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
+        plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
+        plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
         # plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta_Blue', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines', sortedIndex=[0, 1, 2, 3, 4])
 
         # plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')

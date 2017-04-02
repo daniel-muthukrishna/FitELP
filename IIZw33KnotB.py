@@ -33,7 +33,7 @@ class RegionParameters(object):
       #('H-10', {'Colour': 'c', 'Order': 23, 'Filter': 'blue', 'minI': 1030, 'maxI': 1230, 'restWavelength': 3798.00, 'ampList': 3, 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': 0.05, 's': 0.1, 'copyFrom': 'H-Beta_Blue'}),
       #('H-9', {'Colour': 'c', 'Order': 22, 'Filter': 'blue', 'minI': 970, 'maxI': 1090, 'restWavelength': 3835.39, 'ampList': 3, 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': False, 's': False}, 'copyFrom': 'H-Beta_Blue'}),
       #('H-13', {'Colour': 'c', 'Order': 24, 'Filter': 'blue', 'minI': 457, 'maxI': 570, 'restWavelength': 3734.37, 'ampList': 3, 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': False, 's': False}, 'copyFrom': 'H-Beta_Blue'}),
-      ('NII-6584A', {'Colour': 'violet', 'Order': 19, 'Filter': 'red', 'minI': 1370, 'maxI': 1485, 'restWavelength': 6583.41, 'ampList': 4, 'zone': ['low','low','low','high2'], 'sigmaT2': 11.87, 'compLimits': {'a': inf, 'c':[inf,inf,inf,False], 's': [inf,inf,inf, False]}, 'copyFrom': ['H-Alpha','H-Alpha','H-Alpha', 'OIII-5007A-2']}),
+      ('NII-6584A', {'Colour': 'violet', 'Order': 19, 'Filter': 'red', 'minI': 1370, 'maxI': 1485, 'restWavelength': 6583.41, 'ampList': 4, 'zone': 'low', 'sigmaT2': 11.87, 'compLimits': {'a': inf, 'c':[inf,inf,inf,False], 's': [inf,inf,inf, False]}, 'copyFrom': ['H-Alpha','H-Alpha','H-Alpha', 'OIII-5007A-2']}),
       #('NII-6548A', {'Colour': 'violet', 'Order': 19, 'Filter': 'red', 'minI': 980, 'maxI': 1100, 'restWavelength': 6548.03, 'ampList': [1, 1, 1], 'zone': 'low', 'sigmaT2': 11.87, 'compLimits': {'a': inf, 'c': 0.04, 's': 0.1}, 'copyFrom': 'NII-6584A'}),
       #('SII-6717A', {'Colour': 'r', 'Order': 20, 'Filter': 'red', 'minI': 1420, 'maxI': 1520, 'restWavelength': 6716.47, 'ampList': [2,2, 2], 'zone': 'low', 'sigmaT2': 5.19, 'compLimits': {'a': inf, 'c': inf, 's': False}, 'copyFrom': 'NII-6584A'}),
       #('SII-6730A', {'Colour': 'r', 'Order': 20, 'Filter': 'red', 'minI': 1580, 'maxI': 1675, 'restWavelength': 6730.8,'ampList': [1, 1, 1], 'zone': 'low', 'sigmaT2': 5.19,'compLimits': {'a': inf, 'c': 0.004, 's': False}, 'copyFrom': 'SII-6717A'}),
@@ -64,7 +64,7 @@ class RegionParameters(object):
     linInt = {'low': 0.1,'low2': 0.1, 'high': 0.01, 'high2': 0.0041}
 
     #numComps = 4
-    numComps = {'low': 3,'low2': 4, 'high': 3, 'high2':4}
+    numComps = {'low': 3,'low2': 4, 'high': 3, 'high2': 4}
     componentLabels = ['g1', 'g2', 'g3','g4']
     componentColours = ['b', 'r','y', 'g']
     plottingXRange = [2600, 3000]  # velocities

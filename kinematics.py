@@ -132,9 +132,9 @@ def line_label(emLineName, emRestWave, rp):
 
 def calc_average_velocities(rpList):
     regionsAllLines = []
-    numCompsList = [min(rp.numComps['low'], rp.numComps['high']) for rp in rpList]
+    numCompsList = [min(rp.numComps.itervalues()) for rp in rpList]
     for rp in rpList:
-        numComps = min(rp.numComps['low'], rp.numComps['high'])
+        numComps = min(rp.numComps.itervalues())
         centres = []
         sigmas = []
         for emName, emInfo in rp.emProfiles.items():
@@ -273,7 +273,7 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
         ax.plot(x, y, color=col, label=lab)
         ax.plot(x, mod, color=col, linestyle='--')
         if name == nameForComps:
-            for idx in range(rp.empProfiles[lineNames[i]]['numComps']):
+            for idx in range(rp.emProfiles[lineNames[i]]['numComps']):
                 plt.plot(x, comps['g%d_' % (idx + 1)] + comps['lin_'], color=rp.componentColours[idx], linestyle=':')
     plt.xlim(rp.plottingXRange)
     if sortedIndex is not None:
@@ -405,9 +405,9 @@ class FittingProfile(object):
         amplitudeTotal = 0.
         for i in range(numOfComponents):
             amplitudeTotal = amplitudeTotal + modelFit.best_values['g%d_amplitude' % (i+1)]
-        print "Amplitude Total is %f" % amplitudeTotal
+        print("Amplitude Total is %f" % amplitudeTotal)
         amplitudeFinal = (amplitudeTotal/SpOfLi) * self.restWave
-        print "Amplitude Final is %f" % amplitudeFinal
+        print("Amplitude Final is %f" % amplitudeFinal)
 
         return amplitudeFinal
 
@@ -488,8 +488,8 @@ class FittingProfile(object):
         init = mod.eval(self.linGaussParams, x=self.vel)
         out = mod.fit(self.flux, self.linGaussParams, x=self.vel, weights=self.weights)
         f = open(self.rp.regionName + '/' + "%s_Log.txt" % self.rp.regionName, "a")
-        print "######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName)
-        print (out.fit_report())
+        print("######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName))
+        print(out.fit_report())
         f.write("######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName))
         f.write(out.fit_report())
         f.close()
@@ -522,7 +522,7 @@ class RegionCalculations(object):
         # galaxyRegion.plot_order(21, filt='red', minIndex=1300, maxIndex=1600, title="")
         # plt.show()
 
-        zoneNames = {'low': [], 'high': []}
+        zoneNames = {zone: [] for zone in rp.centerList.keys()}
         ampListAll = []
         allModelComponents = []
         # Iterate through emission lines
@@ -530,8 +530,13 @@ class RegionCalculations(object):
         f.write("LOG INFORMATION FOR %s\n" % rp.regionName)
         f.close()
         for emName, emInfo in rp.emProfiles.items():
-            numComps = emInfo['numComps']
-            print "------------------ %s : %s ----------------" %(rp.regionName, emName)
+            if 'numComps' in emInfo:
+                numComps = emInfo['numComps']
+            else:
+                numComps = rp.numComps[emInfo['zone']]
+                rp.emProfiles[emName]['numComps'] = numComps
+
+            print("------------------ %s : %s ----------------" %(rp.regionName, emName))
             f = open(rp.regionName + '/' + "%s_Log.txt" % rp.regionName, "a")
             f.write("------------------ %s : %s ----------------\n" % (rp.regionName, emName))
             f.close()
@@ -600,15 +605,15 @@ class RegionCalculations(object):
             ampListAll.append([emName, ampComponentList, emInfo, emName])
         comp_table_to_latex(allModelComponents, rp)
 
-        print "------------ List all Amplitudes  %s ----------" % rp.regionName
+        print("------------ List all Amplitudes  %s ----------" % rp.regionName)
         for ampComps in ampListAll:
             #print ampComps[0], ampComps[1]
             ampCompsList, emInfo, emName = ampComps[1:4]
-            print "# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + ", " + "'compLimits': " + str(emInfo['compLimits']) + ", " + "'copyFrom': '" + str(emInfo['copyFrom']) + ", " + "'numComps': " + str(emInfo['numComps']) + "'}),"
+            print("# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + ", " + "'compLimits': " + str(emInfo['compLimits']) + ", " + "'copyFrom': '" + str(emInfo['copyFrom']) + ", " + "'numComps': " + str(emInfo['numComps']) + "'}),")
 
-        print "------------ Component information %s ------------"  % rp.regionName
+        print("------------ Component information %s ------------"  % rp.regionName)
         for mod in allModelComponents:
-            print mod
+            print(mod)
 
         try:
             # ratioNII = (rp.emProfiles['NII-6584A']['globalFlux'] + rp.emProfiles['NII-6548A']['globalFlux']) / (rp.emProfiles['H-Alpha']['globalFlux'])
@@ -619,7 +624,7 @@ class RegionCalculations(object):
             ratioOIII = np.log10(ratioOIII)
         except KeyError:
             ratioNII, ratioOIII = (0, 0)
-            print "NII or OIII are not defined"
+            print("NII or OIII are not defined")
 
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
@@ -640,10 +645,11 @@ class RegionCalculations(object):
 if __name__ == '__main__':
     from Mrk600A import RegionParameters as Mrk600AParams
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
+    from IIZw33KnotB import RegionParameters as IIw33KnotBParams
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [Mrk600AParams,NGC6845Region7Params]#, NGC6845Region26Params]
+    regionsParameters = [Mrk600AParams, NGC6845Region7Params]#, NGC6845Region26Params]
 
     regionArray = []
     for regParam in regionsParameters:

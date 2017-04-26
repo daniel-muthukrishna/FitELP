@@ -433,8 +433,8 @@ class FittingProfile(object):
             varySigma = False
             sMin, sMax = -np.inf, np.inf
         elif type(limits['s']) is tuple:
-            cMin = limits['s'][0]
-            cMax = limits['s'][1]
+            sMin = limits['s'][0]
+            sMax = limits['s'][1]
         else:
             sMin = s - s * limits['s']
             sMax = s + s * limits['s']
@@ -443,8 +443,8 @@ class FittingProfile(object):
             varyAmp = False
             aMin, aMax = -np.inf, np.inf
         elif type(limits['a']) is tuple:
-            cMin = limits['a'][0]
-            cMax = limits['a'][1]
+            aMin = limits['a'][0]
+            aMax = limits['a'][1]
         else:
             aMin = a - a * limits['a']
             aMax = a + a * limits['a']

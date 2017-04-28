@@ -116,3 +116,38 @@ LOG INFORMATION FOR Mrk600A
     g4_height:       0.38548867 +/- 0        (0.00%)  == '0.3989423*g4_amplitude/max(1.e-15, g4_sigma)'
 [[Correlations]] (unreported correlations are <  0.100)
 ------------------ Mrk600A : NII-6584A ----------------
+######## Mrk600A NII-6584A Linear and Multi-gaussian Model ##########
+[[Model]]
+    (Model(linear, prefix='lin_') + (((Model(gaussian, prefix='g1_') + Model(gaussian, prefix='g2_')) + Model(gaussian, prefix='g3_')) + Model(gaussian, prefix='g4_')))
+[[Fit Statistics]]
+    # function evals   = 70
+    # data points      = 215
+    # variables        = 7
+    chi-square         = 485.050
+    reduced chi-square = 2.332
+    Akaike info crit   = 188.927
+    Bayesian info crit = 212.522
+[[Variables]]
+    lin_slope:       4.2281e-06 +/- 0        (0.00%) (init= 1.9393e-07)
+    lin_intercept:   0.04330615 +/- 0        (0.00%) (init= 0.0761986)
+    g1_sigma:        21.86193 (fixed)
+    g1_center:       1031.063 (fixed)
+    g1_amplitude:    1.60870294 +/- 0        (0.00%) (init= 35.79532)
+    g1_fwhm:         51.4809024 +/- 0        (0.00%)  == '2.3548200*g1_sigma'
+    g1_height:       0.02935604 +/- 0        (0.00%)  == '0.3989423*g1_amplitude/max(1.e-15, g1_sigma)'
+    g2_sigma:        37.90616 (fixed)
+    g2_center:       1012.137 (fixed)
+    g2_amplitude:   -0.16132114 +/- 0        (-0.00%) (init= 5.518731)
+    g2_fwhm:         89.2621719 +/- 0        (0.00%)  == '2.3548200*g2_sigma'
+    g2_height:      -0.00169782 +/- 0        (-0.00%)  == '0.3989423*g2_amplitude/max(1.e-15, g2_sigma)'
+    g3_sigma:        9.396802 (fixed)
+    g3_center:       1037.419 (fixed)
+    g3_amplitude:    0.78626217 +/- 0        (0.00%) (init= 11.54688)
+    g3_fwhm:         22.1277778 +/- 0        (0.00%)  == '2.3548200*g3_sigma'
+    g3_height:       0.03338084 +/- 0        (0.00%)  == '0.3989423*g3_amplitude/max(1.e-15, g3_sigma)'
+    g4_sigma:        10         +/- 0        (0.00%) (init= 10)
+    g4_center:       1131 (fixed)
+    g4_amplitude:    3.0420e-13 +/- 0        (0.00%) (init= 8.4)
+    g4_fwhm:         23.5482000 +/- 0        (0.00%)  == '2.3548200*g4_sigma'
+    g4_height:       1.2136e-14 +/- 0        (0.00%)  == '0.3989423*g4_amplitude/max(1.e-15, g4_sigma)'
+[[Correlations]] (unreported correlations are <  0.100)

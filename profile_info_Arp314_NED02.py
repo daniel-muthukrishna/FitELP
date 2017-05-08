@@ -10,13 +10,13 @@ class RegionParameters(object):
     redSpecFile = 'Arp314-NED02R.fc.fits'
     blueSpecError = 'Arp314-NED02B_ErrorFlux.fc.fits'
     redSpecError = 'Arp314-NED02R_ErrorFlux.fc.fits'
-    scaleFlux = 1e14                                # 1
+    scaleFlux = 1e14                               # 1
 
     # SPECTRAL LINE INFO FOR ALL EMISSION LINES
     emProfiles = OrderedDict([
-        ('H-Alpha', {'Colour': 'y', 'Order': 20, 'Filter': 'red', 'minI': 1180, 'maxI': 1650, 'restWavelength': 6562.82, 'ampList': [25.9916388, 17.1349646, 15.3252213], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': inf, 's': inf}, 'copyFrom': None}),
-        # ('OIII-5007A', {'Colour': 'c', 'Order': 5, 'Filter': 'red', 'minI': 1500, 'maxI': 2200, 'restWavelength': 5006.84, 'ampList': [27.2484028, 22.1761791, 26.5391571], 'zone': 'high', 'sigmaT2': 10.39, 'compLimits': {'a': inf, 'c': inf, 's': inf}, 'copyFrom': None}),
-        # ('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2300, 'maxI': 2800, 'restWavelength': 4958.91, 'ampList': 3, 'zone': 'high', 'sigmaT2': 10.39, 'compLimits': {'a': inf, 'c': 0.001, 's': 1}, 'copyFrom': 'OIII-5007A'}),
+        ('H-Alpha', {'Colour': 'y', 'Order': 20, 'Filter': 'red', 'minI': 2700, 'maxI': 3250, 'restWavelength': 6562.82, 'ampList': [15.3703828, 146.275299, 103.5488537], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': inf, 's': inf}, 'copyFrom': None}),
+        ('OIII-5007A', {'Colour': 'c', 'Order': 4, 'Filter': 'red', 'minI': 2400, 'maxI': 2920, 'restWavelength': 5006.84, 'ampList': [6.5323012, 48.3373116, 58.927105], 'zone': 'high', 'sigmaT2': 10.39,  'compLimits': {'a': inf, 'c': inf, 's': inf}, 'copyFrom': None}),
+         # ('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2300, 'maxI': 2800, 'restWavelength': 4958.91, 'ampList': 3, 'zone': 'high', 'sigmaT2': 10.39, 'compLimits': {'a': inf, 'c': 0.001, 's': 1}, 'copyFrom': 'OIII-5007A'}),
         # ('H-Beta_Blue', {'Colour': 'b', 'Order': 36, 'Filter': 'blue', 'minI': 2200, 'maxI': 2800, 'restWavelength': 4861.33, 'ampList': [9.9122054, 6.5330892, 6.8177404], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': 0.01, 's': 0.1}, 'copyFrom': 'H-Alpha'}),
         # ('H-Beta_Red', {'Colour': 'r', 'Order': 3, 'Filter': 'red', 'minI': 1640, 'maxI': 2040, 'restWavelength': 4861.33, 'ampList': [9.9122054, 6.5330892, 6.8177404], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': False, 's': False}, 'copyFrom': 'H-Beta_Blue'}),
         # ('H-Gamma', {'Colour': 'r', 'Order': 28, 'Filter': 'blue', 'minI': 700, 'maxI': 1200, 'restWavelength': 4340.47, 'ampList': [4.985869, 3.5976242, 4.4060826], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': 0.001, 's': [inf, inf, False]}, 'copyFrom': 'H-Beta_Blue'}),
@@ -45,18 +45,18 @@ class RegionParameters(object):
     ])
 
     # Information for the center, sigma and linear for the low (H-alpha) and high (OIII) zones
-    centerList = {'low': [6315.53629, 6349.20112, 6328.97812], 'high': [6314.57924, 6348.46578, 6333.03654]}
+    centerList = {'low': [3600, 3620, 3620], 'high': [3600, 3620, 3620]}
     sigmaList = {'low': [22.2648068, 19.2854733, 64.1691783], 'high': [16.6297232, 15.9659592, 56.3789640]}
     linSlope = {'low': 1.9393e-07, 'high': 2.6129e-06}
     linInt = {'low': 0.00761986, 'high': -0.00147741}
 
-    numComps = {'low': 3, 'high': 3}
+    numComps = {'low': 2, 'high': 2}
     componentLabels = ['Narrow 1', 'Narrow 2', 'Broad', 'Label4', 'Label5']
     componentColours = ['b', 'r', 'g', 'c', 'm']
-    plottingXRange = [6150, 6500]  # velocities
-    sigmaInstrBlue = 4.9
-    sigmaInstrRed = 5.6
-    distance = 2.83e26  # Distance to region in centimetres (same units as flux)
+    plottingXRange = [3300, 4050]  # velocities
+    sigmaInstrBlue = 4.8
+    sigmaInstrRed = 5.9
+    distance = 1.63e23  # Distance to region in centimetres (same units as flux)
 
     emLinesForAvgVelCalc = ['H-Alpha']#, 'H-Beta_Blue', 'OIII-5007A', 'NII-6584A', 'SII-6717A']
 

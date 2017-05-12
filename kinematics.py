@@ -173,7 +173,7 @@ def calc_average_velocities(rpList):
     return allLinesInArray
 
 
-def average_velocities_table_to_latex(rpList, directory="."):
+def average_velocities_table_to_latex(rpList, directory=".", paperSize='a4'):
     saveFileName = 'AverageVelocitiesTable'
     velArray = calc_average_velocities(rpList)
     regionHeadings = ['']
@@ -188,10 +188,10 @@ def average_velocities_table_to_latex(rpList, directory="."):
     caption = "Average radial velocities and velocity dispersions for all regions"
     nCols = len(headings)
     centering = 'l' + 'c' * (nCols-1)
-    table_to_latex(velArray, headingLines, saveFileName, directory, caption, centering)
+    table_to_latex(velArray, headingLines, saveFileName, directory, caption, centering, paperSize)
 
 
-def halpha_regions_table_to_latex(regionInfoArray, directory="."):
+def halpha_regions_table_to_latex(regionInfoArray, directory=".", paperSize='a4'):
     saveFileName = 'RegionInfo'
     headings = [r'Region Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{log([NII]/H}\alpha)$', r'$\mathrm{log([OIII]/H}\beta)$']
     headingUnits = ['', r'$(\mathrm{M_{\odot} \ yr^{-1}})$', '', '', '']
@@ -199,10 +199,10 @@ def halpha_regions_table_to_latex(regionInfoArray, directory="."):
     caption = 'Region Information'
     nCols = len(headings)
     centering = 'l' + 'c' * (nCols-1)
-    table_to_latex(regionInfoArray, headingLines, saveFileName, directory, caption, centering)
+    table_to_latex(regionInfoArray, headingLines, saveFileName, directory, caption, centering, paperSize)
 
 
-def comp_table_to_latex(componentArray, rp):
+def comp_table_to_latex(componentArray, rp, paperSize='a4'):
     saveFileName = 'ComponentTable'
     directory = rp.regionName
     headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
@@ -214,31 +214,28 @@ def comp_table_to_latex(componentArray, rp):
     caption = rp.regionName
     nCols = len(headings)
     centering = 'lllccccc'
-    table_to_latex(componentArray, headingLines, saveFileName, directory, caption, centering)
+    table_to_latex(componentArray, headingLines, saveFileName, directory, caption, centering, paperSize)
 
 
-def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, centering):
+def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, centering, papersize='a4', orientation='portrait'):
     texFile = open(directory + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
-    texFile.write('\\usepackage[a3paper, portrait, margin=0.5in]{geometry}\n')
+    texFile.write('\\usepackage[%spaper, %s, margin=0.5in]{geometry}\n' % (papersize, orientation))
     texFile.write('\\usepackage{booktabs}\n')
-    # texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
-    # texFile.write('\\usepackage[utf8]{inputenc}\n')
+    texFile.write('\\usepackage{longtable}\n')
     texFile.write('\\begin{document}\n')
     texFile.write('\n')
-    texFile.write('\\begin{table}[tbp]\n')
-    texFile.write('\\centering\n')
-    texFile.write('\\begin{tabular}{%s}\n' % (centering))
+    texFile.write('\\begin{longtable}{%s}\n' % (centering))
     texFile.write('\\hline\n')
     for heading in headingLines:
         texFile.write(' & '.join(str(e) for e in heading) + ' \\\\ \n')
     texFile.write('\\hline\n')
+    texFile.write('\\endhead\n')
     for line in tableArray:
         texFile.write(' & '.join(str(e) for e in line) + ' \\\\ \n')
     texFile.write('\\hline\n')
-    texFile.write('\\end{tabular}\n')
     texFile.write('\\caption{%s}\n' % caption)
-    texFile.write('\\end{table}\n')
+    texFile.write('\\end{longtable}\n')
     texFile.write('\n')
     texFile.write('\\end{document}\n')
 
@@ -451,7 +448,7 @@ class FittingProfile(object):
 
         g = GaussianModel(prefix=prefix)
         pars.update(g.make_params())
-        pars[prefix+'center'].set(c, min=cMin, max=cMax, vary=varyCentre)
+        pars[prefix + 'center'].set(c, min=cMin, max=cMax, vary=varyCentre)
         pars[prefix + 'sigma'].set(s, min=sMin, max=sMax, vary=varySigma)
         pars[prefix + 'amplitude'].set(a, min=aMin, max=aMax, vary=varyAmp)
 
@@ -603,7 +600,7 @@ class RegionCalculations(object):
                 allModelComponents.append(tableLine)
             allModelComponents.append([''] * len(tableLine))
             ampListAll.append([emName, ampComponentList, emInfo, emName])
-        comp_table_to_latex(allModelComponents, rp)
+        comp_table_to_latex(allModelComponents, rp, paperSize='a3')
 
         print("------------ List all Amplitudes  %s ----------" % rp.regionName)
         for ampComps in ampListAll:
@@ -656,7 +653,7 @@ if __name__ == '__main__':
         region = RegionCalculations(regParam)
         regionArray.append(region.lineInArray)
 
-    # halpha_regions_table_to_latex(regionArray)
-    # average_velocities_table_to_latex(regionsParameters)
+    # halpha_regions_table_to_latex(regionArray, paperSize='a4')
+    # average_velocities_table_to_latex(regionsParameters, paperSize='a4')
 
     plt.show()

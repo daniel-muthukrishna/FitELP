@@ -5,6 +5,7 @@ from lmfit import Parameters
 import matplotlib.pyplot as plt
 import astropy.units as u
 from specutils.io import read_fits
+from uncertainties import ufloat, umath
 
 SpOfLi = 300000.  # km/s
 
@@ -633,7 +634,7 @@ class RegionCalculations(object):
             ampListAll.append([emName, ampComponentList, emInfo, emName])
 
         # Create Component Table
-        comp_table_to_latex(allModelComponents, rp, paperSize='a3', orientation='portrait')
+        comp_table_to_latex(allModelComponents, rp, paperSize='a4', orientation='portrait')
 
         print("------------ List all Amplitudes  %s ----------" % rp.regionName)
         for ampComps in ampListAll:
@@ -644,20 +645,11 @@ class RegionCalculations(object):
         for mod in allModelComponents:
             print(mod)
 
-        try:
-            # ratioNII = (rp.emProfiles['NII-6584A']['globalFlux'] + rp.emProfiles['NII-6548A']['globalFlux']) / (rp.emProfiles['H-Alpha']['globalFlux'])
-            # ratioOIII = (rp.emProfiles['OIII-5007A']['globalFlux'] + rp.emProfiles['OIII-4959A']['globalFlux']) / (rp.emProfiles['H-Beta_Blue']['globalFlux'])
-            ratioNII = (rp.emProfiles['NII-6584A']['globalFlux']) /( rp.emProfiles['H-Alpha']['globalFlux'])
-            ratioOIII = (rp.emProfiles['OIII-5007A']['globalFlux']) / (rp.emProfiles['H-Beta_Blue']['globalFlux'])
-            ratioNII = np.log10(ratioNII)
-            ratioOIII = np.log10(ratioOIII)
-        except KeyError:
-            ratioNII, ratioOIII = (0, 0)
-            print("NII or OIII are not defined")
-
+        self.bptPoint = calc_bpt_point(rp)
+        ratioNII, ratioNIIErr, ratioOIII, ratioOIIIErr = self.bptPoint
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
-        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), round(ratioNII, 3), round(ratioOIII, 3)]
+        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), "%.3f $\pm$ %.4f" % (ratioNII, ratioNIIErr), "%.3f $\pm$ %.4f" % (ratioOIII, ratioOIIIErr)]
 
         # Combined Plots
         # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
@@ -667,6 +659,61 @@ class RegionCalculations(object):
         # plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
         # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='NeIII-3868A', title=' ')
         # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='OIII-5007A', title='')
+
+
+def calc_bpt_point(rp):
+    try:
+        fluxNII6584 = ufloat(rp.emProfiles['NII-6584A']['globalFlux'], rp.emProfiles['NII-6584A']['globalFluxErr'])
+        fluxHAlpha = ufloat(rp.emProfiles['H-Alpha']['globalFlux'], rp.emProfiles['H-Alpha']['globalFluxErr'])
+        fluxOIII5007 = ufloat(rp.emProfiles['OIII-5007A']['globalFlux'], rp.emProfiles['OIII-5007A']['globalFluxErr'])
+        fluxHBeta = ufloat(rp.emProfiles['H-Beta_Blue']['globalFlux'], rp.emProfiles['H-Beta_Blue']['globalFluxErr'])
+
+        ratioNII = umath.log10(fluxNII6584 / fluxHAlpha)
+        ratioOIII = umath.log10(fluxOIII5007 / fluxHBeta)
+        x = ratioNII.nominal_value
+        xErr = ratioNII.std_dev
+        y = ratioOIII.nominal_value
+        yErr = ratioOIII.std_dev
+    except (KeyError, ValueError):
+        x, xErr, y, yErr = (0, 0, 0, 0)
+        print("NII or OIII are not defined")
+
+    bptPoint = (x, xErr, y, yErr)
+
+    return bptPoint
+
+
+def bpt_plot(rpList, bptPoints):
+    # PLOT LINES
+    plt.figure('BPT Plot')
+    # y1: log([OIII]5007/Hbeta) = 0.61 / (log([NII]6584/Halpha) - 0.05) + 1.3  (curve of Kauffmann+03 line)
+    # y2: log([OIII]5007/Hbeta) = 0.61 / (log([NII]6584/Halpha) - 0.47) + 1.19    (curve of Kewley+01 line)
+    x1 = np.arange(-2, 0.02, 0.01)
+    y1 = 0.61 / (x1 - 0.05) + 1.3
+    x2 = np.arange(-2, 0.44, 0.01)
+    y2 = 0.61 / (x2 - 0.47) + 1.19
+    plt.plot(x1, y1)
+    plt.plot(x2, y2)
+
+    # PLOT BPT POINTS
+    for i in range(len(rpList)):
+        x, xErr, y, yErr = bptPoints[i]
+        if (x, y) != (0, 0):
+            label = rpList[i].regionName
+            plt.annotate(label, xy=(x, y), xytext=(-20, 20), textcoords='offset points', ha='right', va='bottom',
+            bbox=dict(boxstyle='round,pad=0.5', fc='yellow', alpha=0.5))
+            plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr)
+
+    # Plot other BPT points from Olave-Rojas et al.
+    # Still to do...
+
+    # PLOT AND SAVE FIGURE
+    plt.xlim(-1.5, 1)
+    plt.ylim(-1.5, 1)
+    plt.savefig('bpt_plot.png')
+    plt.show()
+
+
 
 
 
@@ -682,10 +729,13 @@ if __name__ == '__main__':
     regionsParameters = [Arp314_NED02Params, Mrk600AParams, IIZw33KnotBParams, NGC6845Region7Params]
 
     regionArray = []
+    bptPoints = []
     for regParam in regionsParameters:
         region = RegionCalculations(regParam)
         regionArray.append(region.lineInArray)
+        bptPoints.append(region.bptPoint)
 
+    bpt_plot(regionsParameters, bptPoints)
     halpha_regions_table_to_latex(regionArray, paperSize='a4', orientation='portrait')
     average_velocities_table_to_latex(regionsParameters, paperSize='a4', orientation='landscape')
 

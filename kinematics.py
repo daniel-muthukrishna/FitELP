@@ -645,13 +645,14 @@ class RegionCalculations(object):
 if __name__ == '__main__':
     from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
     from Mrk600A import RegionParameters as Mrk600AParams
-    from IIZw33KnotB import RegionParameters as IIZw33KnotBParams
+    #from IIZw33KnotB import RegionParameters as IIZw33KnotBParams
+    from IIZw33KnotB04 import RegionParameters as IIZw33KnotBParams
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters =[Arp314_NED02Params]#,[NGC6845Region7Params]#,[IIZw33KnotBParams],[Mrk600AParams],NGC6845Region26Params]
-
+    #regionsParameters =[Arp314_NED02Params]#[NGC6845Region7Params]#[Arp314_NED02Params]#,,[IIZw33KnotBParams],[Mrk600AParams],NGC6845Region26Params]
+    regionsParameters = [IIZw33KnotBParams]
     regionArray = []
     for regParam in regionsParameters:
         region = RegionCalculations(regParam)

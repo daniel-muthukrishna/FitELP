@@ -130,43 +130,74 @@ def line_label(emLineName, emRestWave, rp):
     return ion, lambdaZero
 
 
+def column(matrix, i):
+    columnList = []
+    for row in matrix:
+        if i < len(row):
+            columnList.append(row[i])
+
+    return columnList
+
+
 def calc_average_velocities(rpList):
     regionsAllLines = []
-    numCompsList = [min(rp.numComps.itervalues()) for rp in rpList]
+    componentLabelsAllEmLines = []
+
     for rp in rpList:
-        numComps = min(rp.numComps.itervalues())
+        numCompsFromVelCalcList = []
         centres = []
         sigmas = []
         for emName, emInfo in rp.emProfiles.items():
             if emName in rp.emLinesForAvgVelCalc:
+                if 'numComps' in emInfo.keys():
+                    numComps = emInfo['numComps']
+                else:
+                    zone = emInfo['zone']
+                    numComps = rp.numComps[zone]
+                numCompsFromVelCalcList.append(numComps)
                 centres.append(emInfo['centerList'][0:numComps])
                 sigmas.append(emInfo['sigIntList'][0:numComps])
-        centres = np.array(centres)
-        sigmas = np.array(sigmas)
-        avgCentres = np.zeros(numComps)
-        avgSigmas = np.zeros(numComps)
-        stdCentres = np.zeros(numComps)
-        stdSigmas = np.zeros(numComps)
-        for i in range(numComps):
-            avgCentres[i] = np.mean(centres[:,i])
-            avgSigmas[i] = np.mean(sigmas[:, i])
-            stdCentres[i] = np.std(centres[:, i])
-            stdSigmas[i] = np.std(sigmas[:, i])
+
+        avgCentres = []
+        avgSigmas = []
+        stdCentres = []
+        stdSigmas = []
+        for i in range(10):  # Max number of numComps (number of rows in table)
+            componentCentres = column(centres, i)
+            componentSigmas = column(sigmas, i)
+            if componentCentres != []:
+                avgCentres.append(np.mean(componentCentres))
+                stdCentres.append(np.std(componentCentres))
+            else:
+                avgCentres.append(None)
+                stdCentres.append(None)
+            if componentSigmas != []:
+                avgSigmas.append(np.mean(componentSigmas))
+                stdSigmas.append(np.std(componentSigmas))
+            else:
+                avgSigmas.append(None)
+                stdSigmas.append(None)
 
         regionLines = []
-        for i in range(max(numCompsList)):
+        componentLabels = []
+        for i in range(10):
             try:
                 regionLines.append([r"%.1f $\pm$ %.1f" % (avgCentres[i], stdCentres[i]), r"%.1f $\pm$ %.1f" % (avgSigmas[i], stdSigmas[i])])
-            except IndexError:
+                componentLabels.append(rp.componentLabels[i])
+            except (IndexError, TypeError):
                 regionLines.append(["-", "-"])
+                componentLabels.append("")
 
         regionsAllLines.append(regionLines)
+        componentLabelsAllEmLines.append(componentLabels)
 
     allLinesInArray = []
-    for i in range(numComps):
-        lineInArray = [rp.componentLabels[i]]
-        for regionLine in regionsAllLines:
-            lineInArray += regionLine[i]
+    for i in range(10):
+        lineInArray = []  # [rp.componentLabels[i]]
+        for j in range(len(regionsAllLines)):
+            regionLine = regionsAllLines[j]
+            componentLabel = componentLabelsAllEmLines[j]
+            lineInArray += [componentLabel[i]] + regionLine[i]
 
         allLinesInArray.append(lineInArray)
 
@@ -176,13 +207,13 @@ def calc_average_velocities(rpList):
 def average_velocities_table_to_latex(rpList, directory=".", paperSize='a4', orientation='portrait'):
     saveFileName = 'AverageVelocitiesTable'
     velArray = calc_average_velocities(rpList)
-    regionHeadings = ['']
-    headings = ['']
-    headingUnits = ['']
+    regionHeadings = []
+    headings = []
+    headingUnits = []
     for rp in rpList:
-        regionHeadings += ["\multicolumn{2}{c}{%s}" % rp.regionName]
-        headings += [r'$\mathrm{v_r}$', r'$\mathrm{\sigma}$']
-        headingUnits += [r'$\mathrm{(km \ s^{-1})}$', r'$\mathrm{(km \ s^{-1})}$']
+        regionHeadings += ["\multicolumn{3}{c}{%s}" % rp.regionName]  # Was 2 instead of 3 when i didn;t have separate component Labels
+        headings += ['', r'$\mathrm{v_r}$', r'$\mathrm{\sigma}$']
+        headingUnits += ['', r'$\mathrm{(km \ s^{-1})}$', r'$\mathrm{(km \ s^{-1})}$']
 
     headingLines = [regionHeadings, headings, headingUnits]
     caption = "Average radial velocities and velocity dispersions for all regions"
@@ -648,7 +679,7 @@ if __name__ == '__main__':
     # from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [Mrk600AParams, NGC6845Region7Params]#, NGC6845Region26Params]
+    regionsParameters = [Arp314_NED02Params, Mrk600AParams, IIZw33KnotBParams, NGC6845Region7Params]
 
     regionArray = []
     for regParam in regionsParameters:
@@ -656,6 +687,6 @@ if __name__ == '__main__':
         regionArray.append(region.lineInArray)
 
     halpha_regions_table_to_latex(regionArray, paperSize='a4', orientation='portrait')
-    # average_velocities_table_to_latex(regionsParameters, paperSize='a4', orientation='portrait')
+    average_velocities_table_to_latex(regionsParameters, paperSize='a4', orientation='landscape')
 
     plt.show()

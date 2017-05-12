@@ -58,7 +58,6 @@ class RegionParameters(object):
     linSlope = {'low': 0.0, 'high': 0.0}
     linInt = {'low': 0.1, 'high': 0.01}
 
-    #numComps = 3
     numComps = {'low': 4,'high': 3}
     componentLabels = ['g1', 'g2', 'g3','g4']
     componentColours = ['b', 'r','y', 'g']

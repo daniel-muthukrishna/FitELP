@@ -744,10 +744,6 @@ def bpt_plot(rpList, bptPoints):
             plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom',
                          color=colours[i])
 
-
-    # Plot other BPT points from Olave-Rojas et al.
-    # Still to do...
-
     # PLOT AND SAVE FIGURE
     plt.xlim(-1.5, 0.5)
     plt.ylim(-1, 1.5)

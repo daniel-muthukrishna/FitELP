@@ -729,7 +729,7 @@ def bpt_plot(rpList, bptPoints):
     yErr = unumpy.std_devs(ratioOIII)
 
     plt.plot(x, y, 'ko')
-    plt.errorbar(x, y, xerr=xErr, yerr=yErr, ecolor='black', elinewidth=1, fmt=None)
+    plt.errorbar(x, y, xerr=xErr, yerr=yErr, ecolor='black', elinewidth=0.5, fmt=None)
 
 
 

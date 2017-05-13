@@ -751,8 +751,8 @@ def bpt_plot(rpList, bptPoints):
     # PLOT AND SAVE FIGURE
     plt.xlim(-1.5, 0.5)
     plt.ylim(-1, 1.5)
-    plt.xlabel(r"$\log([NII]6584\AA/ H\alpha)$")
-    plt.ylabel(r"$\log([OIII]5007\AA/ H\beta$")
+    plt.xlabel(r"$\log(\mathrm{[NII]6584\AA / H\alpha})$")
+    plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
     plt.savefig(r'bpt_plot.png')
     plt.show()
 

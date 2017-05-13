@@ -5,7 +5,7 @@ from lmfit import Parameters
 import matplotlib.pyplot as plt
 import astropy.units as u
 from specutils.io import read_fits
-from uncertainties import ufloat, umath
+from uncertainties import ufloat, umath, unumpy
 
 SpOfLi = 300000.  # km/s
 
@@ -200,7 +200,12 @@ def calc_average_velocities(rpList):
             componentLabel = componentLabelsAllEmLines[j]
             lineInArray += [componentLabel[i]] + regionLine[i]
 
-        allLinesInArray.append(lineInArray)
+        for entry in lineInArray:
+            if entry == '' or entry == '-':
+                pass
+            else:
+                allLinesInArray.append(lineInArray)
+                break
 
     return allLinesInArray
 
@@ -649,7 +654,7 @@ class RegionCalculations(object):
         ratioNII, ratioNIIErr, ratioOIII, ratioOIIIErr = self.bptPoint
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
-        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), "%.3f $\pm$ %.4f" % (ratioNII, ratioNIIErr), "%.3f $\pm$ %.4f" % (ratioOIII, ratioOIIIErr)]
+        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), "%.3f $\pm$ %.3f" % (ratioNII, ratioNIIErr), "%.3f $\pm$ %.3f" % (ratioOIII, ratioOIIIErr)]
 
         # Combined Plots
         # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
@@ -692,25 +697,63 @@ def bpt_plot(rpList, bptPoints):
     y1 = 0.61 / (x1 - 0.05) + 1.3
     x2 = np.arange(-2, 0.44, 0.01)
     y2 = 0.61 / (x2 - 0.47) + 1.19
-    plt.plot(x1, y1)
-    plt.plot(x2, y2)
+    plt.plot(x1, y1, 'b--')
+    plt.plot(x2, y2, 'r--')
+    # AREA LABELS
+    plt.text(-1, -0.8, r'Starburst', fontsize=12)
+    plt.text(-0.22, -0.75, r'Transition', fontsize=12)
+    plt.text(-0.18, -0.9, r'Objects', fontsize=12)
+    plt.text(0.16, -0.5, r'LINERs', fontsize=12)
+    plt.text(0.16, 1.1, r'Seyferts', fontsize=12)
+    plt.text(-1.46, 1.1, r'Extreme Starburst Line', fontsize=12)
+
+    # OTHER POINTS FROM PAPER
+    hBetaAbs = [0.25,0.33,0.07,0.84,6.32,0.75,0.15,0.82,0.13,0.38,0.78,0.55,0.08,0.21,8.94,4.08,0.52,0.09,0.24,0.07,0.12]
+    hBetaErr = [0.11,0.27,0.03,0.19,0.3,0.22,0.09,0.17,0.04,0.17,0.19,0.16,0.06,0.13,0.8,0.26,0.14,0.04,0.14,0.03,0.08]
+    oIII5007Abs = [0.35,0.92,0.36,4.73,46.51,1.34,0.21,1.83,0.2,0.68,1.35,0.82,0.18,0.14,6.72,5.03,0.38,0.08,0.36,0.13,0.28]
+    oIII5007Err = [0.12,0.25,0.29,2.47,6.98,0.27,0.13,0.15,0.07,0.18,0.23,0.18,0.07,0.08,0.72,0.28,0.06,0.04,0.14,0.07,0.16]
+    hAlphaAbs = [0.69,1.02,0.32,3.77,30.11,2.24,0.5,2.56,0.46,1.11,2.46,1.72,0.27,0.62,33,16.6,1.61,0.13,0.62,0.15,0.35]
+    hAlphaErr = [0.1,0.25,0.11,0.29,4.52,0.32,0.15,0.34,0.19,0.24,0.35,0.27,0.13,0.19,2.04,1.4,0.2,0.1,0.17,0.08,0.12]
+    nII6584Abs = [0.11,0.14,0.07,0.4,2.27,0.36,0.09,0.33,0.1,0.22,0.41,0.36,0.06,0.21,10.64,4.8,0.56,0.03,0.11,0.03,0.04]
+    nII6584Err = [0.05,0.09,0.06,0.16,0.24,0.17,0.07,0.13,0.04,0.11,0.16,0.12,0.03,0.12,0.62,0.33,0.14,0.02,0.07,0.03,0.03]
+    hBeta = (unumpy.uarray(hBetaAbs, hBetaErr))
+    oIII5007 = unumpy.uarray(oIII5007Abs, oIII5007Err)
+    hAlpha = unumpy.uarray(hAlphaAbs, hAlphaErr)
+    nII6584 = unumpy.uarray(nII6584Abs, nII6584Err)
+
+    ratioNII = unumpy.log10(nII6584/hAlpha)
+    ratioOIII = unumpy.log10(oIII5007/hBeta)
+    x = unumpy.nominal_values(ratioNII)
+    xErr = unumpy.std_devs(ratioNII)
+    y = unumpy.nominal_values(ratioOIII)
+    yErr = unumpy.std_devs(ratioOIII)
+
+    plt.plot(x, y, 'ko')
+    plt.errorbar(x, y, xerr=xErr, yerr=yErr, ecolor='black', fmt=None)
+
+
 
     # PLOT BPT POINTS
+    colours = ['b', 'r', 'g', 'm', 'c', 'violet', 'y', '#5D6D7E']
     for i in range(len(rpList)):
         x, xErr, y, yErr = bptPoints[i]
         if (x, y) != (0, 0):
             label = rpList[i].regionName
-            plt.annotate(label, xy=(x, y), xytext=(-20, 20), textcoords='offset points', ha='right', va='bottom',
-            bbox=dict(boxstyle='round,pad=0.5', fc='yellow', alpha=0.5))
+            plt.plot([x], [y], 'o', color=colours[i])
             plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr)
+            plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom',
+                         color=colours[i])
+
 
     # Plot other BPT points from Olave-Rojas et al.
     # Still to do...
 
     # PLOT AND SAVE FIGURE
-    plt.xlim(-1.5, 1)
-    plt.ylim(-1.5, 1)
-    plt.savefig('bpt_plot.png')
+    plt.xlim(-1.5, 0.5)
+    plt.ylim(-1, 1.5)
+    plt.xlabel(r"$log([NII]6584\{AA}/ H\{alpha})$")
+    plt.ylabel(r"$log([OIII]5007\{AA}/ H\{beta}$")
+    plt.savefig(r'bpt_plot.png')
     plt.show()
 
 

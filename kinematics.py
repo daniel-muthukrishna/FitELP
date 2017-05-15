@@ -5,6 +5,7 @@ from lmfit import Parameters
 import matplotlib.pyplot as plt
 import astropy.units as u
 from specutils.io import read_fits
+from uncertainties import ufloat, umath, unumpy
 
 SpOfLi = 300000.  # km/s
 
@@ -130,68 +131,104 @@ def line_label(emLineName, emRestWave, rp):
     return ion, lambdaZero
 
 
+def column(matrix, i):
+    columnList = []
+    for row in matrix:
+        if i < len(row):
+            columnList.append(row[i])
+
+    return columnList
+
+
 def calc_average_velocities(rpList):
     regionsAllLines = []
-    numCompsList = [min(rp.numComps.itervalues()) for rp in rpList]
+    componentLabelsAllEmLines = []
+
     for rp in rpList:
-        numComps = min(rp.numComps.itervalues())
+        numCompsFromVelCalcList = []
         centres = []
         sigmas = []
         for emName, emInfo in rp.emProfiles.items():
             if emName in rp.emLinesForAvgVelCalc:
+                if 'numComps' in emInfo.keys():
+                    numComps = emInfo['numComps']
+                else:
+                    zone = emInfo['zone']
+                    numComps = rp.numComps[zone]
+                numCompsFromVelCalcList.append(numComps)
                 centres.append(emInfo['centerList'][0:numComps])
                 sigmas.append(emInfo['sigIntList'][0:numComps])
-        centres = np.array(centres)
-        sigmas = np.array(sigmas)
-        avgCentres = np.zeros(numComps)
-        avgSigmas = np.zeros(numComps)
-        stdCentres = np.zeros(numComps)
-        stdSigmas = np.zeros(numComps)
-        for i in range(numComps):
-            avgCentres[i] = np.mean(centres[:,i])
-            avgSigmas[i] = np.mean(sigmas[:, i])
-            stdCentres[i] = np.std(centres[:, i])
-            stdSigmas[i] = np.std(sigmas[:, i])
+
+        avgCentres = []
+        avgSigmas = []
+        stdCentres = []
+        stdSigmas = []
+        for i in range(10):  # Max number of numComps (number of rows in table)
+            componentCentres = column(centres, i)
+            componentSigmas = column(sigmas, i)
+            if componentCentres != []:
+                avgCentres.append(np.mean(componentCentres))
+                stdCentres.append(np.std(componentCentres))
+            else:
+                avgCentres.append(None)
+                stdCentres.append(None)
+            if componentSigmas != []:
+                avgSigmas.append(np.mean(componentSigmas))
+                stdSigmas.append(np.std(componentSigmas))
+            else:
+                avgSigmas.append(None)
+                stdSigmas.append(None)
 
         regionLines = []
-        for i in range(max(numCompsList)):
+        componentLabels = []
+        for i in range(10):
             try:
                 regionLines.append([r"%.1f $\pm$ %.1f" % (avgCentres[i], stdCentres[i]), r"%.1f $\pm$ %.1f" % (avgSigmas[i], stdSigmas[i])])
-            except IndexError:
+                componentLabels.append(rp.componentLabels[i])
+            except (IndexError, TypeError):
                 regionLines.append(["-", "-"])
+                componentLabels.append("")
 
         regionsAllLines.append(regionLines)
+        componentLabelsAllEmLines.append(componentLabels)
 
     allLinesInArray = []
-    for i in range(numComps):
-        lineInArray = [rp.componentLabels[i]]
-        for regionLine in regionsAllLines:
-            lineInArray += regionLine[i]
+    for i in range(10):
+        lineInArray = []  # [rp.componentLabels[i]]
+        for j in range(len(regionsAllLines)):
+            regionLine = regionsAllLines[j]
+            componentLabel = componentLabelsAllEmLines[j]
+            lineInArray += [componentLabel[i]] + regionLine[i]
 
-        allLinesInArray.append(lineInArray)
+        for entry in lineInArray:
+            if entry == '' or entry == '-':
+                pass
+            else:
+                allLinesInArray.append(lineInArray)
+                break
 
     return allLinesInArray
 
 
-def average_velocities_table_to_latex(rpList, directory="."):
+def average_velocities_table_to_latex(rpList, directory=".", paperSize='a4', orientation='portrait'):
     saveFileName = 'AverageVelocitiesTable'
     velArray = calc_average_velocities(rpList)
-    regionHeadings = ['']
-    headings = ['']
-    headingUnits = ['']
+    regionHeadings = []
+    headings = []
+    headingUnits = []
     for rp in rpList:
-        regionHeadings += ["\multicolumn{2}{c}{%s}" % rp.regionName]
-        headings += [r'$\mathrm{v_r}$', r'$\mathrm{\sigma}$']
-        headingUnits += [r'$\mathrm{(km \ s^{-1})}$', r'$\mathrm{(km \ s^{-1})}$']
+        regionHeadings += ["\multicolumn{3}{c}{%s}" % rp.regionName]  # Was 2 instead of 3 when i didn;t have separate component Labels
+        headings += ['', r'$\mathrm{v_r}$', r'$\mathrm{\sigma}$']
+        headingUnits += ['', r'$\mathrm{(km \ s^{-1})}$', r'$\mathrm{(km \ s^{-1})}$']
 
     headingLines = [regionHeadings, headings, headingUnits]
     caption = "Average radial velocities and velocity dispersions for all regions"
     nCols = len(headings)
     centering = 'l' + 'c' * (nCols-1)
-    table_to_latex(velArray, headingLines, saveFileName, directory, caption, centering)
+    table_to_latex(velArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation)
 
 
-def halpha_regions_table_to_latex(regionInfoArray, directory="."):
+def halpha_regions_table_to_latex(regionInfoArray, directory=".", paperSize='a4', orientation='portrait'):
     saveFileName = 'RegionInfo'
     headings = [r'Region Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{log([NII]/H}\alpha)$', r'$\mathrm{log([OIII]/H}\beta)$']
     headingUnits = ['', r'$(\mathrm{M_{\odot} \ yr^{-1}})$', '', '', '']
@@ -199,10 +236,10 @@ def halpha_regions_table_to_latex(regionInfoArray, directory="."):
     caption = 'Region Information'
     nCols = len(headings)
     centering = 'l' + 'c' * (nCols-1)
-    table_to_latex(regionInfoArray, headingLines, saveFileName, directory, caption, centering)
+    table_to_latex(regionInfoArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation)
 
 
-def comp_table_to_latex(componentArray, rp):
+def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrait'):
     saveFileName = 'ComponentTable'
     directory = rp.regionName
     headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
@@ -214,31 +251,28 @@ def comp_table_to_latex(componentArray, rp):
     caption = rp.regionName
     nCols = len(headings)
     centering = 'lllccccc'
-    table_to_latex(componentArray, headingLines, saveFileName, directory, caption, centering)
+    table_to_latex(componentArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation)
 
 
-def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, centering):
+def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, centering, papersize='a4', orientation='portrait'):
     texFile = open(directory + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
-    texFile.write('\\usepackage[a3paper, portrait, margin=0.5in]{geometry}\n')
+    texFile.write('\\usepackage[%spaper, %s, margin=0.5in]{geometry}\n' % (papersize, orientation))
     texFile.write('\\usepackage{booktabs}\n')
-    # texFile.write('\\usepackage[LGRgreek]{mathastext}\n')
-    # texFile.write('\\usepackage[utf8]{inputenc}\n')
+    texFile.write('\\usepackage{longtable}\n')
     texFile.write('\\begin{document}\n')
     texFile.write('\n')
-    texFile.write('\\begin{table}[tbp]\n')
-    texFile.write('\\centering\n')
-    texFile.write('\\begin{tabular}{%s}\n' % (centering))
+    texFile.write('\\begin{longtable}{%s}\n' % (centering))
     texFile.write('\\hline\n')
     for heading in headingLines:
         texFile.write(' & '.join(str(e) for e in heading) + ' \\\\ \n')
     texFile.write('\\hline\n')
+    # texFile.write('\\endhead\n')
     for line in tableArray:
         texFile.write(' & '.join(str(e) for e in line) + ' \\\\ \n')
     texFile.write('\\hline\n')
-    texFile.write('\\end{tabular}\n')
     texFile.write('\\caption{%s}\n' % caption)
-    texFile.write('\\end{table}\n')
+    texFile.write('\\end{longtable}\n')
     texFile.write('\n')
     texFile.write('\\end{document}\n')
 
@@ -451,7 +485,7 @@ class FittingProfile(object):
 
         g = GaussianModel(prefix=prefix)
         pars.update(g.make_params())
-        pars[prefix+'center'].set(c, min=cMin, max=cMax, vary=varyCentre)
+        pars[prefix + 'center'].set(c, min=cMin, max=cMax, vary=varyCentre)
         pars[prefix + 'sigma'].set(s, min=sMin, max=sMax, vary=varySigma)
         pars[prefix + 'amplitude'].set(a, min=aMin, max=aMax, vary=varyAmp)
 
@@ -603,11 +637,12 @@ class RegionCalculations(object):
                 allModelComponents.append(tableLine)
             allModelComponents.append([''] * len(tableLine))
             ampListAll.append([emName, ampComponentList, emInfo, emName])
-        comp_table_to_latex(allModelComponents, rp)
+
+        # Create Component Table
+        comp_table_to_latex(allModelComponents, rp, paperSize='a4', orientation='portrait')
 
         print("------------ List all Amplitudes  %s ----------" % rp.regionName)
         for ampComps in ampListAll:
-            #print ampComps[0], ampComps[1]
             ampCompsList, emInfo, emName = ampComps[1:4]
             print("# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + ", " + "'compLimits': " + str(emInfo['compLimits']) + ", " + "'copyFrom': '" + str(emInfo['copyFrom']) + ", " + "'numComps': " + str(emInfo['numComps']) + "'}),")
 
@@ -615,29 +650,109 @@ class RegionCalculations(object):
         for mod in allModelComponents:
             print(mod)
 
-        try:
-            # ratioNII = (rp.emProfiles['NII-6584A']['globalFlux'] + rp.emProfiles['NII-6548A']['globalFlux']) / (rp.emProfiles['H-Alpha']['globalFlux'])
-            # ratioOIII = (rp.emProfiles['OIII-5007A']['globalFlux'] + rp.emProfiles['OIII-4959A']['globalFlux']) / (rp.emProfiles['H-Beta_Blue']['globalFlux'])
-            ratioNII = (rp.emProfiles['NII-6584A']['globalFlux']) /( rp.emProfiles['H-Alpha']['globalFlux'])
-            ratioOIII = (rp.emProfiles['OIII-5007A']['globalFlux']) / (rp.emProfiles['H-Beta_Blue']['globalFlux'])
-            ratioNII = np.log10(ratioNII)
-            ratioOIII = np.log10(ratioOIII)
-        except KeyError:
-            ratioNII, ratioOIII = (0, 0)
-            print("NII or OIII are not defined")
-
+        self.bptPoint = calc_bpt_point(rp)
+        ratioNII, ratioNIIErr, ratioOIII, ratioOIIIErr = self.bptPoint
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
-        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), round(ratioNII, 3), round(ratioOIII, 3)]
+        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), "%.3f $\pm$ %.3f" % (ratioNII, ratioNIIErr), "%.3f $\pm$ %.3f" % (ratioOIII, ratioOIIIErr)]
 
         # Combined Plots
         # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
         # plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
         # plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta_Blue', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines', sortedIndex=[0, 1, 2, 3, 4])
 
-        #plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
+        # plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
         # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='NeIII-3868A', title=' ')
         # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='OIII-5007A', title='')
+
+
+def calc_bpt_point(rp):
+    try:
+        fluxNII6584 = ufloat(rp.emProfiles['NII-6584A']['globalFlux'], rp.emProfiles['NII-6584A']['globalFluxErr'])
+        fluxHAlpha = ufloat(rp.emProfiles['H-Alpha']['globalFlux'], rp.emProfiles['H-Alpha']['globalFluxErr'])
+        fluxOIII5007 = ufloat(rp.emProfiles['OIII-5007A']['globalFlux'], rp.emProfiles['OIII-5007A']['globalFluxErr'])
+        fluxHBeta = ufloat(rp.emProfiles['H-Beta_Blue']['globalFlux'], rp.emProfiles['H-Beta_Blue']['globalFluxErr'])
+
+        ratioNII = umath.log10(fluxNII6584 / fluxHAlpha)
+        ratioOIII = umath.log10(fluxOIII5007 / fluxHBeta)
+        x = ratioNII.nominal_value
+        xErr = ratioNII.std_dev
+        y = ratioOIII.nominal_value
+        yErr = ratioOIII.std_dev
+    except (KeyError, ValueError):
+        x, xErr, y, yErr = (0, 0, 0, 0)
+        print("NII or OIII are not defined")
+
+    bptPoint = (x, xErr, y, yErr)
+
+    return bptPoint
+
+
+def bpt_plot(rpList, bptPoints):
+    # PLOT LINES
+    plt.figure('BPT Plot')
+    # y1: log([OIII]5007/Hbeta) = 0.61 / (log([NII]6584/Halpha) - 0.05) + 1.3  (curve of Kauffmann+03 line)
+    # y2: log([OIII]5007/Hbeta) = 0.61 / (log([NII]6584/Halpha) - 0.47) + 1.19    (curve of Kewley+01 line)
+    x1 = np.arange(-2, 0.02, 0.01)
+    y1 = 0.61 / (x1 - 0.05) + 1.3
+    x2 = np.arange(-2, 0.44, 0.01)
+    y2 = 0.61 / (x2 - 0.47) + 1.19
+    plt.plot(x1, y1, 'b--')
+    plt.plot(x2, y2, 'r--')
+    # AREA LABELS
+    plt.text(-1, -0.8, r'Starburst', fontsize=12)
+    plt.text(-0.22, -0.75, r'Transition', fontsize=12)
+    plt.text(-0.18, -0.9, r'Objects', fontsize=12)
+    plt.text(0.16, -0.5, r'LINERs', fontsize=12)
+    plt.text(0.16, 1.1, r'Seyferts', fontsize=12)
+    plt.text(-1.46, 1.1, r'Extreme Starburst Line', fontsize=12)
+
+    # OTHER POINTS FROM PAPER
+    hBetaAbs = [0.25,0.33,0.07,0.84,6.32,0.75,0.15,0.82,0.13,0.38,0.78,0.55,0.08,0.21,8.94,4.08,0.52,0.09,0.24,0.07,0.12]
+    hBetaErr = [0.11,0.27,0.03,0.19,0.3,0.22,0.09,0.17,0.04,0.17,0.19,0.16,0.06,0.13,0.8,0.26,0.14,0.04,0.14,0.03,0.08]
+    oIII5007Abs = [0.35,0.92,0.36,4.73,46.51,1.34,0.21,1.83,0.2,0.68,1.35,0.82,0.18,0.14,6.72,5.03,0.38,0.08,0.36,0.13,0.28]
+    oIII5007Err = [0.12,0.25,0.29,2.47,6.98,0.27,0.13,0.15,0.07,0.18,0.23,0.18,0.07,0.08,0.72,0.28,0.06,0.04,0.14,0.07,0.16]
+    hAlphaAbs = [0.69,1.02,0.32,3.77,30.11,2.24,0.5,2.56,0.46,1.11,2.46,1.72,0.27,0.62,33,16.6,1.61,0.13,0.62,0.15,0.35]
+    hAlphaErr = [0.1,0.25,0.11,0.29,4.52,0.32,0.15,0.34,0.19,0.24,0.35,0.27,0.13,0.19,2.04,1.4,0.2,0.1,0.17,0.08,0.12]
+    nII6584Abs = [0.11,0.14,0.07,0.4,2.27,0.36,0.09,0.33,0.1,0.22,0.41,0.36,0.06,0.21,10.64,4.8,0.56,0.03,0.11,0.03,0.04]
+    nII6584Err = [0.05,0.09,0.06,0.16,0.24,0.17,0.07,0.13,0.04,0.11,0.16,0.12,0.03,0.12,0.62,0.33,0.14,0.02,0.07,0.03,0.03]
+    hBeta = (unumpy.uarray(hBetaAbs, hBetaErr))
+    oIII5007 = unumpy.uarray(oIII5007Abs, oIII5007Err)
+    hAlpha = unumpy.uarray(hAlphaAbs, hAlphaErr)
+    nII6584 = unumpy.uarray(nII6584Abs, nII6584Err)
+
+    ratioNII = unumpy.log10(nII6584/hAlpha)
+    ratioOIII = unumpy.log10(oIII5007/hBeta)
+    x = unumpy.nominal_values(ratioNII)
+    xErr = unumpy.std_devs(ratioNII)
+    y = unumpy.nominal_values(ratioOIII)
+    yErr = unumpy.std_devs(ratioOIII)
+
+    plt.plot(x, y, 'ko')
+    plt.errorbar(x, y, xerr=xErr, yerr=yErr, ecolor='black', elinewidth=0.5, fmt=None)
+
+
+
+    # PLOT BPT POINTS
+    colours = ['b', 'r', 'g', 'm', 'c', 'violet', 'y', '#5D6D7E']
+    for i in range(len(rpList)):
+        x, xErr, y, yErr = bptPoints[i]
+        if (x, y) != (0, 0):
+            label = rpList[i].regionName
+            plt.plot([x], [y], 'o', color=colours[i])
+            plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr)
+            plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom',
+                         color=colours[i])
+
+    # PLOT AND SAVE FIGURE
+    plt.xlim(-1.5, 0.5)
+    plt.ylim(-1, 1.5)
+    plt.xlabel(r"$\log(\mathrm{[NII]6584\AA / H\alpha})$")
+    plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
+    plt.savefig(r'bpt_plot.png')
+    plt.show()
+
+
 
 
 
@@ -645,20 +760,22 @@ class RegionCalculations(object):
 if __name__ == '__main__':
     from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
     from Mrk600A import RegionParameters as Mrk600AParams
-    #from IIZw33KnotB import RegionParameters as IIZw33KnotBParams
-    from IIZw33KnotB04 import RegionParameters as IIZw33KnotBParams
+    from IIZw33KnotB import RegionParameters as IIZw33KnotBParams
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
-    from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
+    # from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    #regionsParameters =[Arp314_NED02Params]#[NGC6845Region7Params]#[Arp314_NED02Params]#,,[IIZw33KnotBParams],[Mrk600AParams],NGC6845Region26Params]
-    regionsParameters = [IIZw33KnotBParams]
+    regionsParameters = [Arp314_NED02Params, Mrk600AParams, IIZw33KnotBParams, NGC6845Region7Params]
+
     regionArray = []
+    bptPoints = []
     for regParam in regionsParameters:
         region = RegionCalculations(regParam)
         regionArray.append(region.lineInArray)
+        bptPoints.append(region.bptPoint)
 
-    halpha_regions_table_to_latex(regionArray)
-    average_velocities_table_to_latex(regionsParameters)
+    bpt_plot(regionsParameters, bptPoints)
+    halpha_regions_table_to_latex(regionArray, paperSize='a4', orientation='portrait')
+    average_velocities_table_to_latex(regionsParameters, paperSize='a4', orientation='landscape')
 
     plt.show()

@@ -407,14 +407,25 @@ def bpt_plot(rpList, bptPoints):
 
 
 def save_fluxes(fluxListInfo, rp):
+    componentFluxesDict = dict((el, []) for el in rp.componentLabels)
     saveFilename = 'component_fluxes.csv'
     with open(os.path.join(rp.regionName, saveFilename), 'w') as csvFile:
         writer = csv.writer(csvFile, delimiter=',')
         writer.writerow(["Line_name", "Component", "Flux", "Flux_error"])
         for i in range(len(fluxListInfo)):
-            emName, rp.componentLabels, fluxList, fluxListErr = fluxListInfo[i]
+            emName, components, fluxList, fluxErrList = fluxListInfo[i]
             for j in range(len(fluxList)):
-                writer.writerow([emName, rp.componentLabels[j], fluxList[j], fluxListErr[j]])
+                writer.writerow([emName, components[j], fluxList[j], fluxErrList[j]])
+                componentFluxesDict[components[j]].append((emName, fluxList[j], fluxErrList[j]))
+
+    for componentName, fluxInfo in componentFluxesDict.items():
+        with open(os.path.join(rp.regionName, "{0}.csv".format(componentName)), 'w') as csvFile:
+            writer = csv.writer(csvFile, delimiter=',')
+            writer.writerow([componentName])
+            writer.writerow(["Line_name", "Flux", "Flux_error"])
+            for i in range(len(fluxInfo)):
+                emName, flux, fluxErr = fluxInfo[i]
+                writer.writerow([emName, flux, fluxErr])
 
 
 class GalaxyRegion(object):
@@ -771,12 +782,12 @@ class RegionCalculations(object):
 if __name__ == '__main__':
     from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
     from Mrk600A import RegionParameters as Mrk600AParams
-    from IIZw33KnotB05 import RegionParameters as IIZw33KnotBParams
+    # from IIZw33KnotB05 import RegionParameters as IIZw33KnotBParams
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     # from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [Arp314_NED02Params] #, Mrk600AParams, IIZw33KnotBParams, NGC6845Region7Params]
+    regionsParameters = [Mrk600AParams]
 
     regionArray = []
     bptPoints = []

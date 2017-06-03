@@ -7,6 +7,7 @@ import astropy.units as u
 from specutils.io import read_fits
 from uncertainties import ufloat, umath, unumpy
 import csv
+from label_tools import line_label, line_name_to_pyneb_format
 
 SpOfLi = 299792.5  # km/s
 
@@ -103,34 +104,6 @@ def calculate_em_f(model, numComponents):
     calcEMF = componentFluxes/sum(componentFluxes) * 100
 
     return calcEMF, componentFluxes, componentFluxErrors, totalFlux, totalFluxError
-
-
-def line_label(emLineName, emRestWave, rp):
-    if emLineName in ['H-Alpha', 'H-Beta', 'H-Gamma', 'H-Delta']:
-        lambdaZero = '$%s$' % str(int(round(emRestWave)))
-        if emLineName == 'H-Alpha':
-            ion = r"$\mathrm{H}\alpha$"
-        elif emLineName == 'H-Beta':
-            ion = r"$\mathrm{H}\beta$"
-        elif emLineName == 'H-Gamma':
-            ion = r"$\mathrm{H}\gamma$"
-        elif emLineName == 'H-Delta':
-            ion = r"$\mathrm{H}\delta$"
-    elif emLineName == 'H-Beta_Blue':
-        lambdaZero = '$%s$' % str(int(round(emRestWave)))
-        ion = r"$\mathrm{H}\beta$ - Blue"
-    elif emLineName == 'H-Beta_Red':
-        lambdaZero = '$%s$' % str(int(round(emRestWave)))
-        ion = r"$\mathrm{H}\beta$ - Red"
-    elif 'He' in emLineName:
-        lambdaZero = '$%s$' % emLineName.split('-')[1][:-1]
-        ion = r"$\mathrm{%s}$" % emLineName.split('-')[0]
-    else:
-        lambdaZero = '$%s$' % emLineName.split('-')[1][:-1]
-        ion = r"$\mathrm{[%s]}$" % emLineName.split('-')[0]
-
-    return ion, lambdaZero
-
 
 def column(matrix, i):
     columnList = []
@@ -286,8 +259,12 @@ def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, c
 
 
 def calc_luminosity(rp):
-    calcLuminosity = 4 * np.pi * rp.emProfiles['H-Alpha']['globalFlux'] * rp.distance**2 / rp.scaleFlux
-    calcLuminosityError = 4 * np.pi * rp.distance**2 * rp.emProfiles['H-Alpha']['globalFluxErr'] / rp.scaleFlux
+    if 'H-Alpha' in rp.emProfiles:
+        calcLuminosity = 4 * np.pi * rp.emProfiles['H-Alpha']['globalFlux'] * rp.distance**2 / rp.scaleFlux
+        calcLuminosityError = 4 * np.pi * rp.distance**2 * rp.emProfiles['H-Alpha']['globalFluxErr'] / rp.scaleFlux
+    else:
+        calcLuminosity = 4 * np.pi * rp.emProfiles['H1r_6563A']['globalFlux'] * rp.distance**2 / rp.scaleFlux
+        calcLuminosityError = 4 * np.pi * rp.distance**2 * rp.emProfiles['H1r_6563A']['globalFluxErr'] / rp.scaleFlux
     starFormRate = 5.5e-42 * calcLuminosity
     starFormRateError = 5.5e-42 * calcLuminosityError
 
@@ -323,10 +300,10 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
 
 def calc_bpt_point(rp):
     try:
-        fluxNII6584 = ufloat(rp.emProfiles['NII-6584A']['globalFlux'], rp.emProfiles['NII-6584A']['globalFluxErr'])
-        fluxHAlpha = ufloat(rp.emProfiles['H-Alpha']['globalFlux'], rp.emProfiles['H-Alpha']['globalFluxErr'])
-        fluxOIII5007 = ufloat(rp.emProfiles['OIII-5007A']['globalFlux'], rp.emProfiles['OIII-5007A']['globalFluxErr'])
-        fluxHBeta = ufloat(rp.emProfiles['H-Beta_Blue']['globalFlux'], rp.emProfiles['H-Beta_Blue']['globalFluxErr'])
+        fluxNII6584 = ufloat(rp.emProfiles['N2_6584A']['globalFlux'], rp.emProfiles['N2_6584A']['globalFluxErr'])
+        fluxHAlpha = ufloat(rp.emProfiles['H1r_6563A']['globalFlux'], rp.emProfiles['H1r_6563A']['globalFluxErr'])
+        fluxOIII5007 = ufloat(rp.emProfiles['O3_5007A']['globalFlux'], rp.emProfiles['O3_5007A']['globalFluxErr'])
+        fluxHBeta = ufloat(rp.emProfiles['H1r_4861A']['globalFlux'], rp.emProfiles['H1r_4861A']['globalFluxErr'])
 
         ratioNII = umath.log10(fluxNII6584 / fluxHAlpha)
         ratioOIII = umath.log10(fluxOIII5007 / fluxHBeta)
@@ -637,7 +614,7 @@ class FittingProfile(object):
         f.close()
         components = out.eval_components()
 
-        ion, lambdaZero = line_label(self.lineName, self.restWave, self.rp)
+        ion, lambdaZero = line_label(self.lineName, self.restWave)
         plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
         plt.title("%s %s" % (ion, lambdaZero))
         plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
@@ -687,7 +664,7 @@ class RegionCalculations(object):
             emLineProfile = EmissionLineProfile(wave1, flux1, restWave=emInfo['restWavelength'], lineName=emName, rp=rp)
             vel1 = emLineProfile.vel
             fittingProfile = FittingProfile(vel1, flux1, restWave=emInfo['restWavelength'], lineName=emName, fluxError=flux1Error, zone=emInfo['zone'], rp=rp)
-            ion1, lambdaZero1 = line_label(emName, emInfo['restWavelength'], rp)
+            ion1, lambdaZero1 = line_label(emName, emInfo['restWavelength'])
             emLabel = (ion1 + ' ' + lambdaZero1)
 
             if emInfo['copyFrom'] is None:

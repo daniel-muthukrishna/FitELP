@@ -79,7 +79,7 @@ def line_label_pyneb_format(emLineName):
     else:
         ion = ion.strip('r')
         atomName, ionNumber = ion[:-1], ion[-1]
-        if  int(ionNumber) == 4:
+        if int(ionNumber) == 4:
             romanNumeral = 'IV'
         else:
             romanNumeral = 'I' * int(ionNumber)

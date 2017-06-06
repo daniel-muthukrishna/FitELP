@@ -757,6 +757,7 @@ class RegionCalculations(object):
 
 
 if __name__ == '__main__':
+    from profile_info_Arp314_NED02_off import RegionParameters as Arp314_NED02_offParams
     from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
     from Mrk600A import RegionParameters as Mrk600AParams
     from Mrk600B import RegionParameters as Mrk600B05Params
@@ -765,7 +766,7 @@ if __name__ == '__main__':
     # from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [Arp314_NED02Params]
+    regionsParameters = [Arp314_NED02_offParams]
 
     regionArray = []
     bptPoints = []

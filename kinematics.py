@@ -1,4 +1,5 @@
 import os
+import subprocess
 import numpy as np
 from lmfit.models import GaussianModel, LinearModel
 from lmfit import Parameters
@@ -252,10 +253,15 @@ def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, c
 
     texFile.close()
 
-    os.system("pdflatex ./'" + directory + "'/" + saveFileName + ".tex")
+    run_bash_command("pdflatex ./'" + directory + "'/" + saveFileName + ".tex")
     if directory != ".":
-        os.system("mv " + saveFileName + ".pdf ./'" + directory + "'")
-        os.system("rm " + saveFileName + ".*")
+        run_bash_command("mv " + saveFileName + ".pdf ./'" + directory + "'")
+        run_bash_command("rm " + saveFileName + ".*")
+
+
+def run_bash_command(bashCommandStr):
+    process = subprocess.Popen(bashCommandStr.split(), stdout=subprocess.PIPE)
+    output, error = process.communicate(input='\n')
 
 
 def calc_luminosity(rp):
@@ -390,19 +396,20 @@ def save_fluxes(fluxListInfo, rp):
         writer = csv.writer(csvFile, delimiter=',')
         writer.writerow(["Line_name", "Component", "Flux", "Flux_error"])
         for i in range(len(fluxListInfo)):
-            emName, components, fluxList, fluxErrList = fluxListInfo[i]
+            emName, components, fluxList, fluxErrList, restWave = fluxListInfo[i]
             for j in range(len(fluxList)):
                 writer.writerow([emName, components[j], fluxList[j], fluxErrList[j]])
-                componentFluxesDict[components[j]].append((emName, fluxList[j], fluxErrList[j]))
+                componentFluxesDict[components[j]].append([emName, fluxList[j], fluxErrList[j], restWave])
 
     for componentName, fluxInfo in componentFluxesDict.items():
+        fluxInfo = sorted(fluxInfo, key=lambda l:l[3])
         with open(os.path.join(rp.regionName, "{0}.csv".format(componentName)), 'w') as csvFile:
             writer = csv.writer(csvFile, delimiter=',')
             writer.writerow([componentName])
             writer.writerow(["Line_name", "Flux", "Flux_error"])
             for i in range(len(fluxInfo)):
-                emName, flux, fluxErr = fluxInfo[i]
-                writer.writerow([emName, flux, fluxErr])
+                emName, flux, fluxErr, restWave = fluxInfo[i]
+                writer.writerow([emName, round(flux, 3), round(fluxErr, 3)ro])
 
 
 class GalaxyRegion(object):
@@ -709,7 +716,7 @@ class RegionCalculations(object):
             ampComponentList = []
             o = model1
             eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, numComps)
-            fluxListInfo.append((emName, rp.componentLabels, fluxList, fluxListErr))
+            fluxListInfo.append((emName, rp.componentLabels, fluxList, fluxListErr, emInfo['restWavelength']))
             rp.emProfiles[emName]['globalFlux'] = globalFlux
             rp.emProfiles[emName]['globalFluxErr'] = globalFluxErr
             rp.emProfiles[emName]['sigIntList'] = []
@@ -765,7 +772,7 @@ if __name__ == '__main__':
     # from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [Arp314_NED02Params]
+    regionsParameters = [Mrk600B05Params]
 
     regionArray = []
     bptPoints = []

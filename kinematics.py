@@ -260,8 +260,9 @@ def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, c
 
 
 def run_bash_command(bashCommandStr):
-    process = subprocess.Popen(bashCommandStr.split(), stdout=subprocess.PIPE)
-    output, error = process.communicate(input='\n')
+    os.system(bashCommandStr)
+    # process = subprocess.Popen(bashCommandStr.split(), stdout=subprocess.PIPE)
+    # output, error = process.communicate(input='\n')
 
 
 def calc_luminosity(rp):
@@ -409,7 +410,7 @@ def save_fluxes(fluxListInfo, rp):
             writer.writerow(["Line_name", "Flux", "Flux_error"])
             for i in range(len(fluxInfo)):
                 emName, flux, fluxErr, restWave = fluxInfo[i]
-                writer.writerow([emName, round(flux, 3), round(fluxErr, 3)ro])
+                writer.writerow([emName, round(flux, 3), round(fluxErr, 3)])
 
 
 class GalaxyRegion(object):

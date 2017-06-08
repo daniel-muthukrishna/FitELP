@@ -478,7 +478,7 @@ class EmissionLineProfile(object):
         self.restWave = restWave
         self.lineName = lineName
         self.wave = wave
-        self.flux = flux
+        self.flux = flux * (restWave / SpOfLi)
         self.vel = self._velocity(wave)
         self.rp = rp
 
@@ -503,8 +503,8 @@ class FittingProfile(object):
     def __init__(self, vel, flux, restWave, lineName, zone, rp, fluxError=None):
         """The input vel and flux must be limited to a single emission line profile"""
         self.vel = vel
-        self.flux = flux
-        self.fluxError = fluxError
+        self.flux = flux * (restWave /SpOfLi)
+        self.fluxError = fluxError * (restWave /SpOfLi)
         self.restWave = restWave
         self.lineName = lineName
         self.zone = zone
@@ -742,7 +742,7 @@ class RegionCalculations(object):
         ratioNII, ratioNIIErr, ratioOIII, ratioOIIIErr = self.bptPoint
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
-        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), "%.3f $\pm$ %.3f" % (ratioNII, ratioNIIErr), "%.3f $\pm$ %.3f" % (ratioOIII, ratioOIIIErr)]
+        self.lineInArray = [rp.regionName, "%.7f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), "%.3f $\pm$ %.3f" % (ratioNII, ratioNIIErr), "%.3f $\pm$ %.3f" % (ratioOIII, ratioOIIIErr)]
 
         # Combined Plots
         # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
@@ -759,14 +759,14 @@ class RegionCalculations(object):
 if __name__ == '__main__':
     from profile_info_Arp314_NED02_off import RegionParameters as Arp314_NED02_offParams
     from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
-    from Mrk600A import RegionParameters as Mrk600AParams
-    from Mrk600B import RegionParameters as Mrk600B05Params
-    # from IIZw33KnotB05 import RegionParameters as IIZw33KnotBParams
+    #from Mrk600A import RegionParameters as Mrk600AParams
+    #from Mrk600B import RegionParameters as Mrk600B05Params
+    from IIZw33KnotB05 import RegionParameters as IIZw33KnotBParams
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
-    # from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
+    from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [Arp314_NED02_offParams]
+    regionsParameters = [IIZw33KnotBParams]#[NGC6845Region7Params, NGC6845Region26Params, Arp314_NED02_offParams, Arp314_NED02Params]
 
     regionArray = []
     bptPoints = []

@@ -59,7 +59,7 @@ class RegionParameters(object):
     plottingXRange = [3300, 4050]  # velocities
     sigmaInstrBlue = 4.8
     sigmaInstrRed = 5.9
-    distance = 1.63e23  # Distance to region in centimetres (same units as flux)
+    distance = 1.63e26  # Distance to region in centimetres (same units as flux)
 
     emLinesForAvgVelCalc = ['H-Alpha']#, 'H-Beta_Blue', 'OIII-5007A', 'NII-6584A', 'SII-6717A']
 

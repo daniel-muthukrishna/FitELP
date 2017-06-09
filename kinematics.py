@@ -478,7 +478,7 @@ class EmissionLineProfile(object):
         self.restWave = restWave
         self.lineName = lineName
         self.wave = wave
-        self.flux = flux * (restWave / SpOfLi)
+        self.flux = flux
         self.vel = self._velocity(wave)
         self.rp = rp
 
@@ -766,7 +766,7 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [IIZw33KnotBParams]#[NGC6845Region7Params, NGC6845Region26Params, Arp314_NED02_offParams, Arp314_NED02Params]
+    regionsParameters = [Arp314_NED02Params]# [NGC6845Region7Params, NGC6845Region26Params, Arp314_NED02Params, Arp314_NED02_offParams]#[IIZw33KnotBParams]
 
     regionArray = []
     bptPoints = []

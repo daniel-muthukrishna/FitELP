@@ -742,7 +742,7 @@ class RegionCalculations(object):
         ratioNII, ratioNIIErr, ratioOIII, ratioOIIIErr = self.bptPoint
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
-        self.lineInArray = [rp.regionName, "%.7f $\pm$ %.2f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), "%.3f $\pm$ %.3f" % (ratioNII, ratioNIIErr), "%.3f $\pm$ %.3f" % (ratioOIII, ratioOIIIErr)]
+        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.3f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), "%.3f $\pm$ %.3f" % (ratioNII, ratioNIIErr), "%.3f $\pm$ %.3f" % (ratioOIII, ratioOIIIErr)]
 
         # Combined Plots
         # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
@@ -757,6 +757,9 @@ class RegionCalculations(object):
 
 
 if __name__ == '__main__':
+    from profile_info_HCG31_A import RegionParameters as HCG31_AParams
+    from profile_info_HCG31_C import RegionParameters as HCG31_CParams
+    from profile_info_HCG31_AC import RegionParameters as HCG31_ACParams
     from profile_info_Arp314_NED02_off import RegionParameters as Arp314_NED02_offParams
     from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
     #from Mrk600A import RegionParameters as Mrk600AParams
@@ -766,7 +769,7 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [Arp314_NED02Params, Arp314_NED02_offParams]#[NGC6845Region7Params, NGC6845Region26Params]#, #[IIZw33KnotBParams]
+    regionsParameters = [HCG31_AParams]#[NGC6845Region7Params, NGC6845Region26Params]#[Arp314_NED02Params, Arp314_NED02_offParams]#
 
     regionArray = []
     bptPoints = []

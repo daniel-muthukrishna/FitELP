@@ -766,7 +766,7 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [Arp314_NED02Params]# [NGC6845Region7Params, NGC6845Region26Params, Arp314_NED02Params, Arp314_NED02_offParams]#[IIZw33KnotBParams]
+    regionsParameters = [Arp314_NED02_offParams]# [NGC6845Region7Params, NGC6845Region26Params, Arp314_NED02Params, Arp314_NED02_offParams]#[IIZw33KnotBParams]
 
     regionArray = []
     bptPoints = []

@@ -383,7 +383,7 @@ def bpt_plot(rpList, bptPoints):
         if (x, y) != (0, 0):
             label = rpList[i].regionName
             plt.plot([x], [y], 'o', color=colours[i])
-            plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr)
+            plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr, ecolor=colours[i])
             plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom',
                          color=colours[i])
 
@@ -783,7 +783,7 @@ if __name__ == '__main__':
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [NGC6845Region7Params, Mrk600B05Params, Arp314_NED02Params, Arp314_NED02_offParams]#
+    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params, Mrk600B05Params, Arp314_NED02Params, Arp314_NED02_offParams]#
 
     regionArray = []
     bptPoints = []

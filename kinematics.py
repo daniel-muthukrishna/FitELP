@@ -285,7 +285,7 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
     plt.figure(title)
     ax = plt.subplot(1, 1, 1)
     plt.title(title)  # Recombination Emission Lines")
-    plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
+    plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1}}$)")
     plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$")
     for i in range(len(lineNames)):
         name, x, y, mod, col, comps, lab = rp.emProfiles[lineNames[i]]['plotInfo']
@@ -307,10 +307,16 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
 
 def calc_bpt_point(rp):
     try:
-        fluxNII6584 = ufloat(rp.emProfiles['N2_6584A']['globalFlux'], rp.emProfiles['N2_6584A']['globalFluxErr'])
-        fluxHAlpha = ufloat(rp.emProfiles['H1r_6563A']['globalFlux'], rp.emProfiles['H1r_6563A']['globalFluxErr'])
-        fluxOIII5007 = ufloat(rp.emProfiles['O3_5007A']['globalFlux'], rp.emProfiles['O3_5007A']['globalFluxErr'])
-        fluxHBeta = ufloat(rp.emProfiles['H1r_4861A']['globalFlux'], rp.emProfiles['H1r_4861A']['globalFluxErr'])
+        if 'H-Alpha' in rp.emProfiles:
+            fluxNII6584 = ufloat(rp.emProfiles['NII-6584A']['globalFlux'], rp.emProfiles['NII-6584A']['globalFluxErr'])
+            fluxHAlpha = ufloat(rp.emProfiles['H-Alpha']['globalFlux'], rp.emProfiles['H-Alpha']['globalFluxErr'])
+            fluxOIII5007 = ufloat(rp.emProfiles['OIII-5007A']['globalFlux'], rp.emProfiles['OIII-5007A']['globalFluxErr'])
+            fluxHBeta = ufloat(rp.emProfiles['H-Beta']['globalFlux'], rp.emProfiles['H-Beta']['globalFluxErr'])
+        else:
+            fluxNII6584 = ufloat(rp.emProfiles['N2_6584A']['globalFlux'], rp.emProfiles['N2_6584A']['globalFluxErr'])
+            fluxHAlpha = ufloat(rp.emProfiles['H1r_6563A']['globalFlux'], rp.emProfiles['H1r_6563A']['globalFluxErr'])
+            fluxOIII5007 = ufloat(rp.emProfiles['O3_5007A']['globalFlux'], rp.emProfiles['O3_5007A']['globalFluxErr'])
+            fluxHBeta = ufloat(rp.emProfiles['H1r_4861A']['globalFlux'], rp.emProfiles['H1r_4861A']['globalFluxErr'])
 
         ratioNII = umath.log10(fluxNII6584 / fluxHAlpha)
         ratioOIII = umath.log10(fluxOIII5007 / fluxHBeta)
@@ -626,7 +632,7 @@ class FittingProfile(object):
         ion, lambdaZero = line_label(self.lineName, self.restWave)
         plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
         plt.title("%s %s" % (ion, lambdaZero))
-        plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
+        plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1}}$)")
         plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$")
         plt.plot(self.vel, self.flux, label='Data')
         for i in range(numOfComponents):
@@ -773,11 +779,11 @@ if __name__ == '__main__':
     #from Mrk600A import RegionParameters as Mrk600AParams
     from Mrk600B import RegionParameters as Mrk600B05Params
     # from IIZw33KnotB05 import RegionParameters as IIZw33KnotBParams
-    # from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
+    from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [Mrk600B05Params, Arp314_NED02Params, Arp314_NED02_offParams]#
+    regionsParameters = [NGC6845Region7Params, Mrk600B05Params, Arp314_NED02Params, Arp314_NED02_offParams]#
 
     regionArray = []
     bptPoints = []

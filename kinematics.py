@@ -219,8 +219,8 @@ def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrai
     headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
                 r'$\mathrm{\sigma_{int}}$', r'$\mathrm{Flux}$', r'$\mathrm{EM_f}$', r'$\mathrm{GlobalFlux}$']
     headingUnits = [r'$(\mathrm{\AA})$', '', '', r'$(\mathrm{km \ s^{-1}})$',
-                    r'$(\mathrm{km \ s^{-1}})$', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$',
-                    '', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$']
+                    r'$(\mathrm{km \ s^{-1}})$', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$',
+                    '', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$']
     headingLines = [headings, headingUnits]
     caption = rp.regionName
     nCols = len(headings)
@@ -252,10 +252,16 @@ def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, c
 
     texFile.close()
 
-    os.system("pdflatex ./'" + directory + "'/" + saveFileName + ".tex")
+    run_bash_command("pdflatex ./'" + directory + "'/" + saveFileName + ".tex")
     if directory != ".":
-        os.system("mv " + saveFileName + ".pdf ./'" + directory + "'")
-        os.system("rm " + saveFileName + ".*")
+        run_bash_command("mv " + saveFileName + ".pdf ./'" + directory + "'")
+        run_bash_command("rm " + saveFileName + ".*")
+
+
+def run_bash_command(bashCommandStr):
+    os.system(bashCommandStr)
+    # process = subprocess.Popen(bashCommandStr.split(), stdout=subprocess.PIPE)
+    # output, error = process.communicate(input='\n')
 
 
 def calc_luminosity(rp):
@@ -279,7 +285,7 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
     ax = plt.subplot(1, 1, 1)
     plt.title(title)  # Recombination Emission Lines")
     plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-    plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
+    plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$")
     for i in range(len(lineNames)):
         name, x, y, mod, col, comps, lab = rp.emProfiles[lineNames[i]]['plotInfo']
         ax.plot(x, y, color=col, label=lab)
@@ -390,19 +396,20 @@ def save_fluxes(fluxListInfo, rp):
         writer = csv.writer(csvFile, delimiter=',')
         writer.writerow(["Line_name", "Component", "Flux", "Flux_error"])
         for i in range(len(fluxListInfo)):
-            emName, components, fluxList, fluxErrList = fluxListInfo[i]
+            emName, components, fluxList, fluxErrList, restWave = fluxListInfo[i]
             for j in range(len(fluxList)):
                 writer.writerow([emName, components[j], fluxList[j], fluxErrList[j]])
-                componentFluxesDict[components[j]].append((emName, fluxList[j], fluxErrList[j]))
+                componentFluxesDict[components[j]].append([emName, fluxList[j], fluxErrList[j], restWave])
 
     for componentName, fluxInfo in componentFluxesDict.items():
+        fluxInfo = sorted(fluxInfo, key=lambda l:l[3])
         with open(os.path.join(rp.regionName, "{0}.csv".format(componentName)), 'w') as csvFile:
             writer = csv.writer(csvFile, delimiter=',')
             writer.writerow([componentName])
             writer.writerow(["Line_name", "Flux", "Flux_error"])
             for i in range(len(fluxInfo)):
-                emName, flux, fluxErr = fluxInfo[i]
-                writer.writerow([emName, flux, fluxErr])
+                emName, flux, fluxErr, restWave = fluxInfo[i]
+                writer.writerow([emName, round(flux, 3), round(fluxErr, 3)])
 
 
 class GalaxyRegion(object):
@@ -471,19 +478,22 @@ class GalaxyRegion(object):
 
 
 class EmissionLineProfile(object):
-    def __init__(self, wave, flux, rp, restWave=6562.82, lineName=''):
+    def __init__(self, wave, flux, fluxError, rp, restWave, lineName=''):
         """wave and flux are for vectors representing only the given emission line
         labWave is the wavelength of the emission line if it were at rest (stationary)
         default is for H-alpha emission line"""
         self.restWave = restWave
         self.lineName = lineName
         self.wave = wave
-        self.flux = flux
-        self.vel = self._velocity(wave)
+        self.vel, self.flux, self.fluxError = self.velocity(wave, flux, fluxError)
         self.rp = rp
 
-    def _velocity(self, wave):
-        return ((wave - self.restWave) / self.restWave) * SpOfLi #(const.c/(u.m/u.s)) / 1000
+    def velocity(self, wave, flux, fluxError):
+        vel = ((wave - self.restWave) / self.restWave) * SpOfLi
+        flux = flux * (self.restWave / SpOfLi)
+        fluxError = fluxError * (self.restWave / SpOfLi)
+
+        return vel, flux, fluxError
 
     def plot_emission_line(self, xaxis='vel', title=''):
         """Choose whether the x axis is 'vel' or 'wave'"""
@@ -503,8 +513,8 @@ class FittingProfile(object):
     def __init__(self, vel, flux, restWave, lineName, zone, rp, fluxError=None):
         """The input vel and flux must be limited to a single emission line profile"""
         self.vel = vel
-        self.flux = flux * (restWave /SpOfLi)
-        self.fluxError = fluxError * (restWave /SpOfLi)
+        self.flux = flux
+        self.fluxError = fluxError
         self.restWave = restWave
         self.lineName = lineName
         self.zone = zone
@@ -525,10 +535,8 @@ class FittingProfile(object):
         for i in range(numOfComponents):
             amplitudeTotal = amplitudeTotal + modelFit.best_values['g%d_amplitude' % (i+1)]
         print("Amplitude Total is %f" % amplitudeTotal)
-        amplitudeFinal = (amplitudeTotal/SpOfLi) * self.restWave
-        print("Amplitude Final is %f" % amplitudeFinal)
 
-        return amplitudeFinal
+        return amplitudeTotal
 
     def _gaussian_component(self, pars, prefix, c, s, a, limits):
         """Fits a gaussian with given parameters.
@@ -618,7 +626,7 @@ class FittingProfile(object):
         plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
         plt.title("%s %s" % (ion, lambdaZero))
         plt.xlabel(r"$\mathrm{Velocity \ (km s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$")
         plt.plot(self.vel, self.flux, label='Data')
         for i in range(numOfComponents):
             labelComp = self.rp.componentLabels  # 'g%d_' % (i+1)
@@ -661,8 +669,8 @@ class RegionCalculations(object):
             f.write("------------------ %s : %s ----------------\n" % (rp.regionName, emName))
             f.close()
             wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(emInfo['Order'], filt=emInfo['Filter'], minIndex=emInfo['minI'], maxIndex=emInfo['maxI'])
-            emLineProfile = EmissionLineProfile(wave1, flux1, restWave=emInfo['restWavelength'], lineName=emName, rp=rp)
-            vel1 = emLineProfile.vel
+            emLineProfile = EmissionLineProfile(wave1, flux1, flux1Error, restWave=emInfo['restWavelength'], lineName=emName, rp=rp)
+            vel1, flux1, flux1Error = emLineProfile.vel, emLineProfile.flux, emLineProfile.fluxError  # In velocity instead of wavelength units
             fittingProfile = FittingProfile(vel1, flux1, restWave=emInfo['restWavelength'], lineName=emName, fluxError=flux1Error, zone=emInfo['zone'], rp=rp)
             ion1, lambdaZero1 = line_label(emName, emInfo['restWavelength'])
             emLabel = (ion1 + ' ' + lambdaZero1)
@@ -709,7 +717,7 @@ class RegionCalculations(object):
             ampComponentList = []
             o = model1
             eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, numComps)
-            fluxListInfo.append((emName, rp.componentLabels, fluxList, fluxListErr))
+            fluxListInfo.append((emName, rp.componentLabels, fluxList, fluxListErr, emInfo['restWavelength']))
             rp.emProfiles[emName]['globalFlux'] = globalFlux
             rp.emProfiles[emName]['globalFluxErr'] = globalFluxErr
             rp.emProfiles[emName]['sigIntList'] = []
@@ -742,7 +750,7 @@ class RegionCalculations(object):
         ratioNII, ratioNIIErr, ratioOIII, ratioOIIIErr = self.bptPoint
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
-        self.lineInArray = [rp.regionName, "%.2f $\pm$ %.3f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), "%.3f $\pm$ %.3f" % (ratioNII, ratioNIIErr), "%.3f $\pm$ %.3f" % (ratioOIII, ratioOIIIErr)]
+        self.lineInArray = [rp.regionName, "%.3f $\pm$ %.3f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), "%.3f $\pm$ %.3f" % (ratioNII, ratioNIIErr), "%.3f $\pm$ %.3f" % (ratioOIII, ratioOIIIErr)]
 
         # Combined Plots
         # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
@@ -755,21 +763,20 @@ class RegionCalculations(object):
         # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='OIII-5007A', title='')
 
 
-
 if __name__ == '__main__':
-    from profile_info_HCG31_A import RegionParameters as HCG31_AParams
-    from profile_info_HCG31_C import RegionParameters as HCG31_CParams
-    from profile_info_HCG31_AC import RegionParameters as HCG31_ACParams
-    from profile_info_Arp314_NED02_off import RegionParameters as Arp314_NED02_offParams
-    from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
-    #from Mrk600A import RegionParameters as Mrk600AParams
-    #from Mrk600B import RegionParameters as Mrk600B05Params
-    from IIZw33KnotB05 import RegionParameters as IIZw33KnotBParams
-    from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
+    # from profile_info_HCG31_A import RegionParameters as HCG31_AParams
+    # from profile_info_HCG31_C import RegionParameters as HCG31_CParams
+    # from profile_info_HCG31_AC import RegionParameters as HCG31_ACParams
+    # from profile_info_Arp314_NED02_off import RegionParameters as Arp314_NED02_offParams
+    # from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
+    # #from Mrk600A import RegionParameters as Mrk600AParams
+    from Mrk600B import RegionParameters as Mrk600B05Params
+    # from IIZw33KnotB05 import RegionParameters as IIZw33KnotBParams
+    # from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [HCG31_ACParams]#[NGC6845Region7Params, NGC6845Region26Params]#[Arp314_NED02Params, Arp314_NED02_offParams]#
+    regionsParameters = [Mrk600B05Params]#[Arp314_NED02Params, Arp314_NED02_offParams]#
 
     regionArray = []
     bptPoints = []

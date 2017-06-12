@@ -187,9 +187,9 @@ def calc_average_velocities(rpList):
 def average_velocities_table_to_latex(rpList, directory=".", paperSize='a4', orientation='portrait', longTable=False):
     saveFileName = 'AverageVelocitiesTable'
     velArray = calc_average_velocities(rpList)
-    regionHeadings = []
+    regionHeadings = ['']
     headings = ['']
-    headingUnits = []
+    headingUnits = ['']
     for rp in rpList:
         regionHeadings += ["\multicolumn{2}{c}{%s}" % rp.regionName]  # Was 2 instead of 3 when i didn;t have separate component Labels
         headings += [r'$\mathrm{v_r}$', r'$\mathrm{\sigma}$']

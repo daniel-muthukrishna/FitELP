@@ -168,11 +168,11 @@ def calc_average_velocities(rpList):
 
     allLinesInArray = []
     for i in range(10):
-        lineInArray = []  # [rp.componentLabels[i]]
+        lineInArray = [rp.componentLabels[i]] if i < numComps else ['']
         for j in range(len(regionsAllLines)):
             regionLine = regionsAllLines[j]
             componentLabel = componentLabelsAllEmLines[j]
-            lineInArray += [componentLabel[i]] + regionLine[i]
+            lineInArray += regionLine[i]
 
         for entry in lineInArray:
             if entry == '' or entry == '-':
@@ -184,25 +184,25 @@ def calc_average_velocities(rpList):
     return allLinesInArray
 
 
-def average_velocities_table_to_latex(rpList, directory=".", paperSize='a4', orientation='portrait'):
+def average_velocities_table_to_latex(rpList, directory=".", paperSize='a4', orientation='portrait', longTable=False):
     saveFileName = 'AverageVelocitiesTable'
     velArray = calc_average_velocities(rpList)
     regionHeadings = []
-    headings = []
+    headings = ['']
     headingUnits = []
     for rp in rpList:
-        regionHeadings += ["\multicolumn{3}{c}{%s}" % rp.regionName]  # Was 2 instead of 3 when i didn;t have separate component Labels
-        headings += ['', r'$\mathrm{v_r}$', r'$\mathrm{\sigma}$']
-        headingUnits += ['', r'$\mathrm{(km \ s^{-1})}$', r'$\mathrm{(km \ s^{-1})}$']
+        regionHeadings += ["\multicolumn{2}{c}{%s}" % rp.regionName]  # Was 2 instead of 3 when i didn;t have separate component Labels
+        headings += [r'$\mathrm{v_r}$', r'$\mathrm{\sigma}$']
+        headingUnits += [r'$\mathrm{(km \ s^{-1})}$', r'$\mathrm{(km \ s^{-1})}$']
 
     headingLines = [regionHeadings, headings, headingUnits]
     caption = "Average radial velocities and velocity dispersions for all regions"
     nCols = len(headings)
     centering = 'l' + 'c' * (nCols-1)
-    table_to_latex(velArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation)
+    table_to_latex(velArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
 
 
-def halpha_regions_table_to_latex(regionInfoArray, directory=".", paperSize='a4', orientation='portrait'):
+def halpha_regions_table_to_latex(regionInfoArray, directory=".", paperSize='a4', orientation='portrait', longTable=False):
     saveFileName = 'RegionInfo'
     headings = [r'Region Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{log([NII]/H}\alpha)$', r'$\mathrm{log([OIII]/H}\beta)$']
     headingUnits = ['', r'$(\mathrm{M_{\odot} \ yr^{-1}})$', '', '', '']
@@ -210,10 +210,10 @@ def halpha_regions_table_to_latex(regionInfoArray, directory=".", paperSize='a4'
     caption = 'Region Information'
     nCols = len(headings)
     centering = 'l' + 'c' * (nCols-1)
-    table_to_latex(regionInfoArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation)
+    table_to_latex(regionInfoArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
 
 
-def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrait'):
+def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrait', longTable=True):
     saveFileName = 'ComponentTable'
     directory = rp.regionName
     headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
@@ -225,10 +225,10 @@ def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrai
     caption = rp.regionName
     nCols = len(headings)
     centering = 'lllccccc'
-    table_to_latex(componentArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation)
+    table_to_latex(componentArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
 
 
-def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, centering, papersize='a4', orientation='portrait'):
+def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, centering, papersize='a4', orientation='portrait', longTable=False):
     texFile = open(directory + '/' + saveFileName + '.tex', 'w')
     texFile.write('\\documentclass{article}\n')
     texFile.write('\\usepackage[%spaper, %s, margin=0.5in]{geometry}\n' % (papersize, orientation))
@@ -241,7 +241,8 @@ def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, c
     for heading in headingLines:
         texFile.write(' & '.join(str(e) for e in heading) + ' \\\\ \n')
     texFile.write('\\hline\n')
-    texFile.write('\\endhead\n')
+    if longTable:
+        texFile.write('\\endhead\n')
     for line in tableArray:
         texFile.write(' & '.join(str(e) for e in line) + ' \\\\ \n')
     texFile.write('\\hline\n')
@@ -735,7 +736,7 @@ class RegionCalculations(object):
 
         save_fluxes(fluxListInfo, rp)
         # Create Component Table
-        comp_table_to_latex(allModelComponents, rp, paperSize='a4', orientation='portrait')
+        comp_table_to_latex(allModelComponents, rp, paperSize='a4', orientation='portrait', longTable=True)
 
         print("------------ List all Amplitudes  %s ----------" % rp.regionName)
         for ampComps in ampListAll:
@@ -767,16 +768,16 @@ if __name__ == '__main__':
     # from profile_info_HCG31_A import RegionParameters as HCG31_AParams
     # from profile_info_HCG31_C import RegionParameters as HCG31_CParams
     # from profile_info_HCG31_AC import RegionParameters as HCG31_ACParams
-    # from profile_info_Arp314_NED02_off import RegionParameters as Arp314_NED02_offParams
-    # from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
-    # #from Mrk600A import RegionParameters as Mrk600AParams
+    from profile_info_Arp314_NED02_off import RegionParameters as Arp314_NED02_offParams
+    from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
+    #from Mrk600A import RegionParameters as Mrk600AParams
     from Mrk600B import RegionParameters as Mrk600B05Params
     # from IIZw33KnotB05 import RegionParameters as IIZw33KnotBParams
     # from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [Mrk600B05Params]#[Arp314_NED02Params, Arp314_NED02_offParams]#
+    regionsParameters = [Mrk600B05Params, Arp314_NED02Params, Arp314_NED02_offParams]#
 
     regionArray = []
     bptPoints = []
@@ -786,7 +787,7 @@ if __name__ == '__main__':
         bptPoints.append(region.bptPoint)
 
     bpt_plot(regionsParameters, bptPoints)
-    halpha_regions_table_to_latex(regionArray, paperSize='a4', orientation='portrait')
-    average_velocities_table_to_latex(regionsParameters, paperSize='a4', orientation='landscape')
+    halpha_regions_table_to_latex(regionArray, paperSize='a4', orientation='portrait', longTable=False)
+    average_velocities_table_to_latex(regionsParameters, paperSize='a4', orientation='landscape', longTable=False)
 
     plt.show()

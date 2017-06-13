@@ -193,7 +193,7 @@ def average_velocities_table_to_latex(rpList, directory=".", paperSize='a4', ori
     for rp in rpList:
         regionHeadings += ["\multicolumn{2}{c}{%s}" % rp.regionName]  # Was 2 instead of 3 when i didn;t have separate component Labels
         headings += [r'$\mathrm{v_r}$', r'$\mathrm{\sigma}$']
-        headingUnits += [r'$\mathrm{(km \ s^{-1})}$', r'$\mathrm{(km \ s^{-1})}$']
+        headingUnits += [r'$\mathrm{(km / s)}$', r'$\mathrm{(km / s)}$']
 
     headingLines = [regionHeadings, headings, headingUnits]
     caption = "Average radial velocities and velocity dispersions for all regions"
@@ -218,8 +218,8 @@ def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrai
     directory = rp.regionName
     headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
                 r'$\mathrm{\sigma_{int}}$', r'$\mathrm{Flux}$', r'$\mathrm{EM_f}$', r'$\mathrm{GlobalFlux}$']
-    headingUnits = [r'$(\mathrm{\AA})$', '', '', r'$(\mathrm{km \ s^{-1}})$',
-                    r'$(\mathrm{km \ s^{-1}})$', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$',
+    headingUnits = [r'$(\mathrm{\AA})$', '', '', r'$(\mathrm{km / s})$',
+                    r'$(\mathrm{km / s})$', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$',
                     '', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$']
     headingLines = [headings, headingUnits]
     caption = rp.regionName
@@ -285,7 +285,7 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
     plt.figure(title)
     ax = plt.subplot(1, 1, 1)
     plt.title(title)  # Recombination Emission Lines")
-    plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1}}$)")
+    plt.xlabel(r"$\mathrm{Velocity \ (km / s}$)")
     plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$")
     for i in range(len(lineNames)):
         name, x, y, mod, col, comps, lab = rp.emProfiles[lineNames[i]]['plotInfo']
@@ -632,7 +632,7 @@ class FittingProfile(object):
         ion, lambdaZero = line_label(self.lineName, self.restWave)
         plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
         plt.title("%s %s" % (ion, lambdaZero))
-        plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1}}$)")
+        plt.xlabel(r"$\mathrm{Velocity \ (km / s}$)")
         plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$")
         plt.plot(self.vel, self.flux, label='Data')
         for i in range(numOfComponents):
@@ -776,14 +776,14 @@ if __name__ == '__main__':
     # from profile_info_HCG31_AC import RegionParameters as HCG31_ACParams
     from profile_info_Arp314_NED02_off import RegionParameters as Arp314_NED02_offParams
     from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
-    #from Mrk600A import RegionParameters as Mrk600AParams
+    from Mrk600A import RegionParameters as Mrk600AParams
     from Mrk600B import RegionParameters as Mrk600B05Params
     # from IIZw33KnotB05 import RegionParameters as IIZw33KnotBParams
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params, Mrk600B05Params, Arp314_NED02Params, Arp314_NED02_offParams]#
+    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params, Mrk600AParams, Mrk600B05Params, Arp314_NED02Params, Arp314_NED02_offParams]#
 
     regionArray = []
     bptPoints = []

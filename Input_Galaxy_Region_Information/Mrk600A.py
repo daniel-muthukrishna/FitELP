@@ -1,15 +1,16 @@
 from collections import OrderedDict
 import numpy as np
+
 inf = np.inf
 
 
 class RegionParameters(object):
     regionName = "Mrk600A"
 
-    blueSpecFile = 'blue.fits'           
-    redSpecFile = 'red.fits'              
+    blueSpecFile = 'blue.fits'
+    redSpecFile = 'red.fits'
     blueSpecError = 'blue_s_r_A_flux.fits'
-    redSpecError = 'red_s_r_A_flux.fits'  
+    redSpecError = 'red_s_r_A_flux.fits'
     scaleFlux = 1e14                   
 
     # SPECTRAL LINE INFO FOR ALL EMISSION LINES

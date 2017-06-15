@@ -1,15 +1,19 @@
+import csv
 import os
-import numpy as np
-from lmfit.models import GaussianModel, LinearModel
-from lmfit import Parameters
-import matplotlib.pyplot as plt
+import sys
 import astropy.units as u
+import matplotlib.pyplot as plt
+import numpy as np
+from lmfit import Parameters
+from lmfit.models import GaussianModel, LinearModel
 from specutils.io import read_fits
 from uncertainties import ufloat, umath, unumpy
-import csv
-from label_tools import line_label, line_name_to_pyneb_format
+from scripts.label_tools import line_label
 
-SpOfLi = 299792.5  # km/s
+SP_OF_LI = 299792.5  # km/s
+OUTPUT_DIR = "../Output_Files"
+DATA_FILES = "../Input_Data_Files"
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../Input_Galaxy_Region_Information'))
 
 
 def read_spectra(filename, scaleFlux):
@@ -19,7 +23,11 @@ def read_spectra(filename, scaleFlux):
     x and y are an array of the wavelengths and fluxes of each of the orders"""
     x = []
     y = []
-    spectra = read_fits.read_fits_spectrum1d(filename)
+    try:
+        spectra = read_fits.read_fits_spectrum1d(filename)
+    except FileNotFoundError:
+        spectra = read_fits.read_fits_spectrum1d(os.path.join(DATA_FILES, filename))
+
     for spectrum in spectra:
         x.append(spectrum.dispersion / u.angstrom)
         y.append(spectrum.flux * scaleFlux)
@@ -184,7 +192,7 @@ def calc_average_velocities(rpList):
     return allLinesInArray
 
 
-def average_velocities_table_to_latex(rpList, directory=".", paperSize='a4', orientation='portrait', longTable=False):
+def average_velocities_table_to_latex(rpList, directory=OUTPUT_DIR, paperSize='a4', orientation='portrait', longTable=False):
     saveFileName = 'AverageVelocitiesTable'
     velArray = calc_average_velocities(rpList)
     regionHeadings = ['']
@@ -202,7 +210,7 @@ def average_velocities_table_to_latex(rpList, directory=".", paperSize='a4', ori
     table_to_latex(velArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
 
 
-def halpha_regions_table_to_latex(regionInfoArray, directory=".", paperSize='a4', orientation='portrait', longTable=False):
+def halpha_regions_table_to_latex(regionInfoArray, directory=OUTPUT_DIR, paperSize='a4', orientation='portrait', longTable=False):
     saveFileName = 'RegionInfo'
     headings = [r'Region Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{log([NII]/H}\alpha)$', r'$\mathrm{log([OIII]/H}\beta)$']
     headingUnits = ['', r'$(\mathrm{M_{\odot} \ yr^{-1}})$', '', '', '']
@@ -215,7 +223,7 @@ def halpha_regions_table_to_latex(regionInfoArray, directory=".", paperSize='a4'
 
 def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrait', longTable=True):
     saveFileName = 'ComponentTable'
-    directory = rp.regionName
+    directory = os.path.join(OUTPUT_DIR, rp.regionName)
     headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
                 r'$\mathrm{\sigma_{int}}$', r'$\mathrm{Flux}$', r'$\mathrm{EM_f}$', r'$\mathrm{GlobalFlux}$']
     headingUnits = [r'$(\mathrm{\AA})$', '', '', r'$(\mathrm{km / s})$',
@@ -302,7 +310,7 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
         ax.legend(handles2, labels2)
     else:
         ax.legend()
-    plt.savefig(rp.regionName + '/' + title.strip(' ') + '.png')
+    plt.savefig(os.path.join(OUTPUT_DIR, rp.regionName, title.strip(' ') + '.png'))
 
 
 def calc_bpt_point(rp):
@@ -373,16 +381,17 @@ def bpt_plot(rpList, bptPoints):
     y = unumpy.nominal_values(ratioOIII)
     yErr = unumpy.std_devs(ratioOIII)
 
-    plt.plot(x, y, 'ko')
-    plt.errorbar(x, y, xerr=xErr, yerr=yErr, ecolor='black', elinewidth=0.5, fmt=None)
+    plt.plot(x, y, 'ko', color='grey', alpha=0.3)
+    plt.errorbar(x, y, xerr=xErr, yerr=yErr, color='grey', ecolor='grey', elinewidth=0.5, fmt=None, alpha=0.3)
 
     # PLOT BPT POINTS
     colours = ['b', 'r', 'g', 'm', 'c', 'violet', 'y', '#5D6D7E']
+    markers = ['s', 's', 's', 's', 's', 's', 's', 's']
     for i in range(len(rpList)):
         x, xErr, y, yErr = bptPoints[i]
         if (x, y) != (0, 0):
             label = rpList[i].regionName
-            plt.plot([x], [y], 'o', color=colours[i])
+            plt.plot([x], [y], marker=markers[i], color=colours[i])
             plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr, ecolor=colours[i])
             plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom',
                          color=colours[i])
@@ -392,14 +401,14 @@ def bpt_plot(rpList, bptPoints):
     plt.ylim(-1, 1.5)
     plt.xlabel(r"$\log(\mathrm{[NII]6584\AA / H\alpha})$")
     plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
-    plt.savefig(r'bpt_plot.png')
+    plt.savefig(os.path.join(OUTPUT_DIR, 'bpt_plot.png'))
     plt.show()
 
 
 def save_fluxes(fluxListInfo, rp):
     componentFluxesDict = dict((el, []) for el in rp.componentLabels)
     saveFilename = 'component_fluxes.csv'
-    with open(os.path.join(rp.regionName, saveFilename), 'w') as csvFile:
+    with open(os.path.join(OUTPUT_DIR, rp.regionName, saveFilename), 'w') as csvFile:
         writer = csv.writer(csvFile, delimiter=',')
         writer.writerow(["Line_name", "Component", "Flux", "Flux_error"])
         for i in range(len(fluxListInfo)):
@@ -410,7 +419,7 @@ def save_fluxes(fluxListInfo, rp):
 
     for componentName, fluxInfo in componentFluxesDict.items():
         fluxInfo = sorted(fluxInfo, key=lambda l:l[3])
-        with open(os.path.join(rp.regionName, "{0}.csv".format(componentName)), 'w') as csvFile:
+        with open(os.path.join(OUTPUT_DIR, rp.regionName, "{0}.csv".format(componentName)), 'w') as csvFile:
             writer = csv.writer(csvFile, delimiter=',')
             writer.writerow([componentName])
             writer.writerow(["Line_name", "Flux", "Flux_error"])
@@ -434,8 +443,8 @@ class GalaxyRegion(object):
         else:
             self.xRedError, self.yRedError = read_spectra(rp.redSpecError, rp.scaleFlux)
 
-        if not os.path.exists(rp.regionName + '/'):
-            os.makedirs(rp.regionName + '/')
+        if not os.path.exists(os.path.join(OUTPUT_DIR, rp.regionName)):
+            os.makedirs(os.path.join(OUTPUT_DIR, rp.regionName))
 
     def plot_order(self, orderNum, filt='red', minIndex=0, maxIndex=-1, title=''):
         """Plots the wavelength vs flux for a particular order. orderNum starts from 0"""
@@ -457,7 +466,7 @@ class GalaxyRegion(object):
         plt.legend()
         plt.xlabel("Wavelength ($\AA$)")
         plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
-        plt.savefig(self.rp.regionName + '/' + title)
+        plt.savefig(os.path.join(OUTPUT_DIR, self.rp.regionName, title))
 
     def mask_emission_line(self, orderNum, filt='red', minIndex=0, maxIndex=-1):
         orderNum -= 1
@@ -496,9 +505,9 @@ class EmissionLineProfile(object):
         self.rp = rp
 
     def velocity(self, wave, flux, fluxError):
-        vel = ((wave - self.restWave) / self.restWave) * SpOfLi
-        flux = flux * (self.restWave / SpOfLi)
-        fluxError = fluxError * (self.restWave / SpOfLi)
+        vel = ((wave - self.restWave) / self.restWave) * SP_OF_LI
+        flux = flux * (self.restWave / SP_OF_LI)
+        fluxError = fluxError * (self.restWave / SP_OF_LI)
 
         return vel, flux, fluxError
 
@@ -621,7 +630,7 @@ class FittingProfile(object):
 
         init = mod.eval(self.linGaussParams, x=self.vel)
         out = mod.fit(self.flux, self.linGaussParams, x=self.vel, weights=self.weights)
-        f = open(self.rp.regionName + '/' + "%s_Log.txt" % self.rp.regionName, "a")
+        f = open(os.path.join(OUTPUT_DIR, self.rp.regionName, "{0}_Log.txt".format(self.rp.regionName)), "a")
         print("######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName))
         print(out.fit_report())
         f.write("######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName))
@@ -643,7 +652,7 @@ class FittingProfile(object):
         # plt.plot(self.vel, init, label='init')
         plt.xlim(self.rp.plottingXRange)
         plt.legend(loc='upper left')
-        plt.savefig(self.rp.regionName + '/' + self.lineName + " %d Component Linear-Gaussian Model" % numOfComponents)
+        plt.savefig(os.path.join(OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)))
 
         self._get_amplitude(numOfComponents, out)
 
@@ -661,7 +670,7 @@ class RegionCalculations(object):
         allModelComponents = []
         fluxListInfo = []
         # Iterate through emission lines
-        f = open(rp.regionName + '/' + "%s_Log.txt" % rp.regionName, "w")
+        f = open(os.path.join(OUTPUT_DIR, rp.regionName, "%s_Log.txt" % rp.regionName), "w")
         f.write("LOG INFORMATION FOR %s\n" % rp.regionName)
         f.close()
         for emName, emInfo in rp.emProfiles.items():
@@ -672,7 +681,7 @@ class RegionCalculations(object):
                 rp.emProfiles[emName]['numComps'] = numComps
 
             print("------------------ %s : %s ----------------" %(rp.regionName, emName))
-            f = open(rp.regionName + '/' + "%s_Log.txt" % rp.regionName, "a")
+            f = open(os.path.join(OUTPUT_DIR, rp.regionName, "%s_Log.txt" % rp.regionName), "a")
             f.write("------------------ %s : %s ----------------\n" % (rp.regionName, emName))
             f.close()
             wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(emInfo['Order'], filt=emInfo['Filter'], minIndex=emInfo['minI'], maxIndex=emInfo['maxI'])

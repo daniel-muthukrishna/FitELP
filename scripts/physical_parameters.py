@@ -1,7 +1,9 @@
-import os
-import numpy as np
 import csv
-from label_tools import line_name_to_pyneb_format
+import os
+
+import numpy as np
+
+from scripts.label_tools import line_name_to_pyneb_format
 
 
 def read_fluxes_file(regionName):

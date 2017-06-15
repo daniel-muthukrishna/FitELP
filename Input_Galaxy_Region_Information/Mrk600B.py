@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import numpy as np
+
 inf = np.inf
 
 

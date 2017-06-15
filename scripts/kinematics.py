@@ -201,7 +201,7 @@ def average_velocities_table_to_latex(rpList, directory=OUTPUT_DIR, paperSize='a
     for rp in rpList:
         regionHeadings += ["\multicolumn{2}{c}{%s}" % rp.regionName]  # Was 2 instead of 3 when i didn;t have separate component Labels
         headings += [r'$\mathrm{v_r}$', r'$\mathrm{\sigma}$']
-        headingUnits += [r'$\mathrm{(km / s)}$', r'$\mathrm{(km / s)}$']
+        headingUnits += [r'$\mathrm{(km \ s^{-1})}$', r'$\mathrm{(km \ s^{-1})}$']
 
     headingLines = [regionHeadings, headings, headingUnits]
     caption = "Average radial velocities and velocity dispersions for all regions"
@@ -226,9 +226,9 @@ def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrai
     directory = os.path.join(OUTPUT_DIR, rp.regionName)
     headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
                 r'$\mathrm{\sigma_{int}}$', r'$\mathrm{Flux}$', r'$\mathrm{EM_f}$', r'$\mathrm{GlobalFlux}$']
-    headingUnits = [r'$(\mathrm{\AA})$', '', '', r'$(\mathrm{km / s})$',
-                    r'$(\mathrm{km / s})$', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$',
-                    '', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$']
+    headingUnits = [r'$(\mathrm{\AA})$', '', '', r'$(\mathrm{km \ s^{-1}})$',
+                    r'$(\mathrm{km \ s^{-1}})$', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$',
+                    '', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$']
     headingLines = [headings, headingUnits]
     caption = rp.regionName
     nCols = len(headings)
@@ -293,8 +293,8 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
     plt.figure(title)
     ax = plt.subplot(1, 1, 1)
     plt.title(title)  # Recombination Emission Lines")
-    plt.xlabel(r"$\mathrm{Velocity \ (km / s}$)")
-    plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$")
+    plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1}}$)")
+    plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$")
     for i in range(len(lineNames)):
         name, x, y, mod, col, comps, lab = rp.emProfiles[lineNames[i]]['plotInfo']
         ax.plot(x, y, color=col, label=lab)
@@ -381,12 +381,12 @@ def bpt_plot(rpList, bptPoints):
     y = unumpy.nominal_values(ratioOIII)
     yErr = unumpy.std_devs(ratioOIII)
 
-    plt.plot(x, y, 'ko', color='grey', alpha=0.3)
+    plt.plot(x, y, 'ks', color='grey', alpha=0.3)
     plt.errorbar(x, y, xerr=xErr, yerr=yErr, color='grey', ecolor='grey', elinewidth=0.5, fmt=None, alpha=0.3)
 
     # PLOT BPT POINTS
     colours = ['b', 'r', 'g', 'm', 'c', 'violet', 'y', '#5D6D7E']
-    markers = ['s', 's', 's', 's', 's', 's', 's', 's']
+    markers = ['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o']
     for i in range(len(rpList)):
         x, xErr, y, yErr = bptPoints[i]
         if (x, y) != (0, 0):
@@ -641,8 +641,8 @@ class FittingProfile(object):
         ion, lambdaZero = line_label(self.lineName, self.restWave)
         plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
         plt.title("%s %s" % (ion, lambdaZero))
-        plt.xlabel(r"$\mathrm{Velocity \ (km / s}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km/s)^{-1}})$")
+        plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1}}$)")
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$")
         plt.plot(self.vel, self.flux, label='Data')
         for i in range(numOfComponents):
             labelComp = self.rp.componentLabels  # 'g%d_' % (i+1)

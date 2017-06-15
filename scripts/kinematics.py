@@ -246,8 +246,9 @@ def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, c
     texFile.write('\n')
     texFile.write('\\begin{longtable}{%s}\n' % (centering))
     texFile.write('\\hline\n')
-    for heading in headingLines:
+    for heading in headingLines[:-1]:
         texFile.write(' & '.join(str(e) for e in heading) + ' \\\\ \n')
+    texFile.write(' & '.join("\\scriptsize " + str(e) for e in headingLines[-1]) + ' \\\\ \n')
     texFile.write('\\hline\n')
     if longTable:
         texFile.write('\\endhead\n')

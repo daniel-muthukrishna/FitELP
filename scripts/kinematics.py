@@ -408,15 +408,17 @@ def bpt_plot(rpList, bptPoints):
 
 def save_fluxes(fluxListInfo, rp):
     componentFluxesDict = dict((el, []) for el in rp.componentLabels)
+    componentFluxesDict['global'] = []
     saveFilename = 'component_fluxes.csv'
     with open(os.path.join(OUTPUT_DIR, rp.regionName, saveFilename), 'w') as csvFile:
         writer = csv.writer(csvFile, delimiter=',')
         writer.writerow(["Line_name", "Component", "Flux", "Flux_error"])
         for i in range(len(fluxListInfo)):
-            emName, components, fluxList, fluxErrList, restWave = fluxListInfo[i]
+            emName, components, fluxList, fluxErrList, globalFlux, globalFluxErr, restWave = fluxListInfo[i]
             for j in range(len(fluxList)):
                 writer.writerow([emName, components[j], fluxList[j], fluxErrList[j]])
                 componentFluxesDict[components[j]].append([emName, fluxList[j], fluxErrList[j], restWave])
+            componentFluxesDict['global'].append([emName, globalFlux, globalFluxErr, restWave])
 
     for componentName, fluxInfo in componentFluxesDict.items():
         fluxInfo = sorted(fluxInfo, key=lambda l:l[3])
@@ -734,7 +736,7 @@ class RegionCalculations(object):
             ampComponentList = []
             o = model1
             eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, numComps)
-            fluxListInfo.append((emName, rp.componentLabels, fluxList, fluxListErr, emInfo['restWavelength']))
+            fluxListInfo.append((emName, rp.componentLabels, fluxList, fluxListErr, globalFlux, globalFluxErr, emInfo['restWavelength']))
             rp.emProfiles[emName]['globalFlux'] = globalFlux
             rp.emProfiles[emName]['globalFluxErr'] = globalFluxErr
             rp.emProfiles[emName]['sigIntList'] = []

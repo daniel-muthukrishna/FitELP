@@ -1,15 +1,19 @@
 import csv
 import os
-
+import sys
 import numpy as np
 
-from scripts.label_tools import line_name_to_pyneb_format
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../scripts'))
+
+from label_tools import line_name_to_pyneb_format
+
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
 
 
 def read_fluxes_file(regionName):
     fluxListInfo = []
 
-    with open(os.path.join(regionName, "component_fluxes.csv")) as csvFile:
+    with open(os.path.join(OUTPUT_DIR, regionName, "component_fluxes.csv")) as csvFile:
         reader = csv.reader(csvFile)
         rowNum = 0
         for row in reader:

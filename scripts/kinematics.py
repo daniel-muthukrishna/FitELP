@@ -8,12 +8,16 @@ from lmfit import Parameters
 from lmfit.models import GaussianModel, LinearModel
 from specutils.io import read_fits
 from uncertainties import ufloat, umath, unumpy
-from scripts.label_tools import line_label
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../scripts'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Galaxy_Region_Information'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Data_Files'))
+
+from label_tools import line_label
 
 SP_OF_LI = 299792.5  # km/s
-OUTPUT_DIR = "../Output_Files"
-DATA_FILES = "../Input_Data_Files"
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../Input_Galaxy_Region_Information'))
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
+DATA_FILES = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Data_Files')
 
 
 def read_spectra(filename, scaleFlux):
@@ -25,7 +29,7 @@ def read_spectra(filename, scaleFlux):
     y = []
     try:
         spectra = read_fits.read_fits_spectrum1d(filename)
-    except FileNotFoundError:
+    except (OSError, IOError, FileNotFoundError):
         spectra = read_fits.read_fits_spectrum1d(os.path.join(DATA_FILES, filename))
 
     for spectrum in spectra:
@@ -237,7 +241,7 @@ def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrai
 
 
 def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, centering, papersize='a4', orientation='portrait', longTable=False):
-    texFile = open(directory + '/' + saveFileName + '.tex', 'w')
+    texFile = open(os.path.join(directory, saveFileName + '.tex'), 'w')
     texFile.write('\\documentclass{article}\n')
     texFile.write('\\usepackage[%spaper, %s, margin=0.5in]{geometry}\n' % (papersize, orientation))
     texFile.write('\\usepackage{booktabs}\n')
@@ -262,7 +266,7 @@ def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, c
 
     texFile.close()
 
-    run_bash_command("pdflatex ./'" + directory + "'/" + saveFileName + ".tex")
+    run_bash_command("pdflatex ./'" + os.path.join(directory, saveFileName + ".tex"))
     if directory != ".":
         run_bash_command("mv " + saveFileName + ".pdf ./'" + directory + "'")
         run_bash_command("rm " + saveFileName + ".*")

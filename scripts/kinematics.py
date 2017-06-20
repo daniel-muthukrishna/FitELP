@@ -266,9 +266,9 @@ def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, c
 
     texFile.close()
 
-    run_bash_command("pdflatex ./'" + os.path.join(directory, saveFileName + ".tex"))
+    run_bash_command("pdflatex '" + os.path.join(directory, saveFileName + ".tex'"))
     if directory != ".":
-        run_bash_command("mv " + saveFileName + ".pdf ./'" + directory + "'")
+        run_bash_command("mv " + saveFileName + ".pdf '" + directory + "'")
         run_bash_command("rm " + saveFileName + ".*")
 
 

@@ -29,7 +29,7 @@ def read_spectra(filename, scaleFlux):
     y = []
     try:
         spectra = read_fits.read_fits_spectrum1d(filename)
-    except (OSError, IOError, FileNotFoundError):
+    except (OSError, IOError):
         spectra = read_fits.read_fits_spectrum1d(os.path.join(DATA_FILES, filename))
 
     for spectrum in spectra:
@@ -787,9 +787,9 @@ class RegionCalculations(object):
 
 
 if __name__ == '__main__':
-    from profile_info_HCG31_A import RegionParameters as HCG31_AParams
-    from profile_info_HCG31_C import RegionParameters as HCG31_CParams
-    from profile_info_HCG31_AC import RegionParameters as HCG31_ACParams
+    # from profile_info_HCG31_A import RegionParameters as HCG31_AParams
+    # from profile_info_HCG31_C import RegionParameters as HCG31_CParams
+    # from profile_info_HCG31_AC import RegionParameters as HCG31_ACParams
     from profile_info_Arp314_NED02_off import RegionParameters as Arp314_NED02_offParams
     from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
     # from Mrk600A import RegionParameters as Mrk600AParams

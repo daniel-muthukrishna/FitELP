@@ -778,7 +778,7 @@ class RegionCalculations(object):
         # Combined Plots
         # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
         # plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
-        # plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta_Blue', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' StrongestEmissionLines', sortedIndex=[0, 1, 2, 3, 4])
+        plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta_Blue', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' Strongest Emission Lines', sortedIndex=[0, 1, 2, 3, 4])
 
         # plot_profiles(['H-Beta_Blue', 'H-Beta_Red'], rp, nameForComps='H-Beta_Blue', title=rp.regionName + ' H-Beta comparison')
         # plot_profiles(['OIII-4959A_Blue', 'OIII-4959A_Red'], rp, nameForComps='OIII-4959A_Red', title=rp.regionName + ' OIII-4959 comparison')
@@ -787,19 +787,19 @@ class RegionCalculations(object):
 
 
 if __name__ == '__main__':
-    # from profile_info_HCG31_A import RegionParameters as HCG31_AParams
-    # from profile_info_HCG31_C import RegionParameters as HCG31_CParams
-    # from profile_info_HCG31_AC import RegionParameters as HCG31_ACParams
+    from profile_info_HCG31_A import RegionParameters as HCG31_AParams
+    from profile_info_HCG31_C import RegionParameters as HCG31_CParams
+    from profile_info_HCG31_AC import RegionParameters as HCG31_ACParams
     from profile_info_Arp314_NED02_off import RegionParameters as Arp314_NED02_offParams
     from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
-    from Mrk600A import RegionParameters as Mrk600AParams
+    # from Mrk600A import RegionParameters as Mrk600AParams
     from Mrk600B import RegionParameters as Mrk600B05Params
     # from IIZw33KnotB05 import RegionParameters as IIZw33KnotBParams
     from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params, Mrk600AParams, Mrk600B05Params, Arp314_NED02Params, Arp314_NED02_offParams]#
+    regionsParameters = [NGC6845Region7Params, NGC6845Region26Params]#, [Arp314_NED02Params, Arp314_NED02_offParams],#[HCG31_AParams, HCG31_ACParams,HCG31_CParams]
 
     regionArray = []
     bptPoints = []

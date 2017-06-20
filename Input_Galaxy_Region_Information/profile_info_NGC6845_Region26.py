@@ -1,13 +1,12 @@
 from collections import OrderedDict
 import numpy as np
-
 inf = np.inf
 
 
 class RegionParameters(object):
     regionName = "NGC6845 Region 26"
 
-    blueSpecFile = 'NGC6845_26B.fc.fits'             #'NGC6845_26B_SPEC1.wc.fits'
+    blueSpecFile =  'NGC6845_26B.fc.fits'             #'NGC6845_26B_SPEC1.wc.fits'
     redSpecFile = 'NGC6845_26R.fc.fits'              #'NGC6845_26R_SPEC1.wc.fits'
     blueSpecError = 'NGC6845_26B_ErrorFlux.fc.fits'  #'NGC6845_26B_VAR4.wc.fits'
     redSpecError = 'NGC6845_26R_ErrorFlux.fc.fits'   #'NGC6845_26R_VAR4.wc.fits'
@@ -19,13 +18,13 @@ class RegionParameters(object):
         ('OIII-5007A', {'Colour': 'c', 'Order': 5, 'Filter': 'red', 'minI': 1600, 'maxI': 2100, 'restWavelength': 5006.84, 'ampList': [0.039014, 0.0912511, 0.2074293], 'zone': 'high', 'sigmaT2': 10.39, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),
         ('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2300, 'maxI': 2700, 'restWavelength': 4958.91, 'ampList': [0.0080434, 0.0391648, 0.0678399], 'zone': 'high', 'sigmaT2': 10.39, 'compLimits': {'c': 0.01, 's': 0.05, 'a': np.inf}, 'copyFrom': 'OIII-5007A'}),
         #H-Beta_Blue:
-        ('H-Beta', {'Colour': 'b', 'Order': 36, 'Filter': 'blue', 'minI': 2000, 'maxI': 2700, 'restWavelength': 4861.33, 'ampList': [0.1205799, 0.5538921, 0.1502541], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c': 0.01, 's': 0.05, 'a': np.inf}, 'copyFrom': 'H-Alpha'}),
+        ('H-Beta', {'Colour': 'b', 'Order': 36, 'Filter': 'blue', 'minI': 2000, 'maxI': 2700, 'restWavelength': 4861.33, 'ampList': [0.1092102, 0.5498035, 0.1678219], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c': 0.01, 's': 0.01, 'a': np.inf}, 'copyFrom': 'H-Alpha'}),
         #('H-Beta_Red', {'Colour': 'r', 'Order': 3, 'Filter': 'red', 'minI': 1640, 'maxI': 2040, 'restWavelength': 4861.33, 'ampList': [9.9122054, 6.5330892, 6.8177404], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': False, 's': False}, 'copyFrom': 'H-Beta_Blue'}),
-        # ('H-Gamma', {'Colour': 'c', 'Order': 28, 'Filter': 'blue', 'minI': 600, 'maxI': 1100, 'restWavelength': 4340.47, 'ampList': [3.4047666, 14.3428947, 4.6305676], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c': 0.001, 's': 0.02, 'a': np.inf}, 'copyFrom': None}),
-        # ('H-Delta', {'Colour': 'c', 'Order': 23, 'Filter': 'blue', 'minI': 1550, 'maxI': 1850, 'restWavelength': 4101.74, 'ampList': [2.1928076, 8.0472948, 1.3214173], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c': 0.001, 's': 0.02, 'a': np.inf}, 'copyFrom': 'H-Beta_Blue'}),
+        ('H-Gamma', {'Colour': 'c', 'Order': 28, 'Filter': 'blue', 'minI': 600, 'maxI': 1100, 'restWavelength': 4340.47, 'ampList': [0.0529313, 0.2030545, 0.070263], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c':False, 's': False, 'a': np.inf}, 'copyFrom': 'H-Beta'}),
+        ('H-Delta', {'Colour': 'c', 'Order': 23, 'Filter': 'blue', 'minI': 1450, 'maxI': 1950, 'restWavelength': 4101.74, 'ampList': [0.0529313, 0.2030545, 0.070263], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c': False, 's': False, 'a': [inf, inf, 0.001]}, 'copyFrom': 'H-Gamma'}),
         ('NII-6584A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 1650, 'maxI': 2100, 'restWavelength': 6583.41, 'ampList': [0.2009536, 0.802822, 0.2450041], 'zone': 'low', 'sigmaT2': 11.87, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),
-        ('NII-6548A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 900, 'maxI': 1210, 'restWavelength': 6548.03, 'ampList': [0.059996, 0.2411121, 0.0818507], 'zone': 'low', 'sigmaT2': 11.87, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': 'NII-6584A'}),
-        #('SII-6717A', {'Colour': 'r', 'Order': 22, 'Filter': 'red', 'minI': 1700, 'maxI': 2006, 'restWavelength': 6716.47, 'ampList': [1.8447855, 11.394761, 4.3257803], 'zone': 'low', 'sigmaT2': 5.19, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),
+        ('NII-6548A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 900, 'maxI': 1210, 'restWavelength': 6548.03, 'ampList': [0.0599905, 0.2410469, 0.0819148], 'zone': 'low', 'sigmaT2': 11.87, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': 'NII-6584A'}),
+        ('SII-6717A', {'Colour': 'r', 'Order': 22, 'Filter': 'red', 'minI': 1700, 'maxI': 2006, 'restWavelength': 6716.47, 'ampList': [0.0507236, 0.2176797, 0.121686], 'zone': 'low', 'sigmaT2': 5.19, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),
         # ('SII-6731A', {'Colour': '#58D68D', 'Order': 22, 'Filter': 'red', 'minI': 2068, 'maxI': 2273, 'restWavelength': 6730.85, 'ampList': [1.3593845, 5.9234259, 7.3026765], 'zone': 'low', 'sigmaT2': 5.19, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': 'SII-6717A'}),
         #('HeI-5876A', {'Colour': '#641E16', 'Order': 15, 'Filter': 'red', 'minI': 1350, 'maxI': 1650, 'restWavelength': 5875.64, 'ampList': [0.4850817, 0.1915922, 4.6927829], 'zone': 'low', 'sigmaT2': 41.54, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),
         #('OII-3729A', {'Colour': '#5D6D7E', 'Order': 14, 'Filter': 'blue', 'minI': 2720, 'maxI': 3000, 'restWavelength': 3728.82, 'ampList': [5.0112717, -22679.7862692, -5.7298895], 'zone': 'low', 'sigmaT2': 10.39, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),

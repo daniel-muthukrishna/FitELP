@@ -5,7 +5,7 @@ inf = np.inf
 
 
 class RegionParameters(object):
-    regionName = "Arp314-NED02"
+    regionName = "Arp314-2" #verdadero -NED02
 
     blueSpecFile = 'Arp314-NED02B.fc.fits'
     redSpecFile = 'Arp314-NED02R.fc.fits'

@@ -4,7 +4,7 @@ inf = np.inf
 
 
 class RegionParameters(object):
-    regionName = "NGC6845 Region 7"
+    regionName = "NGC6845-7"
 
     blueSpecFile = 'NGC6845_7B.fc.fits'             #'NGC6845_7B_SPEC1.wc.fits'
     redSpecFile = 'NGC6845_7R.fc.fits'              #'NGC6845_7R_SPEC1.wc.fits'

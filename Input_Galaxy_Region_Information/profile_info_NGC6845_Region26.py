@@ -20,8 +20,8 @@ class RegionParameters(object):
         #H-Beta_Blue:
         ('H-Beta', {'Colour': 'b', 'Order': 36, 'Filter': 'blue', 'minI': 2000, 'maxI': 2700, 'restWavelength': 4861.33, 'ampList': [0.1092102, 0.5498035, 0.1678219], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c': 0.01, 's': 0.01, 'a': np.inf}, 'copyFrom': 'H-Alpha'}),
         #('H-Beta_Red', {'Colour': 'r', 'Order': 3, 'Filter': 'red', 'minI': 1640, 'maxI': 2040, 'restWavelength': 4861.33, 'ampList': [9.9122054, 6.5330892, 6.8177404], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': False, 's': False}, 'copyFrom': 'H-Beta_Blue'}),
-        ('H-Gamma', {'Colour': 'c', 'Order': 28, 'Filter': 'blue', 'minI': 600, 'maxI': 1100, 'restWavelength': 4340.47, 'ampList': [0.0529313, 0.2030545, 0.070263], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c':False, 's': False, 'a': np.inf}, 'copyFrom': 'H-Beta'}),
-        ('H-Delta', {'Colour': 'c', 'Order': 23, 'Filter': 'blue', 'minI': 1450, 'maxI': 1950, 'restWavelength': 4101.74, 'ampList': [0.0529313, 0.2030545, 0.070263], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c': False, 's': False, 'a': [inf, inf, 0.001]}, 'copyFrom': 'H-Gamma'}),
+        #('H-Gamma', {'Colour': 'c', 'Order': 28, 'Filter': 'blue', 'minI': 600, 'maxI': 1100, 'restWavelength': 4340.47, 'ampList': [0.0529313, 0.2030545, 0.070263], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c':False, 's': False, 'a': np.inf}, 'copyFrom': 'H-Beta'}),
+        #('H-Delta', {'Colour': 'c', 'Order': 23, 'Filter': 'blue', 'minI': 1450, 'maxI': 1950, 'restWavelength': 4101.74, 'ampList': [0.0529313, 0.2030545, 0.070263], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c': False, 's': False, 'a': [inf, inf, 0.001]}, 'copyFrom': 'H-Gamma'}),
         ('NII-6584A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 1650, 'maxI': 2100, 'restWavelength': 6583.41, 'ampList': [0.2009536, 0.802822, 0.2450041], 'zone': 'low', 'sigmaT2': 11.87, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),
         ('NII-6548A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 900, 'maxI': 1210, 'restWavelength': 6548.03, 'ampList': [0.0599905, 0.2410469, 0.0819148], 'zone': 'low', 'sigmaT2': 11.87, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': 'NII-6584A'}),
         ('SII-6717A', {'Colour': 'r', 'Order': 22, 'Filter': 'red', 'minI': 1700, 'maxI': 2006, 'restWavelength': 6716.47, 'ampList': [0.0507236, 0.2176797, 0.121686], 'zone': 'low', 'sigmaT2': 5.19, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),
@@ -62,7 +62,7 @@ class RegionParameters(object):
     sigmaInstrRed = 5.7
     distance = 2.68e26  # Distance to region in centimetres (same units as flux)
 
-    emLinesForAvgVelCalc = ['H-Alpha', 'H-Beta_Blue', 'OIII-5007A', 'NII-6584A', 'SII-6717A']
+    emLinesForAvgVelCalc = ['H-Alpha', 'H-Beta', 'OIII-5007A', 'NII-6584A', 'SII-6717A']
 
 
 """ NOTES ON HOW TO USE THE ABOVE TABLE

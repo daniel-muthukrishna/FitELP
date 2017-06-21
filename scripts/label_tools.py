@@ -2,7 +2,7 @@
 
 def line_name_to_pyneb_format(lineName):
     """ Takes a line name in the form similar to OIII-5007A or H-Alpha
-    and returns the pyneb format: H1e_6563A.
+    and returns the pyneb format: H1r_6563A.
     This function is basic and assumes tha the letter 'I' in the lineName are used only for roman numerals
     """
 

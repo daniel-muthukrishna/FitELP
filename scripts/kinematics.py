@@ -362,7 +362,7 @@ def bpt_plot(rpList, bptPoints):
     plt.text(-0.22, -0.75, r'Transition', fontsize=12)
     plt.text(-0.18, -0.9, r'Objects', fontsize=12)
     plt.text(0.16, -0.5, r'LINERs', fontsize=12)
-    plt.text(0.16, 1.1, r'Seyferts', fontsize=12)
+    plt.text(0.05, 0.55, r'Seyferts', fontsize=12)
     plt.text(-1.46, 1.1, r'Extreme Starburst Line', fontsize=12)
 
     # OTHER POINTS FROM PAPER
@@ -397,7 +397,7 @@ def bpt_plot(rpList, bptPoints):
     y = unumpy.nominal_values(ratioOIII)
     yErr = unumpy.std_devs(ratioOIII)
 
-    plt.plot(x, y, 'ks', color='grey', alpha=0.3)
+    plt.scatter(x, y, marker='s', color='grey', alpha=0.3, label="Olave et al. 2015")
     plt.errorbar(x, y, xerr=xErr, yerr=yErr, color='grey', ecolor='grey', elinewidth=0.5, fmt=None, alpha=0.3)
 
     # PLOT BPT POINTS
@@ -407,16 +407,16 @@ def bpt_plot(rpList, bptPoints):
         x, xErr, y, yErr = bptPoints[i]
         if (x, y) != (0, 0):
             label = rpList[i].regionName
-            plt.plot([x], [y], marker=markers[i], color=colours[i])
+            plt.scatter(x, y, marker=markers[i], color=colours[i], label=label)
             plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr, ecolor=colours[i])
-            plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom',
-                         color=colours[i])
+            # plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom', color=colours[i])
 
     # PLOT AND SAVE FIGURE
     plt.xlim(-1.5, 0.5)
     plt.ylim(-1, 1.5)
     plt.xlabel(r"$\log(\mathrm{[NII]6584\AA / H\alpha})$")
     plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
+    plt.legend()
     plt.savefig(os.path.join(OUTPUT_DIR, 'bpt_plot.png'))
     plt.show()
 

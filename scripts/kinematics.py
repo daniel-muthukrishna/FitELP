@@ -32,11 +32,15 @@ def read_spectra(filename, scaleFlux):
     except (OSError, IOError):
         spectra = read_fits.read_fits_spectrum1d(os.path.join(DATA_FILES, filename))
 
-    for spectrum in spectra:
-        x.append(spectrum.dispersion / u.angstrom)
-        y.append(spectrum.flux * scaleFlux)
-    x = np.array(x)
-    y = np.array(y)
+    if isinstance(spectra, list):
+        for spectrum in spectra:
+            x.append(spectrum.dispersion / u.angstrom)
+            y.append(spectrum.flux * scaleFlux)
+        x = np.array(x)
+        y = np.array(y)
+    else:
+        x = np.array([spectra.dispersion / u.angstrom])
+        y = np.array([spectra.flux * scaleFlux])
 
     return x, y
 
@@ -295,27 +299,30 @@ def calc_luminosity(rp):
 
 
 def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
-    plt.figure(title)
-    ax = plt.subplot(1, 1, 1)
-    plt.title(title)  # Recombination Emission Lines")
-    plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1}}$)")
-    plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$")
-    for i in range(len(lineNames)):
-        name, x, y, mod, col, comps, lab = rp.emProfiles[lineNames[i]]['plotInfo']
-        ax.plot(x, y, color=col, label=lab)
-        ax.plot(x, mod, color=col, linestyle='--')
-        if name == nameForComps:
-            for idx in range(rp.emProfiles[lineNames[i]]['numComps']):
-                plt.plot(x, comps['g%d_' % (idx + 1)] + comps['lin_'], color=rp.componentColours[idx], linestyle=':')
-    plt.xlim(rp.plottingXRange)
-    if sortedIndex is not None:
-        handles, labels = ax.get_legend_handles_labels()
-        handles2 = [handles[idx] for idx in sortedIndex]
-        labels2 = [labels[idx] for idx in sortedIndex]
-        ax.legend(handles2, labels2)
-    else:
-        ax.legend()
-    plt.savefig(os.path.join(OUTPUT_DIR, rp.regionName, title.strip(' ') + '.png'))
+    try:
+        plt.figure(title)
+        ax = plt.subplot(1, 1, 1)
+        plt.title(title)  # Recombination Emission Lines")
+        plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1}}$)")
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$")
+        for i in range(len(lineNames)):
+            name, x, y, mod, col, comps, lab = rp.emProfiles[lineNames[i]]['plotInfo']
+            ax.plot(x, y, color=col, label=lab)
+            ax.plot(x, mod, color=col, linestyle='--')
+            if name == nameForComps:
+                for idx in range(rp.emProfiles[lineNames[i]]['numComps']):
+                    plt.plot(x, comps['g%d_' % (idx + 1)] + comps['lin_'], color=rp.componentColours[idx], linestyle=':')
+        plt.xlim(rp.plottingXRange)
+        if sortedIndex is not None:
+            handles, labels = ax.get_legend_handles_labels()
+            handles2 = [handles[idx] for idx in sortedIndex]
+            labels2 = [labels[idx] for idx in sortedIndex]
+            ax.legend(handles2, labels2)
+        else:
+            ax.legend()
+        plt.savefig(os.path.join(OUTPUT_DIR, rp.regionName, title.strip(' ') + '.png'))
+    except KeyError:
+        print("SOME IONS IN {0} HAVE NOT BEEN DEFINED.".format(lineNames))
 
 
 def calc_bpt_point(rp):
@@ -798,19 +805,18 @@ class RegionCalculations(object):
 
 
 if __name__ == '__main__':
-    from profile_info_HCG31_A import RegionParameters as HCG31_AParams
-    from profile_info_HCG31_C import RegionParameters as HCG31_CParams
-    from profile_info_HCG31_AC import RegionParameters as HCG31_ACParams
+
     from profile_info_Arp314_NED02_off import RegionParameters as Arp314_NED02_offParams
     from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
+    from profile_info_Obj1 import RegionParameters as Obj1
     # from Mrk600A import RegionParameters as Mrk600AParams
     from Mrk600B import RegionParameters as Mrk600B05Params
     # from IIZw33KnotB05 import RegionParameters as IIZw33KnotBParams
-    from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
-    from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
+    # from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
+    # from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [Arp314_NED02Params, NGC6845Region7Params, NGC6845Region26Params, HCG31_AParams, HCG31_ACParams]#, Arp314_NED02_offParams, HCG31_CParams]
+    regionsParameters = [Arp314_NED02Params, Obj1] # NGC6845Region7Params, NGC6845Region26Params]#, HCG31_AParams, HCG31_ACParams]#, Arp314_NED02_offParams, HCG31_CParams]
 
     regionArray = []
     bptPoints = []

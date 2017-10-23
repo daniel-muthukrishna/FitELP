@@ -428,31 +428,6 @@ def bpt_plot(rpList, bptPoints):
     plt.show()
 
 
-# def save_fluxes(fluxListInfo, rp):
-#     componentFluxesDict = dict((el, []) for el in rp.componentLabels)
-#     componentFluxesDict['global'] = []
-#     saveFilename = 'component_fluxes.csv'
-#     with open(os.path.join(OUTPUT_DIR, rp.regionName, saveFilename), 'w') as csvFile:
-#         writer = csv.writer(csvFile, delimiter=',')
-#         writer.writerow(["Line_name", "Component", "Flux", "Flux_error"])
-#         for i in range(len(fluxListInfo)):
-#             emName, components, fluxList, fluxErrList, globalFlux, globalFluxErr, restWave = fluxListInfo[i]
-#             for j in range(len(fluxList)):
-#                 writer.writerow([emName, components[j], fluxList[j], fluxErrList[j]])
-#                 componentFluxesDict[components[j]].append([emName, fluxList[j], fluxErrList[j], restWave])
-#             componentFluxesDict['global'].append([emName, globalFlux, globalFluxErr, restWave])
-#
-#     for componentName, fluxInfo in componentFluxesDict.items():
-#         fluxInfo = sorted(fluxInfo, key=lambda l:l[3])
-#         with open(os.path.join(OUTPUT_DIR, rp.regionName, "{0}.csv".format(componentName)), 'w') as csvFile:
-#             writer = csv.writer(csvFile, delimiter=',')
-#             writer.writerow([componentName])
-#             writer.writerow(["Line_name", "Flux", "Flux_error"])
-#             for i in range(len(fluxInfo)):
-#                 emName, flux, fluxErr, restWave = fluxInfo[i]
-#                 writer.writerow([emName, round(flux, 3), round(fluxErr, 3)])
-
-
 def save_measurements(measurementInfo, rp):
     componentFluxesDict = dict((el, []) for el in rp.componentLabels)
     componentFluxesDict['global'] = []
@@ -461,11 +436,12 @@ def save_measurements(measurementInfo, rp):
         writer = csv.writer(csvFile, delimiter=',')
         writer.writerow(["Line_name", "Component", "Flux", "Flux_error"])
         for i in range(len(measurementInfo)):
-            emName, components, fluxList, fluxErrList, globalFlux, globalFluxErr, restWave, continuum, eW = measurementInfo[i]
+            emName, components, fluxList, fluxErrList, globalFlux, globalFluxErr, restWave, continuum = measurementInfo[i]
             for j in range(len(fluxList)):
+                eW = abs(fluxList[j]) / continuum[j]
                 writer.writerow([emName, components[j], fluxList[j], fluxErrList[j]])
-                componentFluxesDict[components[j]].append([emName, fluxList[j], fluxErrList[j], restWave, continuum, eW])
-            componentFluxesDict['global'].append([emName, globalFlux, globalFluxErr, restWave, continuum, eW])
+                componentFluxesDict[components[j]].append([emName, fluxList[j], fluxErrList[j], restWave, continuum[j], eW])
+            componentFluxesDict['global'].append([emName, globalFlux, globalFluxErr, restWave, 9999, 9999])
 
     for componentName, fluxInfo in componentFluxesDict.items():
         fluxInfo = sorted(fluxInfo, key=lambda l:l[3])
@@ -479,7 +455,7 @@ def save_measurements(measurementInfo, rp):
 
     for componentName, fluxInfo in componentFluxesDict.items():
         fluxInfo = sorted(fluxInfo, key=lambda l:l[3])
-        with open(os.path.join(OUTPUT_DIR, rp.regionName, "medidas_{0}".format(componentName)), 'w') as csvFile:
+        with open(os.path.join(OUTPUT_DIR, rp.regionName, "measurements_{0}".format(componentName)), 'w') as csvFile:
             writer = csv.writer(csvFile, delimiter='\t')
             writer.writerow(["# LINE", "ION", "Flux", "Err", "CONTINUUM", "EW"])
             for i in range(len(fluxInfo)):
@@ -792,13 +768,12 @@ class RegionCalculations(object):
             zoneNames[emInfo['zone']].append(emName)
             rp.emProfiles[emName]['plotInfo'] = [emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel]
 
-            continuum, eW = 9999, 9999
         #Print Amplitudes
             ampComponentList = []
             o = model1
             eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, numComps)
-            #fluxListInfo.append((emName, rp.componentLabels, fluxList, fluxListErr, globalFlux, globalFluxErr, emInfo['restWavelength']))
-            measurementInfo.append((emName, rp.componentLabels, fluxList, fluxListErr, globalFlux, globalFluxErr, emInfo['restWavelength'], continuum, eW))
+            continuumList = model1.best_values['lin_slope'] * np.array(rp.emProfiles[emName]['centerList']) + model1.best_values['lin_intercept']
+            measurementInfo.append((emName, rp.componentLabels, fluxList, fluxListErr, globalFlux, globalFluxErr, emInfo['restWavelength'], continuumList))
             rp.emProfiles[emName]['globalFlux'] = globalFlux
             rp.emProfiles[emName]['globalFluxErr'] = globalFluxErr
             rp.emProfiles[emName]['sigIntList'] = []
@@ -814,7 +789,6 @@ class RegionCalculations(object):
             allModelComponents.append([''] * len(tableLine))
             ampListAll.append([emName, ampComponentList, emInfo, emName])
 
-        # save_fluxes(fluxListInfo, rp)
         save_measurements(measurementInfo, rp)
         # Create Component Table
         comp_table_to_latex(allModelComponents, rp, paperSize='a4', orientation='portrait', longTable=True)

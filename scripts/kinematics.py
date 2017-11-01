@@ -1,51 +1,22 @@
 import csv
 import os
 import sys
-import astropy.units as u
 import matplotlib.pyplot as plt
 import numpy as np
-from lmfit import Parameters
-from lmfit.models import GaussianModel, LinearModel
-from specutils.io import read_fits
-from uncertainties import ufloat, umath, unumpy
+from label_tools import line_label
+from read_spectra import GalaxyRegion
+from fit_line_profiles import EmissionLineProfile, FittingProfile, plot_profiles
+from make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex, comp_table_to_latex
+from bpt_plotting import calc_bpt_point, bpt_plot
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../scripts'))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Galaxy_Region_Information'))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Data_Files'))
 
-from label_tools import line_label
-
-SP_OF_LI = 299792.5  # km/s
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
-DATA_FILES = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Data_Files')
 
 
-def read_spectra(filename, scaleFlux):
-    """ Reads spectra from input FITS File
-    Stores the wavelength (in Angstroms) in a vector 'x'
-    and the fluxes scaled by 10**14 in a vector 'y'
-    x and y are an array of the wavelengths and fluxes of each of the orders"""
-    x = []
-    y = []
-    try:
-        spectra = read_fits.read_fits_spectrum1d(filename)
-    except (OSError, IOError):
-        spectra = read_fits.read_fits_spectrum1d(os.path.join(DATA_FILES, filename))
-
-    if isinstance(spectra, list):
-        for spectrum in spectra:
-            x.append(spectrum.dispersion / u.angstrom)
-            y.append(spectrum.flux * scaleFlux)
-        x = np.array(x)
-        y = np.array(y)
-    else:
-        x = np.array([spectra.dispersion / u.angstrom])
-        y = np.array([spectra.flux * scaleFlux])
-
-    return x, y
-
-
-def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
+def calc_vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
     # Assuming negligible error in temp or instrument
     if filter == 'blue':
         sigmaInstr = rp.sigmaInstrBlue
@@ -86,7 +57,7 @@ def vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
     return intrinsic, intrinsicError
 
 
-def calculate_flux(height, sigmaObs, heightError, sigmaObsError):
+def calc_flux(height, sigmaObs, heightError, sigmaObsError):
     insideSqrt = 2 * np.pi * sigmaObs**2
     insideSqrtError = 2 * sigmaObs * sigmaObsError
     sqrt = np.sqrt(insideSqrt)
@@ -98,7 +69,7 @@ def calculate_flux(height, sigmaObs, heightError, sigmaObsError):
     return calcFlux, calcFluxError
 
 
-def calculate_em_f(model, numComponents):
+def calc_emf(model, numComponents):
     componentFluxes = []
     componentFluxErrors = []
     for i in range(numComponents):
@@ -108,7 +79,7 @@ def calculate_em_f(model, numComponents):
         sigmaObsError = model.params['g%d_sigma' % (i + 1)].stderr
         amplitude = model.params['g%d_amplitude' % (i + 1)].value
         amplitudeError = model.params['g%d_amplitude' % (i + 1)].stderr
-        calcFlux, calcFluxError = amplitude, amplitudeError  # calculate_flux(height, sigmaObs, heightError, sigmaObsError)
+        calcFlux, calcFluxError = amplitude, amplitudeError
 
         componentFluxes.append(calcFlux)
         componentFluxErrors.append(calcFluxError)
@@ -120,6 +91,13 @@ def calculate_em_f(model, numComponents):
     calcEMF = componentFluxes/sum(componentFluxes) * 100
 
     return calcEMF, componentFluxes, componentFluxErrors, totalFlux, totalFluxError
+
+
+def calc_continuum(model, emName, rp):
+    continuumList = model.best_values['lin_slope'] * np.array(rp.emProfiles[emName]['centerList']) + model.best_values['lin_intercept']
+    globalContinuum = model.best_values['lin_slope'] * np.mean(rp.emProfiles[emName]['centerList']) + model.best_values['lin_intercept']
+
+    return continuumList, globalContinuum
 
 def column(matrix, i):
     columnList = []
@@ -136,7 +114,7 @@ def calc_average_velocities(rpList):
 
     for rp in rpList:
         numCompsFromVelCalcList = []
-        centres = []
+        centers = []
         sigmas = []
         for emName, emInfo in rp.emProfiles.items():
             if emName in rp.emLinesForAvgVelCalc:
@@ -146,7 +124,7 @@ def calc_average_velocities(rpList):
                     zone = emInfo['zone']
                     numComps = rp.numComps[zone]
                 numCompsFromVelCalcList.append(numComps)
-                centres.append(emInfo['centerList'][0:numComps])
+                centers.append(emInfo['centerList'][0:numComps])
                 sigmas.append(emInfo['sigIntList'][0:numComps])
 
         avgCentres = []
@@ -154,7 +132,7 @@ def calc_average_velocities(rpList):
         stdCentres = []
         stdSigmas = []
         for i in range(10):  # Max number of numComps (number of rows in table)
-            componentCentres = column(centres, i)
+            componentCentres = column(centers, i)
             componentSigmas = column(sigmas, i)
             if componentCentres != []:
                 avgCentres.append(np.mean(componentCentres))
@@ -200,88 +178,6 @@ def calc_average_velocities(rpList):
     return allLinesInArray
 
 
-def average_velocities_table_to_latex(rpList, directory=OUTPUT_DIR, paperSize='a4', orientation='portrait', longTable=False):
-    saveFileName = 'AverageVelocitiesTable'
-    velArray = calc_average_velocities(rpList)
-    regionHeadings = ['']
-    headings = ['']
-    headingUnits = ['']
-    for rp in rpList:
-        regionHeadings += ["\multicolumn{2}{c}{%s}" % rp.regionName]  # Was 2 instead of 3 when i didn;t have separate component Labels
-        headings += [r'$\mathrm{v_r}$', r'$\mathrm{\sigma}$']
-        headingUnits += [r'$\mathrm{(km \ s^{-1})}$', r'$\mathrm{(km \ s^{-1})}$']
-
-    headingLines = [regionHeadings, headings, headingUnits]
-    caption = "Average radial velocities and velocity dispersions for all regions"
-    nCols = len(headings)
-    centering = 'l' + 'c' * (nCols-1)
-    table_to_latex(velArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
-
-
-def halpha_regions_table_to_latex(regionInfoArray, directory=OUTPUT_DIR, paperSize='a4', orientation='portrait', longTable=False):
-    saveFileName = 'RegionInfo'
-    headings = [r'Region Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{log([NII]/H}\alpha)$', r'$\mathrm{log([OIII]/H}\beta)$']
-    headingUnits = ['', r'$(\mathrm{M_{\odot} \ yr^{-1}})$', '', '', '']
-    headingLines = [headings, headingUnits]
-    caption = 'Region Information'
-    nCols = len(headings)
-    centering = 'l' + 'c' * (nCols-1)
-    table_to_latex(regionInfoArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
-
-
-def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrait', longTable=True):
-    saveFileName = 'ComponentTable'
-    directory = os.path.join(OUTPUT_DIR, rp.regionName)
-    headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
-                r'$\mathrm{\sigma_{int}}$', r'$\mathrm{Flux}$', r'$\mathrm{EM_f}$', r'$\mathrm{GlobalFlux}$']
-    headingUnits = [r'$(\mathrm{\AA})$', '', '', r'$(\mathrm{km \ s^{-1}})$',
-                    r'$(\mathrm{km \ s^{-1}})$', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$',
-                    '', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$']
-    headingLines = [headings, headingUnits]
-    caption = rp.regionName
-    nCols = len(headings)
-    centering = 'lllccccc'
-    table_to_latex(componentArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
-
-
-def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, centering, papersize='a4', orientation='portrait', longTable=False):
-    texFile = open(os.path.join(directory, saveFileName + '.tex'), 'w')
-    texFile.write('\\documentclass{article}\n')
-    texFile.write('\\usepackage[%spaper, %s, margin=0.5in]{geometry}\n' % (papersize, orientation))
-    texFile.write('\\usepackage{booktabs}\n')
-    texFile.write('\\usepackage{longtable}\n')
-    texFile.write('\\begin{document}\n')
-    texFile.write('\n')
-    texFile.write('\\begin{longtable}{%s}\n' % (centering))
-    texFile.write('\\hline\n')
-    for heading in headingLines[:-1]:
-        texFile.write(' & '.join(str(e) for e in heading) + ' \\\\ \n')
-    texFile.write(' & '.join("\\scriptsize " + str(e) for e in headingLines[-1]) + ' \\\\ \n')
-    texFile.write('\\hline\n')
-    if longTable:
-        texFile.write('\\endhead\n')
-    for line in tableArray:
-        texFile.write(' & '.join(str(e) for e in line) + ' \\\\ \n')
-    texFile.write('\\hline\n')
-    texFile.write('\\caption{%s}\n' % caption)
-    texFile.write('\\end{longtable}\n')
-    texFile.write('\n')
-    texFile.write('\\end{document}\n')
-
-    texFile.close()
-
-    run_bash_command("pdflatex '" + os.path.join(directory, saveFileName + ".tex'"))
-    if directory != ".":
-        run_bash_command("mv " + saveFileName + ".pdf '" + directory + "'")
-        run_bash_command("rm " + saveFileName + ".*")
-
-
-def run_bash_command(bashCommandStr):
-    os.system(bashCommandStr)
-    # process = subprocess.Popen(bashCommandStr.split(), stdout=subprocess.PIPE)
-    # output, error = process.communicate(input='\n')
-
-
 def calc_luminosity(rp):
     if 'H-Alpha' in rp.emProfiles:
         calcLuminosity = 4 * np.pi * rp.emProfiles['H-Alpha']['globalFlux'] * rp.distance**2 / rp.scaleFlux
@@ -298,136 +194,6 @@ def calc_luminosity(rp):
     return logLuminosity, logLuminosityError, starFormRate, starFormRateError
 
 
-def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
-    try:
-        plt.figure(title)
-        ax = plt.subplot(1, 1, 1)
-        plt.title(title)  # Recombination Emission Lines")
-        plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$")
-        for i in range(len(lineNames)):
-            name, x, y, mod, col, comps, lab = rp.emProfiles[lineNames[i]]['plotInfo']
-            ax.plot(x, y, color=col, label=lab)
-            ax.plot(x, mod, color=col, linestyle='--')
-            if name == nameForComps:
-                for idx in range(rp.emProfiles[lineNames[i]]['numComps']):
-                    plt.plot(x, comps['g%d_' % (idx + 1)] + comps['lin_'], color=rp.componentColours[idx], linestyle=':')
-        plt.xlim(rp.plottingXRange)
-        if sortedIndex is not None:
-            handles, labels = ax.get_legend_handles_labels()
-            handles2 = [handles[idx] for idx in sortedIndex]
-            labels2 = [labels[idx] for idx in sortedIndex]
-            ax.legend(handles2, labels2)
-        else:
-            ax.legend()
-        plt.savefig(os.path.join(OUTPUT_DIR, rp.regionName, title.strip(' ') + '.png'))
-    except KeyError:
-        print("SOME IONS IN {0} HAVE NOT BEEN DEFINED.".format(lineNames))
-
-
-def calc_bpt_point(rp):
-    try:
-        if 'H-Alpha' in rp.emProfiles:
-            fluxNII6584 = ufloat(rp.emProfiles['NII-6584A']['globalFlux'], rp.emProfiles['NII-6584A']['globalFluxErr'])
-            fluxHAlpha = ufloat(rp.emProfiles['H-Alpha']['globalFlux'], rp.emProfiles['H-Alpha']['globalFluxErr'])
-            fluxOIII5007 = ufloat(rp.emProfiles['OIII-5007A']['globalFlux'], rp.emProfiles['OIII-5007A']['globalFluxErr'])
-            fluxHBeta = ufloat(rp.emProfiles['H-Beta']['globalFlux'], rp.emProfiles['H-Beta']['globalFluxErr'])
-        else:
-            fluxNII6584 = ufloat(rp.emProfiles['N2_6584A']['globalFlux'], rp.emProfiles['N2_6584A']['globalFluxErr'])
-            fluxHAlpha = ufloat(rp.emProfiles['H1r_6563A']['globalFlux'], rp.emProfiles['H1r_6563A']['globalFluxErr'])
-            fluxOIII5007 = ufloat(rp.emProfiles['O3_5007A']['globalFlux'], rp.emProfiles['O3_5007A']['globalFluxErr'])
-            fluxHBeta = ufloat(rp.emProfiles['H1r_4861A']['globalFlux'], rp.emProfiles['H1r_4861A']['globalFluxErr'])
-
-        ratioNII = umath.log10(fluxNII6584 / fluxHAlpha)
-        ratioOIII = umath.log10(fluxOIII5007 / fluxHBeta)
-        x = ratioNII.nominal_value
-        xErr = ratioNII.std_dev
-        y = ratioOIII.nominal_value
-        yErr = ratioOIII.std_dev
-    except (KeyError, ValueError):
-        x, xErr, y, yErr = (0, 0, 0, 0)
-        print("NII or OIII are not defined")
-
-    bptPoint = (x, xErr, y, yErr)
-
-    return bptPoint
-
-
-def bpt_plot(rpList, bptPoints):
-    # PLOT LINES
-    plt.figure('BPT Plot')
-    # y1: log([OIII]5007/Hbeta) = 0.61 / (log([NII]6584/Halpha) - 0.05) + 1.3  (curve of Kauffmann+03 line)
-    # y2: log([OIII]5007/Hbeta) = 0.61 / (log([NII]6584/Halpha) - 0.47) + 1.19    (curve of Kewley+01 line)
-    x1 = np.arange(-2, 0.02, 0.01)
-    y1 = 0.61 / (x1 - 0.05) + 1.3
-    x2 = np.arange(-2, 0.44, 0.01)
-    y2 = 0.61 / (x2 - 0.47) + 1.19
-    plt.plot(x1, y1, 'b--')
-    plt.plot(x2, y2, 'r--')
-    # AREA LABELS
-    plt.text(-1, -0.8, r'Starburst', fontsize=12)
-    plt.text(-0.22, -0.75, r'Transition', fontsize=12)
-    plt.text(-0.18, -0.9, r'Objects', fontsize=12)
-    plt.text(0.16, -0.5, r'LINERs', fontsize=12)
-    plt.text(0.05, 0.55, r'Seyferts', fontsize=12)
-    plt.text(-1.46, 1.1, r'Extreme Starburst Line', fontsize=12)
-
-    # OTHER POINTS FROM PAPER
-    # Mora et al., 2017 prep (regions of Arp142)
-    # hBetaAbs = [0.25,0.33,0.07,0.84,6.32,0.75,0.15,0.82,0.13,0.38,0.78,0.55,0.08,0.21,8.94,4.08,0.52,0.09,0.24,0.07,0.12]
-    # hBetaErr = [0.11,0.27,0.03,0.19,0.3,0.22,0.09,0.17,0.04,0.17,0.19,0.16,0.06,0.13,0.8,0.26,0.14,0.04,0.14,0.03,0.08]
-    # oIII5007Abs = [0.35,0.92,0.36,4.73,46.51,1.34,0.21,1.83,0.2,0.68,1.35,0.82,0.18,0.14,6.72,5.03,0.38,0.08,0.36,0.13,0.28]
-    # oIII5007Err = [0.12,0.25,0.29,2.47,6.98,0.27,0.13,0.15,0.07,0.18,0.23,0.18,0.07,0.08,0.72,0.28,0.06,0.04,0.14,0.07,0.16]
-    # hAlphaAbs = [0.69,1.02,0.32,3.77,30.11,2.24,0.5,2.56,0.46,1.11,2.46,1.72,0.27,0.62,33,16.6,1.61,0.13,0.62,0.15,0.35]
-    # hAlphaErr = [0.1,0.25,0.11,0.29,4.52,0.32,0.15,0.34,0.19,0.24,0.35,0.27,0.13,0.19,2.04,1.4,0.2,0.1,0.17,0.08,0.12]
-    # nII6584Abs = [0.11,0.14,0.07,0.4,2.27,0.36,0.09,0.33,0.1,0.22,0.41,0.36,0.06,0.21,10.64,4.8,0.56,0.03,0.11,0.03,0.04]
-    # nII6584Err = [0.05,0.09,0.06,0.16,0.24,0.17,0.07,0.13,0.04,0.11,0.16,0.12,0.03,0.12,0.62,0.33,0.14,0.02,0.07,0.03,0.03]
-    #
-    # Olave et al., 2015 (regions of NGC6845)
-    hBetaAbs = [0.025, 0.033, 0.007, 0.084, 0.632, 0.075, 0.015, 0.082, 0.013, 0.038, 0.078, 0.055, 0.008, 0.021, 0.894, 0.408, 0.052, 0.009, 0.024, 0.007, 0.012]
-    hBetaErr = [0.011, 0.027, 0.003, 0.019, 0.03, 0.022, 0.009, 0.017, 0.004, 0.017, 0.019, 0.016, 0.006, 0.013, 0.08, 0.026, 0.014, 0.004, 0.014, 0.003, 0.008]
-    oIII5007Abs = [0.035, 0.092, 0.036, 0.473, 4.651, 0.134, 0.021, 0.183, 0.02, 0.068, 0.135, 0.082, 0.018, 0.014, 0.672, 0.503, 0.038, 0.008, 0.036, 0.013, 0.028]
-    oIII5007Err = [0.012, 0.025, 0.029, 0.247, 0.698, 0.027, 0.013, 0.015, 0.007, 0.018, 0.023, 0.018, 0.007, 0.008, 0.072, 0.028, 0.006, 0.004, 0.014, 0.007, 0.016]
-    hAlphaAbs = [0.069, 0.102, 0.032, 0.377, 3.011, 0.224, 0.05, 0.256, 0.046, 0.111, 0.246, 0.172, 0.027, 0.062, 3.3, 1.66, 0.161, 0.013, 0.062, 0.015, 0.035]
-    hAlphaErr = [0.01, 0.025, 0.011, 0.029, 0.452, 0.032, 0.015, 0.034, 0.019, 0.024, 0.035, 0.027, 0.013, 0.019, 0.204, 0.14, 0.02, 0.01, 0.017, 0.008, 0.012]
-    nII6584Abs = [0.011, 0.014, 0.007, 0.04, 0.227, 0.036, 0.009, 0.033, 0.01, 0.022, 0.041, 0.036, 0.006, 0.021, 1.064, 0.48, 0.056, 0.003, 0.011, 0.003, 0.004]
-    nII6584Err = [0.005, 0.009, 0.006, 0.016, 0.024, 0.017, 0.007, 0.013, 0.004, 0.011, 0.016, 0.012, 0.003, 0.012, 0.062, 0.033, 0.014, 0.002, 0.007, 0.003, 0.003]
-    hBeta = (unumpy.uarray(hBetaAbs, hBetaErr))
-    oIII5007 = unumpy.uarray(oIII5007Abs, oIII5007Err)
-    hAlpha = unumpy.uarray(hAlphaAbs, hAlphaErr)
-    nII6584 = unumpy.uarray(nII6584Abs, nII6584Err)
-
-    ratioNII = unumpy.log10(nII6584/hAlpha)
-    ratioOIII = unumpy.log10(oIII5007/hBeta)
-    x = unumpy.nominal_values(ratioNII)
-    xErr = unumpy.std_devs(ratioNII)
-    y = unumpy.nominal_values(ratioOIII)
-    yErr = unumpy.std_devs(ratioOIII)
-
-    plt.scatter(x, y, marker='s', color='grey', alpha=0.3, label="Olave et al. 2015")
-    plt.errorbar(x, y, xerr=xErr, yerr=yErr, color='grey', ecolor='grey', elinewidth=0.5, fmt=None, alpha=0.3)
-
-    # PLOT BPT POINTS
-    colours = ['b', 'r', 'g', 'm', 'c', 'violet', 'y', '#5D6D7E']
-    markers = ['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o']
-    for i in range(len(rpList)):
-        x, xErr, y, yErr = bptPoints[i]
-        if (x, y) != (0, 0):
-            label = rpList[i].regionName
-            plt.scatter(x, y, marker=markers[i], color=colours[i], label=label)
-            plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr, ecolor=colours[i])
-            # plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom', color=colours[i])
-
-    # PLOT AND SAVE FIGURE
-    plt.xlim(-1.5, 0.5)
-    plt.ylim(-1, 1.5)
-    plt.xlabel(r"$\log(\mathrm{[NII]6584\AA / H\alpha})$")
-    plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
-    plt.legend()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'bpt_plot.png'))
-    plt.show()
-
-
 def save_measurements(measurementInfo, rp):
     componentFluxesDict = dict((el, []) for el in rp.componentLabels)
     componentFluxesDict['global'] = []
@@ -436,12 +202,13 @@ def save_measurements(measurementInfo, rp):
         writer = csv.writer(csvFile, delimiter=',')
         writer.writerow(["Line_name", "Component", "Flux", "Flux_error"])
         for i in range(len(measurementInfo)):
-            emName, components, fluxList, fluxErrList, globalFlux, globalFluxErr, restWave, continuum = measurementInfo[i]
+            emName, components, fluxList, fluxErrList, globalFlux, globalFluxErr, restWave, continuum, globalContinuum = measurementInfo[i]
             for j in range(len(fluxList)):
                 eW = abs(fluxList[j]) / continuum[j]
                 writer.writerow([emName, components[j], fluxList[j], fluxErrList[j]])
                 componentFluxesDict[components[j]].append([emName, fluxList[j], fluxErrList[j], restWave, continuum[j], eW])
-            componentFluxesDict['global'].append([emName, globalFlux, globalFluxErr, restWave, 9999, 9999])
+            globalEW = abs(globalFlux) / globalContinuum
+            componentFluxesDict['global'].append([emName, globalFlux, globalFluxErr, restWave, globalContinuum, globalEW])
 
     for componentName, fluxInfo in componentFluxesDict.items():
         fluxInfo = sorted(fluxInfo, key=lambda l:l[3])
@@ -464,237 +231,6 @@ def save_measurements(measurementInfo, rp):
                 ionName = ionName.strip('$').replace("\\", "").replace('mathrm{', "").replace('}', '').split('_')[0]
                 lambdaZero = lambdaZero.strip('$')
                 writer.writerow([lambdaZero, ionName, round(flux, 3), round(fluxErr, 3), continuum, eW])
-
-
-class GalaxyRegion(object):
-    def __init__(self, rp):
-        """ x is wavelength arrays, y is flux arrays """
-        self.xBlue, self.yBlue = read_spectra(rp.blueSpecFile, rp.scaleFlux)
-        self.xRed, self.yRed = read_spectra(rp.redSpecFile, rp.scaleFlux)
-        self.rp = rp
-        if rp.blueSpecError is None:
-            self.xBlueError, self.yBlueError = (None, None)
-        else:
-            self.xBlueError, self.yBlueError = read_spectra(rp.blueSpecError, rp.scaleFlux)
-        if rp.redSpecError is None:
-            self.xRedError, self.yRedError = (None, None)
-        else:
-            self.xRedError, self.yRedError = read_spectra(rp.redSpecError, rp.scaleFlux)
-
-        if not os.path.exists(os.path.join(OUTPUT_DIR, rp.regionName)):
-            os.makedirs(os.path.join(OUTPUT_DIR, rp.regionName))
-
-    def plot_order(self, orderNum, filt='red', minIndex=0, maxIndex=-1, title=''):
-        """Plots the wavelength vs flux for a particular order. orderNum starts from 0"""
-        orderNum -= 1
-        x, y, xE, yE = self._filter_argument(filt)
-
-        fig = plt.figure(self.rp.regionName + " Order Plot " + title)
-        plt.title(title)
-        ax1 = fig.add_subplot(111)
-        ax1.plot(x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex], label='Spectrum')
-        # ax1Ticks = ax1.get_xticks()
-        # ax2Ticks = ax1Ticks
-        # ax2.set_xticks(ax2Ticks)
-        # ax2.set_xbound(ax1.get_xbound())
-        # ax2.set_xticklabels("%.2f" % z for z in (x[orderNum][minIndex:maxIndex][t] for t in ax2Ticks[:-2]))
-        #ax2.plot(y[orderNum][minIndex:maxIndex])
-        if yE is not None:
-            pass #plt.plot(xE[orderNum][minIndex:maxIndex], yE[orderNum][minIndex:maxIndex], label='Spectrum Error')
-        plt.legend()
-        plt.xlabel("Wavelength ($\AA$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
-        plt.savefig(os.path.join(OUTPUT_DIR, self.rp.regionName, title))
-
-    def mask_emission_line(self, orderNum, filt='red', minIndex=0, maxIndex=-1):
-        orderNum -= 1
-        x, y, xE, yE = self._filter_argument(filt)
-        xMask, yMask = x[orderNum][minIndex:maxIndex], y[orderNum][minIndex:maxIndex]
-        if yE is None:
-            xEMask, yEMask = None, None
-        else:
-            xEMask, yEMask = xE[orderNum][minIndex:maxIndex], yE[orderNum][minIndex:maxIndex]
-
-        return xMask, yMask, xEMask, yEMask
-
-    def _filter_argument(self, filt):
-        try:
-            if filt == 'red':
-                x, y, xE, yE = self.xRed, self.yRed, self.xRedError, self.yRedError
-            elif filt == 'blue':
-                x, y, xE, yE = self.xBlue, self.yBlue, self.xBlueError, self.yBlueError
-
-            return x, y, xE, yE
-
-        except NameError:
-            print("Error: Invalid argument. Choose 'red' or 'blue' for the filter argument")
-            exit()
-
-
-class EmissionLineProfile(object):
-    def __init__(self, wave, flux, fluxError, rp, restWave, lineName=''):
-        """wave and flux are for vectors representing only the given emission line
-        labWave is the wavelength of the emission line if it were at rest (stationary)
-        default is for H-alpha emission line"""
-        self.restWave = restWave
-        self.lineName = lineName
-        self.wave = wave
-        self.vel, self.flux, self.fluxError = self.velocity(wave, flux, fluxError)
-        self.rp = rp
-
-    def velocity(self, wave, flux, fluxError):
-        vel = ((wave - self.restWave) / self.restWave) * SP_OF_LI
-        flux = flux * (self.restWave / SP_OF_LI)
-        fluxError = fluxError * (self.restWave / SP_OF_LI)
-
-        return vel, flux, fluxError
-
-    def plot_emission_line(self, xaxis='vel', title=''):
-        """Choose whether the x axis is 'vel' or 'wave'"""
-        plt.figure(self.rp.regionName + self.lineName + title)
-        plt.title(self.lineName + title)
-        if xaxis == 'wave':
-            plt.plot(self.wave, self.flux)
-            plt.xlabel("Wavelength ($\AA$)")
-        elif xaxis == 'vel':
-            plt.plot(self.vel, self.flux)
-            plt.xlabel("Velocity ($\mathrm{km \ s}^{-1}$)")
-        plt.ylabel("Flux")
-        plt.savefig(self.rp.regionName + '/' + self.lineName + title)
-
-
-class FittingProfile(object):
-    def __init__(self, vel, flux, restWave, lineName, zone, rp, fluxError=None):
-        """The input vel and flux must be limited to a single emission line profile"""
-        self.vel = vel
-        self.flux = flux
-        self.fluxError = fluxError
-        self.restWave = restWave
-        self.lineName = lineName
-        self.zone = zone
-        self.weights = self._weights()
-        self.rp = rp
-
-        self.linGaussParams = Parameters()
-
-    def _weights(self):
-        if self.fluxError is None:
-            return None
-        else:
-            fluxErrorCR = self.fluxError# - self.continuum
-            return 1./fluxErrorCR
-
-    def _get_amplitude(self, numOfComponents, modelFit):
-        amplitudeTotal = 0.
-        for i in range(numOfComponents):
-            amplitudeTotal = amplitudeTotal + modelFit.best_values['g%d_amplitude' % (i+1)]
-        print("Amplitude Total is %f" % amplitudeTotal)
-
-        return amplitudeTotal
-
-    def _gaussian_component(self, pars, prefix, c, s, a, limits):
-        """Fits a gaussian with given parameters.
-        pars is the lmfit Parameters for the fit, prefix is the label of the gaussian, c is the center, s is sigma,
-        a is amplitude. Returns the Gaussian model"""
-        varyCentre = True
-        varySigma = True
-        varyAmp = True
-
-        if limits['c'] == False:
-            varyCentre = False
-            cMin, cMax = -np.inf, np.inf
-        elif type(limits['c']) is tuple:
-            cMin = limits['c'][0]
-            cMax = limits['c'][1]
-        else:
-            cMin = c - c*limits['c']
-            cMax = c + c*limits['c']
-
-        if limits['s'] == False:
-            varySigma = False
-            sMin, sMax = -np.inf, np.inf
-        elif type(limits['s']) is tuple:
-            sMin = limits['s'][0]
-            sMax = limits['s'][1]
-        else:
-            sMin = s - s * limits['s']
-            sMax = s + s * limits['s']
-
-        if limits['a'] == False:
-            varyAmp = False
-            aMin, aMax = -np.inf, np.inf
-        elif type(limits['a']) is tuple:
-            aMin = limits['a'][0]
-            aMax = limits['a'][1]
-        else:
-            aMin = a - a * limits['a']
-            aMax = a + a * limits['a']
-
-        g = GaussianModel(prefix=prefix)
-        pars.update(g.make_params())
-        pars[prefix + 'center'].set(c, min=cMin, max=cMax, vary=varyCentre)
-        pars[prefix + 'sigma'].set(s, min=sMin, max=sMax, vary=varySigma)
-        pars[prefix + 'amplitude'].set(a, min=aMin, max=aMax, vary=varyAmp)
-
-        return g
-
-    def lin_and_multi_gaussian(self, numOfComponents, cList, sList, aList, lS, lI, limits):
-        """All lists should be the same length"""
-        gList = []
-
-        lin = LinearModel(prefix='lin_')
-        self.linGaussParams = lin.guess(self.flux, x=self.vel)
-        self.linGaussParams.update(lin.make_params())
-        self.linGaussParams['lin_slope'].set(lS, vary=True)
-        self.linGaussParams['lin_intercept'].set(lI, vary=True)
-
-        for i in range(numOfComponents):
-            if type(limits['c']) is list:
-                cLimit = limits['c'][i]
-            else:
-                cLimit = limits['c']
-            if type(limits['s']) is list:
-                sLimit = limits['s'][i]
-            else:
-                sLimit = limits['s']
-            if type(limits['a']) is list:
-                aLimit = limits['a'][i]
-            else:
-                aLimit = limits['a']
-            lims = {'c': cLimit, 's': sLimit, 'a': aLimit}
-            gList.append(self._gaussian_component(self.linGaussParams,'g%d_' % (i+1), cList[i], sList[i], aList[i], lims))
-        gList = np.array(gList)
-        mod = lin + gList.sum()
-
-        init = mod.eval(self.linGaussParams, x=self.vel)
-        out = mod.fit(self.flux, self.linGaussParams, x=self.vel, weights=self.weights)
-        f = open(os.path.join(OUTPUT_DIR, self.rp.regionName, "{0}_Log.txt".format(self.rp.regionName)), "a")
-        print("######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName))
-        print(out.fit_report())
-        f.write("######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName))
-        f.write(out.fit_report())
-        f.close()
-        components = out.eval_components()
-
-        ion, lambdaZero = line_label(self.lineName, self.restWave)
-        plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
-        plt.title("%s %s" % (ion, lambdaZero))
-        plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$")
-        plt.plot(self.vel, self.flux, label='Data')
-        for i in range(numOfComponents):
-            labelComp = self.rp.componentLabels  # 'g%d_' % (i+1)
-            plt.plot(self.vel, components['g%d_' % (i+1)]+components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])
-        # plt.plot(self.vel, components['lin_'], label='lin_')
-        plt.plot(self.vel, out.best_fit, color='black', linestyle='--', label='Fit')
-        # plt.plot(self.vel, init, label='init')
-        plt.xlim(self.rp.plottingXRange)
-        plt.legend(loc='upper left')
-        plt.savefig(os.path.join(OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)))
-
-        self._get_amplitude(numOfComponents, out)
-
-        return out, components
 
 
 class RegionCalculations(object):
@@ -771,15 +307,15 @@ class RegionCalculations(object):
         #Print Amplitudes
             ampComponentList = []
             o = model1
-            eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calculate_em_f(model1, numComps)
-            continuumList = model1.best_values['lin_slope'] * np.array(rp.emProfiles[emName]['centerList']) + model1.best_values['lin_intercept']
-            measurementInfo.append((emName, rp.componentLabels, fluxList, fluxListErr, globalFlux, globalFluxErr, emInfo['restWavelength'], continuumList))
+            eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calc_emf(model1, numComps)
+            continuumList, globalContinuum = calc_continuum(model1, emName, rp)
+            measurementInfo.append((emName, rp.componentLabels, fluxList, fluxListErr, globalFlux, globalFluxErr, emInfo['restWavelength'], continuumList, globalContinuum))
             rp.emProfiles[emName]['globalFlux'] = globalFlux
             rp.emProfiles[emName]['globalFluxErr'] = globalFluxErr
             rp.emProfiles[emName]['sigIntList'] = []
             for idx in range(numComps):
                 ampComponentList.append(round(rp.emProfiles[emName]['ampList'][idx], 7))
-                sigInt, sigIntErr = vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'], rp)
+                sigInt, sigIntErr = calc_vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'], rp)
                 rp.emProfiles[emName]['sigIntList'].append(sigInt)
                 tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], "%.1f $\pm$ %.1f" % (o.params['g%d_center' % (idx + 1)].value, o.params['g%d_center' % (idx + 1)].stderr), r"%.1f $\pm$ %.1f" % (sigInt, sigIntErr), "%.1f $\pm$ %.2f" % (fluxList[idx], fluxListErr[idx]), round(eMFList[idx], 1), "%.1f $\pm$ %.2f" % (globalFlux, globalFluxErr)]
                 if idx != 0:

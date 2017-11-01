@@ -99,6 +99,7 @@ def calc_continuum(model, emName, rp):
 
     return continuumList, globalContinuum
 
+
 def column(matrix, i):
     columnList = []
     for row in matrix:

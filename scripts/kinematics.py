@@ -7,7 +7,7 @@ from label_tools import line_label
 from read_spectra import GalaxyRegion
 from fit_line_profiles import EmissionLineProfile, FittingProfile, plot_profiles
 from make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex, comp_table_to_latex
-from bpt_plotting import calc_bpt_point, bpt_plot
+from bpt_plotting import calc_bpt_points, bpt_plot
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../scripts'))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Galaxy_Region_Information'))
@@ -100,88 +100,10 @@ def calc_continuum(model, emName, rp):
     return continuumList, globalContinuum
 
 
-def column(matrix, i):
-    columnList = []
-    for row in matrix:
-        if i < len(row):
-            columnList.append(row[i])
-
-    return columnList
-
-
-def calc_average_velocities(rpList):
-    regionsAllLines = []
-    componentLabelsAllEmLines = []
-
-    for rp in rpList:
-        numCompsFromVelCalcList = []
-        centers = []
-        sigmas = []
-        for emName, emInfo in rp.emProfiles.items():
-            if emName in rp.emLinesForAvgVelCalc:
-                if 'numComps' in emInfo.keys():
-                    numComps = emInfo['numComps']
-                else:
-                    zone = emInfo['zone']
-                    numComps = rp.numComps[zone]
-                numCompsFromVelCalcList.append(numComps)
-                centers.append(emInfo['centerList'][0:numComps])
-                sigmas.append(emInfo['sigIntList'][0:numComps])
-
-        avgCentres = []
-        avgSigmas = []
-        stdCentres = []
-        stdSigmas = []
-        for i in range(10):  # Max number of numComps (number of rows in table)
-            componentCentres = column(centers, i)
-            componentSigmas = column(sigmas, i)
-            if componentCentres != []:
-                avgCentres.append(np.mean(componentCentres))
-                stdCentres.append(np.std(componentCentres))
-            else:
-                avgCentres.append(None)
-                stdCentres.append(None)
-            if componentSigmas != []:
-                avgSigmas.append(np.mean(componentSigmas))
-                stdSigmas.append(np.std(componentSigmas))
-            else:
-                avgSigmas.append(None)
-                stdSigmas.append(None)
-
-        regionLines = []
-        componentLabels = []
-        for i in range(10):
-            try:
-                regionLines.append([r"%.1f $\pm$ %.1f" % (avgCentres[i], stdCentres[i]), r"%.1f $\pm$ %.1f" % (avgSigmas[i], stdSigmas[i])])
-                componentLabels.append(rp.componentLabels[i])
-            except (IndexError, TypeError):
-                regionLines.append(["-", "-"])
-                componentLabels.append("")
-
-        regionsAllLines.append(regionLines)
-        componentLabelsAllEmLines.append(componentLabels)
-
-    allLinesInArray = []
-    for i in range(10):
-        lineInArray = [rp.componentLabels[i]] if i < numComps else ['']
-        for j in range(len(regionsAllLines)):
-            regionLine = regionsAllLines[j]
-            componentLabel = componentLabelsAllEmLines[j]
-            lineInArray += regionLine[i]
-
-        for entry in lineInArray:
-            if entry == '' or entry == '-':
-                pass
-            else:
-                allLinesInArray.append(lineInArray)
-                break
-
-    return allLinesInArray
-
-
 def calc_luminosity(rp):
     if 'H-Alpha' in rp.emProfiles:
         calcLuminosity = 4 * np.pi * rp.emProfiles['H-Alpha']['globalFlux'] * rp.distance**2 / rp.scaleFlux
+        calcLuminosityError = 4 * np.pi * rp.distance**2 * rp.emProfiles['H-Alpha']['globalFluxErr'] / rp.scaleFlux
         calcLuminosityError = 4 * np.pi * rp.distance**2 * rp.emProfiles['H-Alpha']['globalFluxErr'] / rp.scaleFlux
     else:
         calcLuminosity = 4 * np.pi * rp.emProfiles['H1r_6563A']['globalFlux'] * rp.distance**2 / rp.scaleFlux
@@ -305,7 +227,6 @@ class RegionCalculations(object):
             zoneNames[emInfo['zone']].append(emName)
             rp.emProfiles[emName]['plotInfo'] = [emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel]
 
-        #Print Amplitudes
             ampComponentList = []
             o = model1
             eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calc_emf(model1, numComps)
@@ -313,6 +234,8 @@ class RegionCalculations(object):
             measurementInfo.append((emName, rp.componentLabels, fluxList, fluxListErr, globalFlux, globalFluxErr, emInfo['restWavelength'], continuumList, globalContinuum))
             rp.emProfiles[emName]['globalFlux'] = globalFlux
             rp.emProfiles[emName]['globalFluxErr'] = globalFluxErr
+            rp.emProfiles[emName]['compFluxList'] = fluxList
+            rp.emProfiles[emName]['compFluxListErr'] = fluxListErr
             rp.emProfiles[emName]['sigIntList'] = []
             for idx in range(numComps):
                 ampComponentList.append(round(rp.emProfiles[emName]['ampList'][idx], 7))
@@ -339,8 +262,8 @@ class RegionCalculations(object):
         for mod in allModelComponents:
             print(mod)
 
-        self.bptPoint = calc_bpt_point(rp)
-        ratioNII, ratioNIIErr, ratioOIII, ratioOIIIErr = self.bptPoint
+        self.bptPoints = calc_bpt_points(rp)
+        ratioNII, ratioNIIErr, ratioOIII, ratioOIIIErr = self.bptPoints['global']['x'], self.bptPoints['global']['xErr'], self.bptPoints['global']['y'], self.bptPoints['global']['yErr']
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
         self.lineInArray = [rp.regionName, "%.2f $\pm$ %.3f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), "%.2f $\pm$ %.3f" % (ratioNII, ratioNIIErr), "%.2f $\pm$ %.3f" % (ratioOIII, ratioOIIIErr)]
@@ -371,13 +294,13 @@ if __name__ == '__main__':
     regionsParameters = [Arp314_NED02Params, Obj1] # NGC6845Region7Params, NGC6845Region26Params]#, HCG31_AParams, HCG31_ACParams]#, Arp314_NED02_offParams, HCG31_CParams]
 
     regionArray = []
-    bptPoints = []
+    rpBptPoints = []
     for regParam in regionsParameters:
         region = RegionCalculations(regParam)
         regionArray.append(region.lineInArray)
-        bptPoints.append(region.bptPoint)
+        rpBptPoints.append(region.bptPoints)
 
-    bpt_plot(regionsParameters, bptPoints)
+    bpt_plot(regionsParameters, rpBptPoints)
     halpha_regions_table_to_latex(regionArray, paperSize='a4', orientation='portrait', longTable=False)
     average_velocities_table_to_latex(regionsParameters, paperSize='a4', orientation='landscape', longTable=False)
 

@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
 
@@ -35,24 +36,6 @@ def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, c
         run_bash_command("rm " + saveFileName + ".*")
 
 
-def average_velocities_table_to_latex(rpList, directory=OUTPUT_DIR, paperSize='a4', orientation='portrait', longTable=False):
-    saveFileName = 'AverageVelocitiesTable'
-    velArray = calc_average_velocities(rpList)
-    regionHeadings = ['']
-    headings = ['']
-    headingUnits = ['']
-    for rp in rpList:
-        regionHeadings += ["\multicolumn{2}{c}{%s}" % rp.regionName]  # Was 2 instead of 3 when i didn;t have separate component Labels
-        headings += [r'$\mathrm{v_r}$', r'$\mathrm{\sigma}$']
-        headingUnits += [r'$\mathrm{(km \ s^{-1})}$', r'$\mathrm{(km \ s^{-1})}$']
-
-    headingLines = [regionHeadings, headings, headingUnits]
-    caption = "Average radial velocities and velocity dispersions for all regions"
-    nCols = len(headings)
-    centering = 'l' + 'c' * (nCols-1)
-    table_to_latex(velArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
-
-
 def halpha_regions_table_to_latex(regionInfoArray, directory=OUTPUT_DIR, paperSize='a4', orientation='portrait', longTable=False):
     saveFileName = 'RegionInfo'
     headings = [r'Region Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{log([NII]/H}\alpha)$', r'$\mathrm{log([OIII]/H}\beta)$']
@@ -79,7 +62,104 @@ def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrai
     table_to_latex(componentArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
 
 
+def average_velocities_table_to_latex(rpList, directory=OUTPUT_DIR, paperSize='a4', orientation='portrait', longTable=False):
+    saveFileName = 'AverageVelocitiesTable'
+    velArray = calc_average_velocities(rpList)
+    regionHeadings = ['']
+    headings = ['']
+    headingUnits = ['']
+    for rp in rpList:
+        regionHeadings += ["\multicolumn{2}{c}{%s}" % rp.regionName]  # Was 2 instead of 3 when i didn;t have separate component Labels
+        headings += [r'$\mathrm{v_r}$', r'$\mathrm{\sigma}$']
+        headingUnits += [r'$\mathrm{(km \ s^{-1})}$', r'$\mathrm{(km \ s^{-1})}$']
+
+    headingLines = [regionHeadings, headings, headingUnits]
+    caption = "Average radial velocities and velocity dispersions for all regions"
+    nCols = len(headings)
+    centering = 'l' + 'c' * (nCols-1)
+    table_to_latex(velArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
+
+
+def calc_average_velocities(rpList):
+    regionsAllLines = []
+    componentLabelsAllEmLines = []
+
+    for rp in rpList:
+        numCompsFromVelCalcList = []
+        centers = []
+        sigmas = []
+        for emName, emInfo in rp.emProfiles.items():
+            if emName in rp.emLinesForAvgVelCalc:
+                if 'numComps' in emInfo.keys():
+                    numComps = emInfo['numComps']
+                else:
+                    zone = emInfo['zone']
+                    numComps = rp.numComps[zone]
+                numCompsFromVelCalcList.append(numComps)
+                centers.append(emInfo['centerList'][0:numComps])
+                sigmas.append(emInfo['sigIntList'][0:numComps])
+
+        avgCentres = []
+        avgSigmas = []
+        stdCentres = []
+        stdSigmas = []
+        for i in range(10):  # Max number of numComps (number of rows in table)
+            componentCentres = column(centers, i)
+            componentSigmas = column(sigmas, i)
+            if componentCentres != []:
+                avgCentres.append(np.mean(componentCentres))
+                stdCentres.append(np.std(componentCentres))
+            else:
+                avgCentres.append(None)
+                stdCentres.append(None)
+            if componentSigmas != []:
+                avgSigmas.append(np.mean(componentSigmas))
+                stdSigmas.append(np.std(componentSigmas))
+            else:
+                avgSigmas.append(None)
+                stdSigmas.append(None)
+
+        regionLines = []
+        componentLabels = []
+        for i in range(10):
+            try:
+                regionLines.append([r"%.1f $\pm$ %.1f" % (avgCentres[i], stdCentres[i]), r"%.1f $\pm$ %.1f" % (avgSigmas[i], stdSigmas[i])])
+                componentLabels.append(rp.componentLabels[i])
+            except (IndexError, TypeError):
+                regionLines.append(["-", "-"])
+                componentLabels.append("")
+
+        regionsAllLines.append(regionLines)
+        componentLabelsAllEmLines.append(componentLabels)
+
+    allLinesInArray = []
+    for i in range(10):
+        lineInArray = [rp.componentLabels[i]] if i < numComps else ['']
+        for j in range(len(regionsAllLines)):
+            regionLine = regionsAllLines[j]
+            componentLabel = componentLabelsAllEmLines[j]
+            lineInArray += regionLine[i]
+
+        for entry in lineInArray:
+            if entry == '' or entry == '-':
+                pass
+            else:
+                allLinesInArray.append(lineInArray)
+                break
+
+    return allLinesInArray
+
+
 def run_bash_command(bashCommandStr):
     os.system(bashCommandStr)
     # process = subprocess.Popen(bashCommandStr.split(), stdout=subprocess.PIPE)
     # output, error = process.communicate(input='\n')
+
+
+def column(matrix, i):
+    columnList = []
+    for row in matrix:
+        if i < len(row):
+            columnList.append(row[i])
+
+    return columnList

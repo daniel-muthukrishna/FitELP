@@ -6,35 +6,80 @@ from uncertainties import ufloat, umath, unumpy
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
 
 
-def calc_bpt_point(rp):
+def get_bpt_fluxes(rp):
+    fluxes = {}
+    ionNameKeys = ['NII-6584A', 'H-Alpha', 'OIII-5007A', 'H-Beta']
+    if 'H-Alpha' in rp.emProfiles:
+        ionNames = ionNameKeys
+    else:
+        ionNames = ['N2_6584A', 'H1r_6563A', 'O3_5007A', 'H1r_4861A']
+
+    for ionNameKey, ionName in zip(ionNameKeys, ionNames):
+        fluxes[ionNameKey] = {}
+        fluxes[ionNameKey]['global'] = ufloat(rp.emProfiles[ionName]['globalFlux'], rp.emProfiles[ionName]['globalFluxErr'])
+        for i in range(len(rp.emProfiles[ionName]['compFluxList'])):
+            fluxes[ionNameKey][rp.componentLabels[i]] = ufloat(rp.emProfiles[ionName]['compFluxList'][i], rp.emProfiles[ionName]['compFluxList'][i])
+
+    return fluxes
+
+
+def calc_bpt_points(rp):
+    bptPoints = {}
     try:
-        if 'H-Alpha' in rp.emProfiles:
-            fluxNII6584 = ufloat(rp.emProfiles['NII-6584A']['globalFlux'], rp.emProfiles['NII-6584A']['globalFluxErr'])
-            fluxHAlpha = ufloat(rp.emProfiles['H-Alpha']['globalFlux'], rp.emProfiles['H-Alpha']['globalFluxErr'])
-            fluxOIII5007 = ufloat(rp.emProfiles['OIII-5007A']['globalFlux'], rp.emProfiles['OIII-5007A']['globalFluxErr'])
-            fluxHBeta = ufloat(rp.emProfiles['H-Beta']['globalFlux'], rp.emProfiles['H-Beta']['globalFluxErr'])
-        else:
-            fluxNII6584 = ufloat(rp.emProfiles['N2_6584A']['globalFlux'], rp.emProfiles['N2_6584A']['globalFluxErr'])
-            fluxHAlpha = ufloat(rp.emProfiles['H1r_6563A']['globalFlux'], rp.emProfiles['H1r_6563A']['globalFluxErr'])
-            fluxOIII5007 = ufloat(rp.emProfiles['O3_5007A']['globalFlux'], rp.emProfiles['O3_5007A']['globalFluxErr'])
-            fluxHBeta = ufloat(rp.emProfiles['H1r_4861A']['globalFlux'], rp.emProfiles['H1r_4861A']['globalFluxErr'])
-
-        ratioNII = umath.log10(fluxNII6584 / fluxHAlpha)
-        ratioOIII = umath.log10(fluxOIII5007 / fluxHBeta)
-        x = ratioNII.nominal_value
-        xErr = ratioNII.std_dev
-        y = ratioOIII.nominal_value
-        yErr = ratioOIII.std_dev
+        fluxes = get_bpt_fluxes(rp)
     except (KeyError, ValueError):
-        x, xErr, y, yErr = (0, 0, 0, 0)
         print("NII or OIII are not defined")
+        bptPoints['global'] = {'x': 0, 'xErr': 0, 'y': 0, 'yErr': 0}
+        return bptPoints
 
-    bptPoint = (x, xErr, y, yErr)
+    compList = ['global'] + list(fluxes['H-Alpha'].keys())
 
-    return bptPoint
+    for comp in compList:
+        ratioNII = umath.log10(fluxes['NII-6584A'][comp] / fluxes['H-Alpha'][comp])
+        ratioOIII = umath.log10(fluxes['OIII-5007A'][comp] / fluxes['H-Beta'][comp])
+        bptPoints[comp] = {}
+        bptPoints[comp]['x'] = ratioNII.nominal_value
+        bptPoints[comp]['xErr'] = ratioNII.std_dev
+        bptPoints[comp]['y'] = ratioOIII.nominal_value
+        bptPoints[comp]['yErr'] = ratioOIII.std_dev
+
+    return bptPoints
 
 
-def bpt_plot(rpList, bptPoints):
+def bpt_plot(rpList, rpBptPoints, globalOnly=False):
+    plot_lines_and_other_points()
+
+    # PLOT BPT POINTS
+    colours = ['b', 'r', 'g', 'm', 'c', 'violet', 'y', '#5D6D7E']
+    markers = ['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o']
+    j = 0
+    for i in range(len(rpList)):
+        bptPoints = rpBptPoints[i]
+        if globalOnly:
+            compList = ['global']
+        else:
+            compList = list(bptPoints.keys())
+
+        for comp in compList:
+            x, xErr, y, yErr = bptPoints[comp]['x'], bptPoints[comp]['xErr'], bptPoints[comp]['y'], bptPoints[comp]['yErr']
+            if (x, y) != (0, 0):
+                label = "{0}_{1}".format(rpList[i].regionName, comp)
+                plt.scatter(x, y, marker=markers[j], color=colours[j], label=label)
+                plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr, ecolor=colours[j])
+                # plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom', color=colours[j])
+                j += 1
+
+    # PLOT AND SAVE FIGURE
+    plt.xlim(-1.5, 0.5)
+    plt.ylim(-1, 1.5)
+    plt.xlabel(r"$\log(\mathrm{[NII]6584\AA / H\alpha})$")
+    plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
+    plt.legend()
+    plt.savefig(os.path.join(OUTPUT_DIR, 'bpt_plot.png'))
+    plt.show()
+
+
+def plot_lines_and_other_points():
     # PLOT LINES
     plt.figure('BPT Plot')
     # y1: log([OIII]5007/Hbeta) = 0.61 / (log([NII]6584/Halpha) - 0.05) + 1.3  (curve of Kauffmann+03 line)
@@ -43,8 +88,8 @@ def bpt_plot(rpList, bptPoints):
     y1 = 0.61 / (x1 - 0.05) + 1.3
     x2 = np.arange(-2, 0.44, 0.01)
     y2 = 0.61 / (x2 - 0.47) + 1.19
-    plt.plot(x1, y1, 'b--')
-    plt.plot(x2, y2, 'r--')
+    plt.plot(x1, y1, 'k--')
+    plt.plot(x2, y2, 'k--')
     # AREA LABELS
     plt.text(-1, -0.8, r'Starburst', fontsize=12)
     plt.text(-0.22, -0.75, r'Transition', fontsize=12)
@@ -87,23 +132,3 @@ def bpt_plot(rpList, bptPoints):
 
     plt.scatter(x, y, marker='s', color='grey', alpha=0.3, label="Olave et al. 2015")
     plt.errorbar(x, y, xerr=xErr, yerr=yErr, color='grey', ecolor='grey', elinewidth=0.5, fmt=None, alpha=0.3)
-
-    # PLOT BPT POINTS
-    colours = ['b', 'r', 'g', 'm', 'c', 'violet', 'y', '#5D6D7E']
-    markers = ['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o']
-    for i in range(len(rpList)):
-        x, xErr, y, yErr = bptPoints[i]
-        if (x, y) != (0, 0):
-            label = rpList[i].regionName
-            plt.scatter(x, y, marker=markers[i], color=colours[i], label=label)
-            plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr, ecolor=colours[i])
-            # plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom', color=colours[i])
-
-    # PLOT AND SAVE FIGURE
-    plt.xlim(-1.5, 0.5)
-    plt.ylim(-1, 1.5)
-    plt.xlabel(r"$\log(\mathrm{[NII]6584\AA / H\alpha})$")
-    plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
-    plt.legend()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'bpt_plot.png'))
-    plt.show()

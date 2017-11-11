@@ -2,8 +2,9 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from uncertainties import ufloat, umath, unumpy
+import constants
 
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
+constants.init()
 
 
 def get_bpt_fluxes(rp):
@@ -75,7 +76,7 @@ def bpt_plot(rpList, rpBptPoints, globalOnly=False):
     plt.xlabel(r"$\log(\mathrm{[NII]6584\AA / H\alpha})$")
     plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
     plt.legend()
-    plt.savefig(os.path.join(OUTPUT_DIR, 'bpt_plot.png'))
+    plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_plot.png'))
     plt.show()
 
 

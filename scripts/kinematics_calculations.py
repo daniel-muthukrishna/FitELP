@@ -8,12 +8,12 @@ from read_spectra import GalaxyRegion
 from fit_line_profiles import EmissionLineProfile, FittingProfile, plot_profiles
 from make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex, comp_table_to_latex
 from bpt_plotting import calc_bpt_points, bpt_plot
+import constants
 
+constants.init()
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../scripts'))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Galaxy_Region_Information'))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Data_Files'))
-
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
 
 
 def calc_vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
@@ -121,7 +121,7 @@ def save_measurements(measurementInfo, rp):
     componentFluxesDict = dict((el, []) for el in rp.componentLabels)
     componentFluxesDict['global'] = []
     saveFilename = 'component_fluxes.csv'
-    with open(os.path.join(OUTPUT_DIR, rp.regionName, saveFilename), 'w') as csvFile:
+    with open(os.path.join(constants.OUTPUT_DIR, rp.regionName, saveFilename), 'w') as csvFile:
         writer = csv.writer(csvFile, delimiter=',')
         writer.writerow(["Line_name", "Component", "Flux", "Flux_error"])
         for i in range(len(measurementInfo)):
@@ -135,7 +135,7 @@ def save_measurements(measurementInfo, rp):
 
     for componentName, fluxInfo in componentFluxesDict.items():
         fluxInfo = sorted(fluxInfo, key=lambda l:l[3])
-        with open(os.path.join(OUTPUT_DIR, rp.regionName, "{0}.csv".format(componentName)), 'w') as csvFile:
+        with open(os.path.join(constants.OUTPUT_DIR, rp.regionName, "{0}.csv".format(componentName)), 'w') as csvFile:
             writer = csv.writer(csvFile, delimiter=',')
             writer.writerow([componentName])
             writer.writerow(["Line_name", "Flux", "Flux_error"])
@@ -145,7 +145,7 @@ def save_measurements(measurementInfo, rp):
 
     for componentName, fluxInfo in componentFluxesDict.items():
         fluxInfo = sorted(fluxInfo, key=lambda l:l[3])
-        with open(os.path.join(OUTPUT_DIR, rp.regionName, "measurements_{0}".format(componentName)), 'w') as csvFile:
+        with open(os.path.join(constants.OUTPUT_DIR, rp.regionName, "measurements_{0}".format(componentName)), 'w') as csvFile:
             writer = csv.writer(csvFile, delimiter='\t')
             writer.writerow(["# LINE", "ION", "Flux", "Err", "CONTINUUM", "EW"])
             for i in range(len(fluxInfo)):
@@ -165,10 +165,9 @@ class RegionCalculations(object):
         zoneNames = {zone: [] for zone in rp.centerList.keys()}
         ampListAll = []
         allModelComponents = []
-        #fluxListInfo = []
         measurementInfo = []
         # Iterate through emission lines
-        f = open(os.path.join(OUTPUT_DIR, rp.regionName, "%s_Log.txt" % rp.regionName), "w")
+        f = open(os.path.join(constants.OUTPUT_DIR, rp.regionName, "%s_Log.txt" % rp.regionName), "w")
         f.write("LOG INFORMATION FOR %s\n" % rp.regionName)
         f.close()
         for emName, emInfo in rp.emProfiles.items():
@@ -179,7 +178,7 @@ class RegionCalculations(object):
                 rp.emProfiles[emName]['numComps'] = numComps
 
             print("------------------ %s : %s ----------------" %(rp.regionName, emName))
-            f = open(os.path.join(OUTPUT_DIR, rp.regionName, "%s_Log.txt" % rp.regionName), "a")
+            f = open(os.path.join(constants.OUTPUT_DIR, rp.regionName, "%s_Log.txt" % rp.regionName), "a")
             f.write("------------------ %s : %s ----------------\n" % (rp.regionName, emName))
             f.close()
             wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(emInfo['Order'], filt=emInfo['Filter'], minIndex=emInfo['minI'], maxIndex=emInfo['maxI'])
@@ -277,31 +276,3 @@ class RegionCalculations(object):
         # plot_profiles(['OIII-4959A_Blue', 'OIII-4959A_Red'], rp, nameForComps='OIII-4959A_Red', title=rp.regionName + ' OIII-4959 comparison')
         # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='NeIII-3868A', title=' ')
         # plot_profiles(['OIII-5007A', 'NeIII-3868A'], rp, nameForComps='OIII-5007A', title='')
-
-
-if __name__ == '__main__':
-
-    from profile_info_Arp314_NED02_off import RegionParameters as Arp314_NED02_offParams
-    from profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
-    from profile_info_Obj1 import RegionParameters as Obj1
-    # from Mrk600A import RegionParameters as Mrk600AParams
-    from Mrk600B import RegionParameters as Mrk600B05Params
-    # from IIZw33KnotB05 import RegionParameters as IIZw33KnotBParams
-    # from profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
-    # from profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
-    # from profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
-
-    regionsParameters = [Arp314_NED02Params, Obj1] # NGC6845Region7Params, NGC6845Region26Params]#, HCG31_AParams, HCG31_ACParams]#, Arp314_NED02_offParams, HCG31_CParams]
-
-    regionArray = []
-    rpBptPoints = []
-    for regParam in regionsParameters:
-        region = RegionCalculations(regParam)
-        regionArray.append(region.lineInArray)
-        rpBptPoints.append(region.bptPoints)
-
-    bpt_plot(regionsParameters, rpBptPoints)
-    halpha_regions_table_to_latex(regionArray, paperSize='a4', orientation='portrait', longTable=False)
-    average_velocities_table_to_latex(regionsParameters, paperSize='a4', orientation='landscape', longTable=False)
-
-    plt.show()

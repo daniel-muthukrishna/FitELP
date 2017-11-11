@@ -1,7 +1,8 @@
 import os
 import numpy as np
+import constants
 
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
+constants.init()
 
 
 def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, centering, papersize='a4', orientation='portrait', longTable=False):
@@ -36,7 +37,7 @@ def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, c
         run_bash_command("rm " + saveFileName + ".*")
 
 
-def halpha_regions_table_to_latex(regionInfoArray, directory=OUTPUT_DIR, paperSize='a4', orientation='portrait', longTable=False):
+def halpha_regions_table_to_latex(regionInfoArray, directory=None, paperSize='a4', orientation='portrait', longTable=False):
     saveFileName = 'RegionInfo'
     headings = [r'Region Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{log([NII]/H}\alpha)$', r'$\mathrm{log([OIII]/H}\beta)$']
     headingUnits = ['', r'$(\mathrm{M_{\odot} \ yr^{-1}})$', '', '', '']
@@ -44,12 +45,13 @@ def halpha_regions_table_to_latex(regionInfoArray, directory=OUTPUT_DIR, paperSi
     caption = 'Region Information'
     nCols = len(headings)
     centering = 'l' + 'c' * (nCols-1)
+    directory = get_directory(directory)
     table_to_latex(regionInfoArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
 
 
 def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrait', longTable=True):
     saveFileName = 'ComponentTable'
-    directory = os.path.join(OUTPUT_DIR, rp.regionName)
+    directory = os.path.join(constants.OUTPUT_DIR, rp.regionName)
     headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
                 r'$\mathrm{\sigma_{int}}$', r'$\mathrm{Flux}$', r'$\mathrm{EM_f}$', r'$\mathrm{GlobalFlux}$']
     headingUnits = [r'$(\mathrm{\AA})$', '', '', r'$(\mathrm{km \ s^{-1}})$',
@@ -62,7 +64,7 @@ def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrai
     table_to_latex(componentArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
 
 
-def average_velocities_table_to_latex(rpList, directory=OUTPUT_DIR, paperSize='a4', orientation='portrait', longTable=False):
+def average_velocities_table_to_latex(rpList, directory=None, paperSize='a4', orientation='portrait', longTable=False):
     saveFileName = 'AverageVelocitiesTable'
     velArray = calc_average_velocities(rpList)
     regionHeadings = ['']
@@ -77,6 +79,7 @@ def average_velocities_table_to_latex(rpList, directory=OUTPUT_DIR, paperSize='a
     caption = "Average radial velocities and velocity dispersions for all regions"
     nCols = len(headings)
     centering = 'l' + 'c' * (nCols-1)
+    directory = get_directory(directory)
     table_to_latex(velArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
 
 
@@ -163,3 +166,10 @@ def column(matrix, i):
             columnList.append(row[i])
 
     return columnList
+
+
+def get_directory(directory):
+    if directory is None:
+        return constants.OUTPUT_DIR
+    else:
+        return directory

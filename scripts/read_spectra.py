@@ -4,11 +4,10 @@ import astropy.units as u
 import matplotlib.pyplot as plt
 import numpy as np
 from specutils.io import read_fits
+import constants
 
+constants.init()
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Data_Files'))
-
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
-DATA_FILES = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Data_Files')
 
 
 def read_spectra(filename, scaleFlux):
@@ -21,7 +20,7 @@ def read_spectra(filename, scaleFlux):
     try:
         spectra = read_fits.read_fits_spectrum1d(filename)
     except (OSError, IOError):
-        spectra = read_fits.read_fits_spectrum1d(os.path.join(DATA_FILES, filename))
+        spectra = read_fits.read_fits_spectrum1d(os.path.join(constants.DATA_FILES, filename))
 
     if isinstance(spectra, list):
         for spectrum in spectra:
@@ -51,8 +50,8 @@ class GalaxyRegion(object):
         else:
             self.xRedError, self.yRedError = read_spectra(rp.redSpecError, rp.scaleFlux)
 
-        if not os.path.exists(os.path.join(OUTPUT_DIR, rp.regionName)):
-            os.makedirs(os.path.join(OUTPUT_DIR, rp.regionName))
+        if not os.path.exists(os.path.join(constants.OUTPUT_DIR, rp.regionName)):
+            os.makedirs(os.path.join(constants.OUTPUT_DIR, rp.regionName))
 
     def plot_order(self, orderNum, filt='red', minIndex=0, maxIndex=-1, title=''):
         """Plots the wavelength vs flux for a particular order. orderNum starts from 0"""
@@ -74,7 +73,7 @@ class GalaxyRegion(object):
         plt.legend()
         plt.xlabel("Wavelength ($\AA$)")
         plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
-        plt.savefig(os.path.join(OUTPUT_DIR, self.rp.regionName, title))
+        plt.savefig(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, title))
 
     def mask_emission_line(self, orderNum, filt='red', minIndex=0, maxIndex=-1):
         orderNum -= 1

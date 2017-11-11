@@ -5,8 +5,9 @@ from lmfit import Parameters
 from lmfit.models import GaussianModel, LinearModel
 from astropy.constants import c
 from label_tools import line_label
+import constants
 
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
+constants.init()
 
 
 class EmissionLineProfile(object):
@@ -146,7 +147,7 @@ class FittingProfile(object):
 
         init = mod.eval(self.linGaussParams, x=self.vel)
         out = mod.fit(self.flux, self.linGaussParams, x=self.vel, weights=self.weights)
-        f = open(os.path.join(OUTPUT_DIR, self.rp.regionName, "{0}_Log.txt".format(self.rp.regionName)), "a")
+        f = open(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, "{0}_Log.txt".format(self.rp.regionName)), "a")
         print("######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName))
         print(out.fit_report())
         f.write("######## %s %s Linear and Multi-gaussian Model ##########\n" % (self.rp.regionName, self.lineName))
@@ -168,7 +169,7 @@ class FittingProfile(object):
         # plt.plot(self.vel, init, label='init')
         plt.xlim(self.rp.plottingXRange)
         plt.legend(loc='upper left')
-        plt.savefig(os.path.join(OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)))
+        plt.savefig(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)))
 
         self._get_amplitude(numOfComponents, out)
 
@@ -197,6 +198,6 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
             ax.legend(handles2, labels2)
         else:
             ax.legend()
-        plt.savefig(os.path.join(OUTPUT_DIR, rp.regionName, title.strip(' ') + '.png'))
+        plt.savefig(os.path.join(constants.OUTPUT_DIR, rp.regionName, title.strip(' ') + '.png'))
     except KeyError:
         print("SOME IONS IN {0} HAVE NOT BEEN DEFINED.".format(lineNames))

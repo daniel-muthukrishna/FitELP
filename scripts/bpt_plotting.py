@@ -19,7 +19,7 @@ def get_bpt_fluxes(rp):
         fluxes[ionNameKey] = {}
         fluxes[ionNameKey]['global'] = ufloat(rp.emProfiles[ionName]['globalFlux'], rp.emProfiles[ionName]['globalFluxErr'])
         for i in range(len(rp.emProfiles[ionName]['compFluxList'])):
-            fluxes[ionNameKey][rp.componentLabels[i]] = ufloat(rp.emProfiles[ionName]['compFluxList'][i], rp.emProfiles[ionName]['compFluxList'][i])
+            fluxes[ionNameKey][rp.componentLabels[i]] = ufloat(rp.emProfiles[ionName]['compFluxList'][i], rp.emProfiles[ionName]['compFluxListErr'][i])
 
     return fluxes
 

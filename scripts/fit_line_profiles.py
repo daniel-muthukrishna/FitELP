@@ -43,16 +43,18 @@ class EmissionLineProfile(object):
 
 
 class FittingProfile(object):
-    def __init__(self, vel, flux, restWave, lineName, zone, rp, fluxError=None):
+    def __init__(self, vel, flux, wave, restWave, lineName, zone, rp, fluxError=None, xAxis='vel'):
         """The input vel and flux must be limited to a single emission line profile"""
         self.vel = vel
         self.flux = flux
         self.fluxError = fluxError
+        self.wave = wave
         self.restWave = restWave
         self.lineName = lineName
         self.zone = zone
         self.weights = self._weights()
         self.rp = rp
+        self.xAxis = xAxis
 
         self.linGaussParams = Parameters()
 
@@ -155,25 +157,36 @@ class FittingProfile(object):
         f.close()
         components = out.eval_components()
 
-        ion, lambdaZero = line_label(self.lineName, self.restWave)
-        plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
-        plt.title("%s %s" % (ion, lambdaZero))
-        plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$")
-        plt.plot(self.vel, self.flux, label='Data')
-        for i in range(numOfComponents):
-            labelComp = self.rp.componentLabels  # 'g%d_' % (i+1)
-            plt.plot(self.vel, components['g%d_' % (i+1)]+components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])
-        # plt.plot(self.vel, components['lin_'], label='lin_')
-        plt.plot(self.vel, out.best_fit, color='black', linestyle='--', label='Fit')
-        # plt.plot(self.vel, init, label='init')
-        plt.xlim(self.rp.plottingXRange)
-        plt.legend(loc='upper left')
-        plt.savefig(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)))
+        self.plot_emission_line(numOfComponents, components, out)
 
         self._get_amplitude(numOfComponents, out)
 
         return out, components
+
+    def plot_emission_line(self, numOfComponents, components, out):
+        ion, lambdaZero = line_label(self.lineName, self.restWave)
+        plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
+        plt.title("%s %s" % (ion, lambdaZero))
+
+        if self.xAxis == 'wave':
+            x = self.wave
+            xLabel = r"$\mathrm{Wavelength (\AA)}$"
+        elif self.xAxis == 'vel':
+            x = self.vel
+            xLabel = r"$\mathrm{Velocity \ (km \ s^{-1}})$"
+            plt.xlim(self.rp.plottingXRange)
+
+        plt.xlabel(xLabel)
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1})}$")
+        plt.plot(x, self.flux, label='Data')
+        for i in range(numOfComponents):
+            labelComp = self.rp.componentLabels  # 'g%d_' % (i+1)
+            plt.plot(x, components['g%d_' % (i+1)]+components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])
+        # plt.plot(x, components['lin_'], label='lin_')
+        plt.plot(x, out.best_fit, color='black', linestyle='--', label='Fit')
+        # plt.plot(x, init, label='init')
+        plt.legend(loc='upper left')
+        plt.savefig(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)))
 
 
 def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
@@ -181,8 +194,8 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
         plt.figure(title)
         ax = plt.subplot(1, 1, 1)
         plt.title(title)  # Recombination Emission Lines")
-        plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1}}$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$")
+        plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1})}$")
+        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1})}$")
         for i in range(len(lineNames)):
             name, x, y, mod, col, comps, lab = rp.emProfiles[lineNames[i]]['plotInfo']
             ax.plot(x, y, color=col, label=lab)

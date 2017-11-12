@@ -157,7 +157,7 @@ def save_measurements(measurementInfo, rp):
 
 
 class RegionCalculations(object):
-    def __init__(self, rp):
+    def __init__(self, rp, xAxis='vel'):
         galaxyRegion = GalaxyRegion(rp)  # Flux Calibrated
         # galaxyRegion.plot_order(21, filt='red', minIndex=1300, maxIndex=1600, title="")
         # plt.show()
@@ -184,7 +184,7 @@ class RegionCalculations(object):
             wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(emInfo['Order'], filt=emInfo['Filter'], minIndex=emInfo['minI'], maxIndex=emInfo['maxI'])
             emLineProfile = EmissionLineProfile(wave1, flux1, flux1Error, restWave=emInfo['restWavelength'], lineName=emName, rp=rp)
             vel1, flux1, flux1Error = emLineProfile.vel, emLineProfile.flux, emLineProfile.fluxError  # In velocity instead of wavelength units
-            fittingProfile = FittingProfile(vel1, flux1, restWave=emInfo['restWavelength'], lineName=emName, fluxError=flux1Error, zone=emInfo['zone'], rp=rp)
+            fittingProfile = FittingProfile(vel1, flux1, wave=wave1, restWave=emInfo['restWavelength'], lineName=emName, fluxError=flux1Error, zone=emInfo['zone'], rp=rp, xAxis=xAxis)
             ion1, lambdaZero1 = line_label(emName, emInfo['restWavelength'])
             emLabel = (ion1 + ' ' + lambdaZero1)
 

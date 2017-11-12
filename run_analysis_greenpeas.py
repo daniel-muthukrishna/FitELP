@@ -20,7 +20,7 @@ def main():
     regionArray = []
     rpBptPoints = []
     for regParam in regionsParameters:
-        region = RegionCalculations(regParam)
+        region = RegionCalculations(regParam, xAxis='wave')
         regionArray.append(region.lineInArray)
         rpBptPoints.append(region.bptPoints)
 

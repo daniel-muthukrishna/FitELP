@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scripts.make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex
 from scripts.bpt_plotting import bpt_plot
 from scripts.kinematics_calculations import RegionCalculations
-import scripts.constants
+import scripts.constants as constants
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Input_Galaxy_Region_Information'))
 

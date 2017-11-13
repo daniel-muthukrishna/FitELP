@@ -3,12 +3,12 @@ import os
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
-from label_tools import line_label
-from read_spectra import GalaxyRegion
-from fit_line_profiles import EmissionLineProfile, FittingProfile, plot_profiles
-from make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex, comp_table_to_latex
-from bpt_plotting import calc_bpt_points, bpt_plot
-import constants
+from scripts.label_tools import line_label
+from scripts.read_spectra import GalaxyRegion
+from scripts.fit_line_profiles import EmissionLineProfile, FittingProfile, plot_profiles
+from scripts.make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex, comp_table_to_latex
+from scripts.bpt_plotting import calc_bpt_points, bpt_plot
+import scripts.constants as constants
 
 constants.init()
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../scripts'))

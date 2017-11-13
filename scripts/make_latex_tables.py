@@ -1,6 +1,6 @@
 import os
 import numpy as np
-import constants
+import scripts.constants as constants
 
 constants.init()
 

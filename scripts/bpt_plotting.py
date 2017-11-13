@@ -2,7 +2,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from uncertainties import ufloat, umath, unumpy
-import constants
+import scripts.constants as constants
 
 constants.init()
 

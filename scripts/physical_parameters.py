@@ -2,7 +2,7 @@ import csv
 import os
 import sys
 import numpy as np
-from label_tools import line_name_to_pyneb_format
+from scripts.label_tools import line_name_to_pyneb_format
 
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
 

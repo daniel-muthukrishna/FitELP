@@ -25,20 +25,12 @@ def main():
         regionArray.append(region.lineInArray)
         rpBptPoints.append(region.bptPoints)
 
-        # Combined Plots
         plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' Strongest Emission Lines', sortedIndex=[0, 1, 2, 3, 4])
-        # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
-        # plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
+        plot_profiles(["NII-6584A", 'NII-6548A'], rp, nameForComps='', title=rp.regionName + ' NII lines', plotAllComps=True, xAxis='wave')
 
     bpt_plot(regionsParameters, rpBptPoints)
     halpha_regions_table_to_latex(regionArray, paperSize='a4', orientation='portrait', longTable=False)
     average_velocities_table_to_latex(regionsParameters, paperSize='a4', orientation='landscape', longTable=False)
-
-    # Combined Plots
-
-
-
-
 
     plt.show()
 

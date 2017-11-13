@@ -71,8 +71,8 @@ class GalaxyRegion(object):
         if yE is not None:
             pass #plt.plot(xE[orderNum][minIndex:maxIndex], yE[orderNum][minIndex:maxIndex], label='Spectrum Error')
         plt.legend()
-        plt.xlabel("Wavelength ($\AA$)")
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ \AA^{-1}})$")
+        plt.xlabel(constants.WAVE_AXIS_LABEL)
+        plt.ylabel(constants.FLUX_AXIS_LABEL)
         plt.savefig(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, title))
 
     def mask_emission_line(self, orderNum, filt='red', minIndex=0, maxIndex=-1):

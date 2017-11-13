@@ -15,7 +15,7 @@ def main():
     from Input_Galaxy_Region_Information.profile_info_Arp314_NED02 import RegionParameters as Arp314_NED02Params
     from Input_Galaxy_Region_Information.profile_info_Obj1 import RegionParameters as Obj1
     # from Input_Galaxy_Region_Information.IMrk600A import RegionParameters as Mrk600AParams
-    from Input_Galaxy_Region_Information.Mrk600B import RegionParameters as Mrk600B05Params
+    # from Input_Galaxy_Region_Information.Mrk600B import RegionParameters as Mrk600B05Params
     # from Input_Galaxy_Region_Information.IIZw33KnotB05 import RegionParameters as IIZw33KnotBParams
     # from Input_Galaxy_Region_Information.profile_info_NGC6845_Region7 import RegionParameters as NGC6845Region7Params
     # from Input_Galaxy_Region_Information.profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
@@ -33,10 +33,7 @@ def main():
         regionArray.append(region.lineInArray)
         rpBptPoints.append(region.bptPoints)
 
-        # Combined Plots
         plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' Strongest Emission Lines', sortedIndex=[0, 1, 2, 3, 4])
-        # plot_profiles(zoneNames['low'], rp, nameForComps='SII-6717A', title=rp.regionName + " Low Zone Profiles")
-        # plot_profiles(zoneNames['high'], rp, nameForComps='NeIII-3868A', title=rp.regionName + " High Zone Profiles")
 
     bpt_plot(regionsParameters, rpBptPoints)
     halpha_regions_table_to_latex(regionArray, paperSize='a4', orientation='portrait', longTable=False)

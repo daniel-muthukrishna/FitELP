@@ -224,7 +224,7 @@ class RegionCalculations(object):
                     rp.emProfiles[emName]['ampList'].append(model1.best_values['g%d_amplitude' % (idx + 1)])
 
             zoneNames[emInfo['zone']].append(emName)
-            rp.emProfiles[emName]['plotInfo'] = [emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel]
+            rp.emProfiles[emName]['plotInfo'] = [emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel, wave1]
 
             ampComponentList = []
             o = model1

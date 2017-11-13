@@ -27,7 +27,7 @@ class RegionParameters(object):
         # ('H-Gamma', {'Colour': 'r', 'Order': 28, 'Filter': 'blue', 'minI': 700, 'maxI': 1200, 'restWavelength': 4340.47, 'ampList': [4.985869, 3.5976242, 4.4060826], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': 0.001, 's': [inf, inf, False]}, 'copyFrom': 'H-Beta_Blue'}),
         # ('H-Delta', {'Colour': 'c', 'Order': 23, 'Filter': 'blue', 'minI': 1400, 'maxI': 2000, 'restWavelength': 4101.74, 'ampList': [2.9131725, 2.0446065, 2.5207195], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': 0.001, 's': 1}, 'copyFrom': 'H-Beta_Blue'}),
         #('NII-6584A', {'Colour': 'violet', 'Order': 1, 'Filter': 'red', 'minI': 967, 'maxI': 1055, 'restWavelength': 6583.41, 'ampList': [0.0325443, 0.0430167, 0.0249222], 'zone': 'low', 'sigmaT2': 11.87, 'compLimits': {'a': False, 'c': 0.01, 's': 0.01}, 'copyFrom': 'H-Alpha'}),
-        #('NII-6548A', {'Colour': 'violet', 'Order': 1, 'Filter': 'red', 'minI': 790, 'maxI': 839, 'restWavelength': 6548.03, 'ampList': [0.7744249, 0.1533179, 0.4454696], 'zone': 'low', 'sigmaT2': 11.87, 'compLimits': {'a': inf, 'c': 0.01, 's': 0.01}, 'copyFrom': 'NII-6584A'}),
+        ('NII-6548A', {'Colour': 'm', 'Order': 1, 'Filter': 'red', 'minI': 790, 'maxI': 839, 'restWavelength': 6548.03, 'ampList': [0.7744249, 0.1533179, 0.4454696], 'zone': 'low', 'sigmaT2': 11.87, 'compLimits': {'a': inf, 'c': 0.01, 's': 0.01}, 'copyFrom': 'NII-6584A'}),
         ('SII-6717A', {'Colour': 'r', 'Order': 1, 'Filter': 'red', 'minI': 1650, 'maxI': 1760, 'restWavelength': 6716.47, 'ampList': [0.0293627, 0.1365011, 0.1315035], 'zone': 'low', 'sigmaT2': 5.19, 'compLimits': {'a': 0.001, 'c': False, 's': 0.01}, 'copyFrom': 'H-Alpha'}),
         #('SII-6731A', {'Colour': '#58D68D', 'Order': 1, 'Filter': 'red', 'minI': 1745, 'maxI': 1821, 'restWavelength': 6730.85, 'ampList': [0.7744249, 0.1533179, 0.4454696], 'zone': 'low', 'sigmaT2': 5.19,'compLimits': {'a': inf, 'c': 0.01, 's': 0.01}, 'copyFrom': 'SII-6717A'}),
         # ('OII-3729A', {'Colour': '#5D6D7E', 'Order': 14, 'Filter': 'blue', 'minI': 2800, 'maxI': 3040, 'restWavelength': 3728.82, 'ampList': [15.5492234, 10.9045454, 11.3158249], 'zone': 'low', 'sigmaT2': 10.39, 'compLimits': {'a': False, 'c': 0.0005, 's': inf}, 'copyFrom': 'NII-6584A'}),
@@ -66,7 +66,6 @@ class RegionParameters(object):
     showSystemicVelocity = True  # Assumed False if not defined
     systemicVelocity = 83310  # Required only if showSystemicVelocity is True
     # plottingXRange = [82200, 83800]  # xrange of velocities or delta velocities
-
 
     emLinesForAvgVelCalc = ['H-Beta', 'OIII-5007A', 'H-Alpha', 'NII-6584A', 'SII-6717A']
 

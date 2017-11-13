@@ -170,19 +170,21 @@ class FittingProfile(object):
 
         if self.xAxis == 'wave':
             x = self.wave
-            xLabel = r"$\mathrm{Wavelength (\AA)}$"
+            xLabel = constants.WAVE_AXIS_LABEL
         elif self.xAxis == 'vel':
             if hasattr(self.rp, 'showSystemicVelocity') and self.rp.showSystemicVelocity is True:
                 x = self.vel - self.rp.systemicVelocity
-                xLabel = r"$\mathrm{\Delta Velocity \ (km \ s^{-1}})$"
+                xLabel = constants.DELTA_VEL_AXIS_LABEL
             else:
                 x = self.vel
-                xLabel = r"$\mathrm{Velocity \ (km \ s^{-1}})$"
+                xLabel = constants.VEL_AXIS_LABEL
             if hasattr(self.rp, 'rp.plottingXRange'):
                 plt.xlim(self.rp.plottingXRange)
+        else:
+            raise Exception("Invalid xAxis argument. Must be either 'wave' or 'vel'. ")
 
         plt.xlabel(xLabel)
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1})}$")
+        plt.ylabel(constants.FLUX_AXIS_LABEL)
         plt.plot(x, self.flux, label='Data')
         for i in range(numOfComponents):
             labelComp = self.rp.componentLabels  # 'g%d_' % (i+1)
@@ -194,23 +196,36 @@ class FittingProfile(object):
         plt.savefig(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)))
 
 
-def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, plotAllComps=True, xAxis='vel'):
+def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, plotAllComps=False, xAxis='vel'):
     try:
         plt.figure(title)
         ax = plt.subplot(1, 1, 1)
         plt.title(title)  # Recombination Emission Lines")
-        #check if wave like in previous function
-        if hasattr(rp, 'showSystemicVelocity') and rp.showSystemicVelocity is True:
-            xLabel = r"$\mathrm{\Delta Velocity \ (km \ s^{-1}})$"
-        else:
-            xLabel = r"$\mathrm{Velocity \ (km \ s^{-1}})$"
-        plt.xlabel(xLabel)
-        plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1})}$")
-        for i in range(len(lineNames)):
-            name, x, y, mod, col, comps, lab = rp.emProfiles[lineNames[i]]['plotInfo']
+
+        if xAxis == 'wave':
+            xLabel = constants.WAVE_AXIS_LABEL
+        elif xAxis == 'vel':
             if hasattr(rp, 'showSystemicVelocity') and rp.showSystemicVelocity is True:
-                x = x - rp.showSystemicVelocity
-            ax.plot(x, y, color=col, label=lab)
+                xLabel = constants.DELTA_VEL_AXIS_LABEL
+            else:
+                xLabel = constants.VEL_AXIS_LABEL
+            if hasattr(rp, 'rp.plottingXRange'):
+                plt.xlim(rp.plottingXRange)
+        else:
+            raise Exception("Invalid xAxis argument. Must be either 'wave' or 'vel'. ")
+        plt.xlabel(xLabel)
+        plt.ylabel(constants.FLUX_AXIS_LABEL)
+
+        for i in range(len(lineNames)):
+            name, vel, flux, mod, col, comps, lab, wave = rp.emProfiles[lineNames[i]]['plotInfo']
+            if xAxis == 'wave':
+                x = wave
+            elif xAxis == 'vel':
+                if hasattr(rp, 'showSystemicVelocity') and rp.showSystemicVelocity is True:
+                    x = vel - rp.showSystemicVelocity
+                else:
+                    x = vel
+            ax.plot(x, flux, color=col, label=lab)
             ax.plot(x, mod, color=col, linestyle='--')
             if plotAllComps is True:
                 for idx in range(rp.emProfiles[lineNames[i]]['numComps']):
@@ -219,8 +234,6 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, pl
                 if name == nameForComps:
                     for idx in range(rp.emProfiles[lineNames[i]]['numComps']):
                         plt.plot(x, comps['g%d_' % (idx + 1)] + comps['lin_'], color=rp.componentColours[idx], linestyle=':')
-        if hasattr(rp, 'rp.plottingXRange'):
-            plt.xlim(rp.plottingXRange)
         if sortedIndex is not None:
             handles, labels = ax.get_legend_handles_labels()
             handles2 = [handles[idx] for idx in sortedIndex]

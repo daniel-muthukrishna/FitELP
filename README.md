@@ -23,3 +23,13 @@ numComps:
     
     - If numComps is not listed in the emProfile dictionary, then the number of components will be taken from the
     numComps variable depending on the zone set in the emProfile dictionary
+    
+showSystemicVelocity
+
+    - Optional Variable. Assumed False if it is not defined. If True, the xAxis is plotted as the measured velocity minus the systemicVelocity
+      velocity - systemicVelocity
+    
+systemicVelocity
+    
+    - Required if showSystemicVelocity is True.
+ 

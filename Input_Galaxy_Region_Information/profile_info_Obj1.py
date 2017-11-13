@@ -59,10 +59,14 @@ class RegionParameters(object):
     numComps = {'low': 3, 'high': 3}
     componentLabels = ['Narrow 1', 'Narrow 2', 'Broad']
     componentColours = ['b', 'r', 'g', 'c', 'm']
-    plottingXRange = [82200, 83800]  # velocities
     sigmaInstrBlue = 10.2
     sigmaInstrRed = 10.2
     distance = 1.63e26  # Distance to region in centimetres (same units as flux)
+
+    showSystemicVelocity = True  # Assumed False if not input
+    systemicVelocity = 83310  # Required only if showSystemicVelocity is True
+    # plottingXRange = [82200, 83800]  # xrange of velocities or delta velocities
+
 
     emLinesForAvgVelCalc = ['H-Beta', 'OIII-5007A', 'H-Alpha', 'NII-6584A', 'SII-6717A']
 

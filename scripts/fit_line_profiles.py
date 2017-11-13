@@ -172,9 +172,14 @@ class FittingProfile(object):
             x = self.wave
             xLabel = r"$\mathrm{Wavelength (\AA)}$"
         elif self.xAxis == 'vel':
-            x = self.vel
-            xLabel = r"$\mathrm{Velocity \ (km \ s^{-1}})$"
-            plt.xlim(self.rp.plottingXRange)
+            if hasattr(self.rp, 'showSystemicVelocity') and self.rp.showSystemicVelocity is True:
+                x = self.vel - self.rp.systemicVelocity
+                xLabel = r"$\mathrm{\Delta Velocity \ (km \ s^{-1}})$"
+            else:
+                x = self.vel
+                xLabel = r"$\mathrm{Velocity \ (km \ s^{-1}})$"
+            if hasattr(self.rp, 'rp.plottingXRange'):
+                plt.xlim(self.rp.plottingXRange)
 
         plt.xlabel(xLabel)
         plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1})}$")
@@ -189,21 +194,33 @@ class FittingProfile(object):
         plt.savefig(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)))
 
 
-def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None):
+def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, plotAllComps=True, xAxis='vel'):
     try:
         plt.figure(title)
         ax = plt.subplot(1, 1, 1)
         plt.title(title)  # Recombination Emission Lines")
-        plt.xlabel(r"$\mathrm{Velocity \ (km \ s^{-1})}$")
+        #check if wave like in previous function
+        if hasattr(rp, 'showSystemicVelocity') and rp.showSystemicVelocity is True:
+            xLabel = r"$\mathrm{\Delta Velocity \ (km \ s^{-1}})$"
+        else:
+            xLabel = r"$\mathrm{Velocity \ (km \ s^{-1}})$"
+        plt.xlabel(xLabel)
         plt.ylabel(r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1})}$")
         for i in range(len(lineNames)):
             name, x, y, mod, col, comps, lab = rp.emProfiles[lineNames[i]]['plotInfo']
+            if hasattr(rp, 'showSystemicVelocity') and rp.showSystemicVelocity is True:
+                x = x - rp.showSystemicVelocity
             ax.plot(x, y, color=col, label=lab)
             ax.plot(x, mod, color=col, linestyle='--')
-            if name == nameForComps:
+            if plotAllComps is True:
                 for idx in range(rp.emProfiles[lineNames[i]]['numComps']):
                     plt.plot(x, comps['g%d_' % (idx + 1)] + comps['lin_'], color=rp.componentColours[idx], linestyle=':')
-        plt.xlim(rp.plottingXRange)
+            else:
+                if name == nameForComps:
+                    for idx in range(rp.emProfiles[lineNames[i]]['numComps']):
+                        plt.plot(x, comps['g%d_' % (idx + 1)] + comps['lin_'], color=rp.componentColours[idx], linestyle=':')
+        if hasattr(rp, 'rp.plottingXRange'):
+            plt.xlim(rp.plottingXRange)
         if sortedIndex is not None:
             handles, labels = ax.get_legend_handles_labels()
             handles2 = [handles[idx] for idx in sortedIndex]

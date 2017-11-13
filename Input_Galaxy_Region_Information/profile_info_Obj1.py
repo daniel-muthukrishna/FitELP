@@ -63,7 +63,7 @@ class RegionParameters(object):
     sigmaInstrRed = 10.2
     distance = 1.63e26  # Distance to region in centimetres (same units as flux)
 
-    showSystemicVelocity = True  # Assumed False if not input
+    showSystemicVelocity = True  # Assumed False if not defined
     systemicVelocity = 83310  # Required only if showSystemicVelocity is True
     # plottingXRange = [82200, 83800]  # xrange of velocities or delta velocities
 

@@ -240,7 +240,12 @@ class RegionCalculations(object):
                 ampComponentList.append(round(rp.emProfiles[emName]['ampList'][idx], 7))
                 sigInt, sigIntErr = calc_vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'], rp)
                 rp.emProfiles[emName]['sigIntList'].append(sigInt)
-                tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], "%.1f $\pm$ %.1f" % (o.params['g%d_center' % (idx + 1)].value, o.params['g%d_center' % (idx + 1)].stderr), r"%.1f $\pm$ %.1f" % (sigInt, sigIntErr), "%.1f $\pm$ %.2f" % (fluxList[idx], fluxListErr[idx]), round(eMFList[idx], 1), "%.1f $\pm$ %.2f" % (globalFlux, globalFluxErr)]
+                vel = o.params['g%d_center' % (idx + 1)].value
+                if hasattr(rp, 'showSystemicVelocity') and rp.showSystemicVelocity is True:
+                    tableVel = vel - rp.systemicVelocity
+                else:
+                    tableVel = vel
+                tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], "%.1f $\pm$ %.1f" % (tableVel, o.params['g%d_center' % (idx + 1)].stderr), r"%.1f $\pm$ %.1f" % (sigInt, sigIntErr), "%.1f $\pm$ %.2f" % (fluxList[idx], fluxListErr[idx]), round(eMFList[idx], 1), "%.1f $\pm$ %.2f" % (globalFlux, globalFluxErr)]
                 if idx != 0:
                     tableLine[0:2] = ['', '']
                     tableLine[-1] = ''

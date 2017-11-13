@@ -26,7 +26,7 @@ def main():
         rpBptPoints.append(region.bptPoints)
 
         plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' Strongest Emission Lines', sortedIndex=[0, 1, 2, 3, 4])
-        plot_profiles(["NII-6584A", 'NII-6548A'], rp, nameForComps='', title=rp.regionName + ' NII lines', plotAllComps=True, xAxis='wave')
+        plot_profiles(["NII-6584A", 'NII-6548A', 'H-Alpha'], rp, nameForComps='', title=rp.regionName + ' "$H\alpha$ and NII lines', plotAllComps=True, xAxis='wave')
 
     bpt_plot(regionsParameters, rpBptPoints)
     halpha_regions_table_to_latex(regionArray, paperSize='a4', orientation='portrait', longTable=False)

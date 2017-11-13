@@ -126,7 +126,13 @@ def calc_average_velocities(rpList):
         componentLabels = []
         for i in range(10):
             try:
-                regionLines.append([r"%.1f $\pm$ %.1f" % (avgCentres[i], stdCentres[i]), r"%.1f $\pm$ %.1f" % (avgSigmas[i], stdSigmas[i])])
+                vel = avgCentres[i]
+                if hasattr(rp, 'showSystemicVelocity') and rp.showSystemicVelocity is True:
+                    tableVel = vel - rp.systemicVelocity
+                else:
+                    tableVel = vel
+
+                regionLines.append([r"%.1f $\pm$ %.1f" % (tableVel, stdCentres[i]), r"%.1f $\pm$ %.1f" % (avgSigmas[i], stdSigmas[i])])
                 componentLabels.append(rp.componentLabels[i])
             except (IndexError, TypeError):
                 regionLines.append(["-", "-"])

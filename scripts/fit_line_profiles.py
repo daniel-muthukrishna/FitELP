@@ -222,7 +222,7 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, pl
                 x = wave
             elif xAxis == 'vel':
                 if hasattr(rp, 'showSystemicVelocity') and rp.showSystemicVelocity is True:
-                    x = vel - rp.showSystemicVelocity
+                    x = vel - rp.systemicVelocity
                 else:
                     x = vel
             ax.plot(x, flux, color=col, label=lab)

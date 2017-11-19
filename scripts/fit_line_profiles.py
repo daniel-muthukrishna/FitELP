@@ -81,7 +81,7 @@ class FittingProfile(object):
         varySigma = True
         varyAmp = True
 
-        if limits['c'] == False:
+        if limits['c'] is False:
             varyCentre = False
             cMin, cMax = -np.inf, np.inf
         elif type(limits['c']) is tuple:
@@ -91,7 +91,7 @@ class FittingProfile(object):
             cMin = c - c*limits['c']
             cMax = c + c*limits['c']
 
-        if limits['s'] == False:
+        if limits['s'] is False:
             varySigma = False
             sMin, sMax = -np.inf, np.inf
         elif type(limits['s']) is tuple:
@@ -101,7 +101,7 @@ class FittingProfile(object):
             sMin = s - s * limits['s']
             sMax = s + s * limits['s']
 
-        if limits['a'] == False:
+        if limits['a'] is False:
             varyAmp = False
             aMin, aMax = -np.inf, np.inf
         elif type(limits['a']) is tuple:
@@ -157,15 +157,20 @@ class FittingProfile(object):
         f.close()
         components = out.eval_components()
 
-        self.plot_emission_line(numOfComponents, components, out)
+        if not hasattr(self.rp, 'plotResiduals'):
+            self.rp.plotResiduals = False
+        self.plot_emission_line(numOfComponents, components, out, self.rp.plotResiduals)
 
         self._get_amplitude(numOfComponents, out)
 
         return out, components
 
-    def plot_emission_line(self, numOfComponents, components, out):
+    def plot_emission_line(self, numOfComponents, components, out, plotResiduals=False):
         ion, lambdaZero = line_label(self.lineName, self.restWave)
-        plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
+        fig = plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
+        if plotResiduals is True:
+            frame1 = fig.add_axes((.1, .3, .8, .6))
+
         plt.title("%s %s" % (ion, lambdaZero))
 
         if self.xAxis == 'wave':
@@ -193,7 +198,14 @@ class FittingProfile(object):
         plt.plot(x, out.best_fit, color='black', linestyle='--', label='Fit')
         # plt.plot(x, init, label='init')
         plt.legend(loc='upper left')
-        plt.savefig(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)))
+
+        if plotResiduals is True:
+            frame2 = fig.add_axes((.1, .1, .8, .2))
+            plt.plot(x, out.best_fit - self.flux)
+            plt.ylabel('Residuals')
+            plt.xlabel(xLabel)
+
+        plt.savefig(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)), bbox_inches='tight')
 
 
 def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, plotAllComps=False, xAxis='vel'):
@@ -241,6 +253,6 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, pl
             ax.legend(handles2, labels2)
         else:
             ax.legend()
-        plt.savefig(os.path.join(constants.OUTPUT_DIR, rp.regionName, title.strip(' ') + '.png'))
+        plt.savefig(os.path.join(constants.OUTPUT_DIR, rp.regionName, title.strip(' ') + '.png'), bbox_inches='tight')
     except KeyError:
         print("SOME IONS IN {0} HAVE NOT BEEN DEFINED.".format(lineNames))

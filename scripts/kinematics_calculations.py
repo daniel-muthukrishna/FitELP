@@ -1,11 +1,10 @@
 import csv
 import os
 import sys
-import matplotlib.pyplot as plt
 import numpy as np
 from scripts.label_tools import line_label
 from scripts.read_spectra import GalaxyRegion
-from scripts.fit_line_profiles import EmissionLineProfile, FittingProfile, plot_profiles
+from scripts.fit_line_profiles import FittingProfile, plot_profiles, vel_to_wave, wave_to_vel
 from scripts.make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex, comp_table_to_latex
 from scripts.bpt_plotting import calc_bpt_points, bpt_plot
 import scripts.constants as constants
@@ -156,47 +155,61 @@ def save_measurements(measurementInfo, rp):
                 writer.writerow([lambdaZero, ionName, round(flux, 3), round(fluxErr, 3), continuum, eW])
 
 
-class RegionCalculations(object):
-    def __init__(self, rp, xAxis='vel'):
-        galaxyRegion = GalaxyRegion(rp)  # Flux Calibrated
-        # galaxyRegion.plot_order(21, filt='red', minIndex=1300, maxIndex=1600, title="")
-        # plt.show()
+def fit_profiles(rp, xAxis, initVals):
+    galaxyRegion = GalaxyRegion(rp)  # Flux Calibrated
+    # galaxyRegion.plot_order(21, filt='red', minIndex=1300, maxIndex=1600, title="")
+    # plt.show()
 
-        zoneNames = {zone: [] for zone in rp.centerList.keys()}
-        ampListAll = []
-        allModelComponents = []
-        measurementInfo = []
-        # Iterate through emission lines
-        f = open(os.path.join(constants.OUTPUT_DIR, rp.regionName, "%s_Log.txt" % rp.regionName), "w")
-        f.write("LOG INFORMATION FOR %s\n" % rp.regionName)
+    # Iterate through emission lines
+    f = open(os.path.join(constants.OUTPUT_DIR, rp.regionName, "%s_Log.txt" % rp.regionName), "w")
+    f.write("LOG INFORMATION FOR %s\n" % rp.regionName)
+    f.close()
+
+    for emName, emInfo in rp.emProfiles.items():
+        if 'numComps' in emInfo:
+            numComps = emInfo['numComps']
+        else:
+            numComps = rp.numComps[emInfo['zone']]
+            rp.emProfiles[emName]['numComps'] = numComps
+
+        print("------------------ %s : %s ----------------" % (rp.regionName, emName))
+        f = open(os.path.join(constants.OUTPUT_DIR, rp.regionName, "%s_Log.txt" % rp.regionName), "a")
+        f.write("------------------ %s : %s ----------------\n" % (rp.regionName, emName))
         f.close()
-        for emName, emInfo in rp.emProfiles.items():
-            if 'numComps' in emInfo:
-                numComps = emInfo['numComps']
-            else:
-                numComps = rp.numComps[emInfo['zone']]
-                rp.emProfiles[emName]['numComps'] = numComps
+        wave, flux, waveError, fluxError = galaxyRegion.mask_emission_line(emInfo['Order'], filt=emInfo['Filter'],
+                                                                           minIndex=emInfo['minI'],
+                                                                           maxIndex=emInfo['maxI'])
 
-            print("------------------ %s : %s ----------------" %(rp.regionName, emName))
-            f = open(os.path.join(constants.OUTPUT_DIR, rp.regionName, "%s_Log.txt" % rp.regionName), "a")
-            f.write("------------------ %s : %s ----------------\n" % (rp.regionName, emName))
-            f.close()
-            wave1, flux1, wave1Error, flux1Error = galaxyRegion.mask_emission_line(emInfo['Order'], filt=emInfo['Filter'], minIndex=emInfo['minI'], maxIndex=emInfo['maxI'])
-            emLineProfile = EmissionLineProfile(wave1, flux1, flux1Error, restWave=emInfo['restWavelength'], lineName=emName, rp=rp)
-            vel1, flux1, flux1Error = emLineProfile.vel, emLineProfile.flux, emLineProfile.fluxError  # In velocity instead of wavelength units
-            fittingProfile = FittingProfile(vel1, flux1, wave=wave1, restWave=emInfo['restWavelength'], lineName=emName, fluxError=flux1Error, zone=emInfo['zone'], rp=rp, xAxis=xAxis)
-            ion1, lambdaZero1 = line_label(emName, emInfo['restWavelength'])
-            emLabel = (ion1 + ' ' + lambdaZero1)
+        if len(emName.split('+')) > 1:
+            fittingProfile = FittingProfile(wave, flux, restWave=emInfo['restWavelength'], lineName=emName,
+                                            fluxError=fluxError, zone=emInfo['zone'], rp=rp, xAxis=xAxis)
+            model, comps = fittingProfile.multiple_close_emission_lines(lineNames=emInfo['Lines'], cListInit=rp.centerList[emInfo['zone']], sListInit=rp.sigmaList[emInfo['zone']], lS=rp.linSlope[emInfo['zone']], lI=rp.linInt[emInfo['zone']])
+
+            for line in emInfo['Lines']:
+                lineShort = line.replace('-', '')
+                rp.emProfiles[line]['centerList'] = []
+                rp.emProfiles[line]['sigmaList'] = []
+                rp.emProfiles[line]['ampList'] = []
+                for idx in range(numComps):
+                    rp.emProfiles[line]['centerList'].append(
+                        model.best_values['g{0}{1}_center'.format(lineShort, (idx + 1))])
+                    rp.emProfiles[line]['sigmaList'].append(
+                        model.best_values['g{0}{1}_sigma'.format(lineShort, (idx + 1))])
+                    rp.emProfiles[line]['ampList'].append(
+                        model.best_values['g{0}{1}_amplitude'.format(lineShort, (idx + 1))])
+
+        else:
+            fittingProfile = FittingProfile(wave, flux, restWave=emInfo['restWavelength'], lineName=emName, fluxError=fluxError, zone=emInfo['zone'], rp=rp, xAxis=xAxis, initVals=initVals)
 
             if emInfo['copyFrom'] is None:
-                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, rp.centerList[emInfo['zone']], rp.sigmaList[emInfo['zone']], emInfo['ampList'], rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
+                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, rp.centerList[emInfo['zone']], rp.sigmaList[emInfo['zone']], emInfo['ampList'], rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
                 rp.emProfiles[emName]['centerList'] = []
                 rp.emProfiles[emName]['sigmaList'] = []
                 rp.emProfiles[emName]['ampList'] = []
                 for idx in range(numComps):
-                    rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
-                    rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
-                    rp.emProfiles[emName]['ampList'].append(model1.best_values['g%d_amplitude' % (idx + 1)])
+                    rp.emProfiles[emName]['centerList'].append(model.best_values['g%d_center' % (idx + 1)])
+                    rp.emProfiles[emName]['sigmaList'].append(model.best_values['g%d_sigma' % (idx + 1)])
+                    rp.emProfiles[emName]['ampList'].append(model.best_values['g%d_amplitude' % (idx + 1)])
             else:
                 if type(emInfo['copyFrom']) is list:
                     copyAmpList, copyCenterList, copySigmaList = [], [], []
@@ -212,24 +225,65 @@ class RegionCalculations(object):
                 if type(rp.emProfiles[emName]['ampList']) is list:
                     ampListInit = emInfo['ampList']
                 else:
-                    ampListInit = [float(a) / emInfo['ampList'] for a in copyAmpList]  #Divide each copyAmplitude by number
+                    ampListInit = [float(a) / emInfo['ampList'] for a in
+                                   copyAmpList]  # Divide each copyAmplitude by number
 
-                model1, comps = fittingProfile.lin_and_multi_gaussian(numComps, copyCenterList, copySigmaList, ampListInit, rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
+                if xAxis == 'wave':
+                    velCopyCenterList = wave_to_vel(rp.emProfiles[emInfo['copyFrom']]['restWavelength'], wave=np.array(copyCenterList), flux=0)[0]
+                    velCopySigmaList = wave_to_vel(rp.emProfiles[emInfo['copyFrom']]['restWavelength'], wave=np.array(copySigmaList), flux=0, delta=True)[0]
+                else:
+                    velCopyCenterList, velCopySigmaList = copyCenterList, copySigmaList
+                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, velCopyCenterList, velCopySigmaList,
+                                                                     ampListInit, rp.linSlope[emInfo['zone']],
+                                                                     rp.linInt[emInfo['zone']], emInfo['compLimits'])
+
                 rp.emProfiles[emName]['centerList'] = []
                 rp.emProfiles[emName]['sigmaList'] = []
                 rp.emProfiles[emName]['ampList'] = []
                 for idx in range(numComps):
-                    rp.emProfiles[emName]['centerList'].append(model1.best_values['g%d_center' % (idx + 1)])
-                    rp.emProfiles[emName]['sigmaList'].append(model1.best_values['g%d_sigma' % (idx + 1)])
-                    rp.emProfiles[emName]['ampList'].append(model1.best_values['g%d_amplitude' % (idx + 1)])
+                    rp.emProfiles[emName]['centerList'].append(model.best_values['g%d_center' % (idx + 1)])
+                    rp.emProfiles[emName]['sigmaList'].append(model.best_values['g%d_sigma' % (idx + 1)])
+                    rp.emProfiles[emName]['ampList'].append(model.best_values['g%d_amplitude' % (idx + 1)])
+        rp.emProfiles[emName]['model'] = model
+        rp.emProfiles[emName]['comps'] = comps
+        rp.emProfiles[emName]['x'] = fittingProfile.x
+        rp.emProfiles[emName]['flux'] = fittingProfile.flux
+        rp.emProfiles[emName]['fluxError'] = fittingProfile.fluxError
 
+    emProfiles = rp.emProfiles
+    return emProfiles
+
+
+class RegionCalculations(object):
+    def __init__(self, rp, xAxis='vel', initVals='vel'):
+        zoneNames = {zone: [] for zone in rp.centerList.keys()}
+        ampListAll = []
+        allModelComponents = []
+        measurementInfo = []
+
+        emProfiles = fit_profiles(rp, xAxis, initVals)
+
+        for emName, emInfo in emProfiles.items():
+            if len(emName.split('+')) > 1:
+                continue
+
+            model = emProfiles[emName]['model']
+            comps = emProfiles[emName]['comps']
+            numComps = emProfiles[emName]['numComps']
+            x = rp.emProfiles[emName]['x']
+            flux = rp.emProfiles[emName]['flux']
+            fluxError = rp.emProfiles[emName]['fluxError']
+
+            ion1, lambdaZero1 = line_label(emName, emInfo['restWavelength'])
+            emLabel = (ion1 + ' ' + lambdaZero1)
             zoneNames[emInfo['zone']].append(emName)
-            rp.emProfiles[emName]['plotInfo'] = [emName, vel1, flux1, model1.best_fit, emInfo['Colour'], comps, emLabel, wave1]
+
+            rp.emProfiles[emName]['plotInfo'] = [emName, x, flux, model.best_fit, emInfo['Colour'], comps, emLabel]
 
             ampComponentList = []
-            o = model1
-            eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calc_emf(model1, numComps)
-            continuumList, globalContinuum = calc_continuum(model1, emName, rp)
+            o = model
+            eMFList, fluxList, fluxListErr, globalFlux, globalFluxErr = calc_emf(model, numComps)
+            continuumList, globalContinuum = calc_continuum(model, emName, rp)
             measurementInfo.append((emName, rp.componentLabels, fluxList, fluxListErr, globalFlux, globalFluxErr, emInfo['restWavelength'], continuumList, globalContinuum))
             rp.emProfiles[emName]['globalFlux'] = globalFlux
             rp.emProfiles[emName]['globalFluxErr'] = globalFluxErr
@@ -238,14 +292,22 @@ class RegionCalculations(object):
             rp.emProfiles[emName]['sigIntList'] = []
             for idx in range(numComps):
                 ampComponentList.append(round(rp.emProfiles[emName]['ampList'][idx], 7))
-                sigInt, sigIntErr = calc_vel_dispersion(o.params['g%d_sigma' % (idx + 1)].value, o.params['g%d_sigma' % (idx + 1)].stderr, emInfo['sigmaT2'], emInfo['Filter'], rp)
-                rp.emProfiles[emName]['sigIntList'].append(sigInt)
+
+                sigma = o.params['g%d_sigma' % (idx + 1)].value
+                sigmaError = o.params['g%d_sigma' % (idx + 1)].stderr
                 vel = o.params['g%d_center' % (idx + 1)].value
+                velError = o.params['g%d_center' % (idx + 1)].stderr
+                if xAxis == 'wave':
+                    sigma, sigmaError, velError = wave_to_vel(emInfo['restWavelength'], wave=np.array((sigma, sigmaError, velError)), flux=0, delta=True)[0]
+                    vel = wave_to_vel(emInfo['restWavelength'], wave=vel, flux=0)[0]
+
+                sigInt, sigIntErr = calc_vel_dispersion(sigma, sigmaError, emInfo['sigmaT2'], emInfo['Filter'], rp)
+                rp.emProfiles[emName]['sigIntList'].append(sigInt)
                 if hasattr(rp, 'showSystemicVelocity') and rp.showSystemicVelocity is True:
                     tableVel = vel - rp.systemicVelocity
                 else:
                     tableVel = vel
-                tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], "%.1f $\pm$ %.1f" % (tableVel, o.params['g%d_center' % (idx + 1)].stderr), r"%.1f $\pm$ %.1f" % (sigInt, sigIntErr), "%.1f $\pm$ %.2f" % (fluxList[idx], fluxListErr[idx]), round(eMFList[idx], 1), "%.1f $\pm$ %.2f" % (globalFlux, globalFluxErr)]
+                tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], "%.1f $\pm$ %.1f" % (tableVel, velError), r"%.1f $\pm$ %.1f" % (sigInt, sigIntErr), "%.1f $\pm$ %.2f" % (fluxList[idx], fluxListErr[idx]), round(eMFList[idx], 1), "%.1f $\pm$ %.2f" % (globalFlux, globalFluxErr)]
                 if idx != 0:
                     tableLine[0:2] = ['', '']
                     tableLine[-1] = ''

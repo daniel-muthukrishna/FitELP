@@ -32,4 +32,8 @@ showSystemicVelocity
 systemicVelocity
     
     - Required if showSystemicVelocity is True.
+    
+plotResiduals
+
+    - Optional Variable. Assumed False if it is not defined. If True, the residulals will be plotted for each emission profile.
  

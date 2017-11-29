@@ -17,7 +17,7 @@ The limits in 'compLimits' can be in the following forms:
 
 ampList
     
-    - if not list it will be take the copyFrom amplitude List and divide by the ampList scalar
+    - if not list it will be take the copyFrom amplitude List and multiply by the ampList scalar
 
 numComps:
     

@@ -189,14 +189,11 @@ def fit_profiles(rp, xAxis, initVals):
                 lineShort = line.replace('-', '')
                 rp.emProfiles[line]['centerList'] = []
                 rp.emProfiles[line]['sigmaList'] = []
-                rp.emProfiles[line]['ampList'] = []
+                rp.emProfiles[line]['ampListNew'] = []
                 for idx in range(numComps):
-                    rp.emProfiles[line]['centerList'].append(
-                        model.best_values['g{0}{1}_center'.format(lineShort, (idx + 1))])
-                    rp.emProfiles[line]['sigmaList'].append(
-                        model.best_values['g{0}{1}_sigma'.format(lineShort, (idx + 1))])
-                    rp.emProfiles[line]['ampList'].append(
-                        model.best_values['g{0}{1}_amplitude'.format(lineShort, (idx + 1))])
+                    rp.emProfiles[line]['centerList'].append(model.best_values['g{0}{1}_center'.format(lineShort, (idx + 1))])
+                    rp.emProfiles[line]['sigmaList'].append(model.best_values['g{0}{1}_sigma'.format(lineShort, (idx + 1))])
+                    rp.emProfiles[line]['ampListNew'].append(model.best_values['g{0}{1}_amplitude'.format(lineShort, (idx + 1))])
 
         else:
             fittingProfile = FittingProfile(wave, flux, restWave=emInfo['restWavelength'], lineName=emName, fluxError=fluxError, zone=emInfo['zone'], rp=rp, xAxis=xAxis, initVals=initVals)
@@ -205,45 +202,42 @@ def fit_profiles(rp, xAxis, initVals):
                 model, comps = fittingProfile.lin_and_multi_gaussian(numComps, rp.centerList[emInfo['zone']], rp.sigmaList[emInfo['zone']], emInfo['ampList'], rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
                 rp.emProfiles[emName]['centerList'] = []
                 rp.emProfiles[emName]['sigmaList'] = []
-                rp.emProfiles[emName]['ampList'] = []
+                rp.emProfiles[emName]['ampListNew'] = []
                 for idx in range(numComps):
                     rp.emProfiles[emName]['centerList'].append(model.best_values['g%d_center' % (idx + 1)])
                     rp.emProfiles[emName]['sigmaList'].append(model.best_values['g%d_sigma' % (idx + 1)])
-                    rp.emProfiles[emName]['ampList'].append(model.best_values['g%d_amplitude' % (idx + 1)])
+                    rp.emProfiles[emName]['ampListNew'].append(model.best_values['g%d_amplitude' % (idx + 1)])
             else:
                 if type(emInfo['copyFrom']) is list:
                     copyAmpList, copyCenterList, copySigmaList = [], [], []
                     for copyIdx in range(len(emInfo['copyFrom'])):
-                        copyAmpList.append(rp.emProfiles[emInfo['copyFrom'][copyIdx]]['ampList'][copyIdx])
+                        copyAmpList.append(rp.emProfiles[emInfo['copyFrom'][copyIdx]]['ampListNew'][copyIdx])
                         copyCenterList.append(rp.emProfiles[emInfo['copyFrom'][copyIdx]]['centerList'][copyIdx])
                         copySigmaList.append(rp.emProfiles[emInfo['copyFrom'][copyIdx]]['sigmaList'][copyIdx])
                 else:
-                    copyAmpList = rp.emProfiles[emInfo['copyFrom']]['ampList']
+                    copyAmpList = rp.emProfiles[emInfo['copyFrom']]['ampListNew']
                     copyCenterList = rp.emProfiles[emInfo['copyFrom']]['centerList']
                     copySigmaList = rp.emProfiles[emInfo['copyFrom']]['sigmaList']
 
                 if type(rp.emProfiles[emName]['ampList']) is list:
                     ampListInit = emInfo['ampList']
                 else:
-                    ampListInit = [float(a) / emInfo['ampList'] for a in
-                                   copyAmpList]  # Divide each copyAmplitude by number
+                    ampListInit = [float(a) * emInfo['ampList'] for a in copyAmpList]  # Multiply each copyAmplitude by number
 
                 if xAxis == 'wave':
                     velCopyCenterList = wave_to_vel(rp.emProfiles[emInfo['copyFrom']]['restWavelength'], wave=np.array(copyCenterList), flux=0)[0]
                     velCopySigmaList = wave_to_vel(rp.emProfiles[emInfo['copyFrom']]['restWavelength'], wave=np.array(copySigmaList), flux=0, delta=True)[0]
                 else:
                     velCopyCenterList, velCopySigmaList = copyCenterList, copySigmaList
-                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, velCopyCenterList, velCopySigmaList,
-                                                                     ampListInit, rp.linSlope[emInfo['zone']],
-                                                                     rp.linInt[emInfo['zone']], emInfo['compLimits'])
+                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, velCopyCenterList, velCopySigmaList, ampListInit, rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
 
                 rp.emProfiles[emName]['centerList'] = []
                 rp.emProfiles[emName]['sigmaList'] = []
-                rp.emProfiles[emName]['ampList'] = []
+                rp.emProfiles[emName]['ampListNew'] = []
                 for idx in range(numComps):
                     rp.emProfiles[emName]['centerList'].append(model.best_values['g%d_center' % (idx + 1)])
                     rp.emProfiles[emName]['sigmaList'].append(model.best_values['g%d_sigma' % (idx + 1)])
-                    rp.emProfiles[emName]['ampList'].append(model.best_values['g%d_amplitude' % (idx + 1)])
+                    rp.emProfiles[emName]['ampListNew'].append(model.best_values['g%d_amplitude' % (idx + 1)])
         rp.emProfiles[emName]['model'] = model
         rp.emProfiles[emName]['comps'] = comps
         rp.emProfiles[emName]['x'] = fittingProfile.x
@@ -291,7 +285,7 @@ class RegionCalculations(object):
             rp.emProfiles[emName]['compFluxListErr'] = fluxListErr
             rp.emProfiles[emName]['sigIntList'] = []
             for idx in range(numComps):
-                ampComponentList.append(round(rp.emProfiles[emName]['ampList'][idx], 7))
+                ampComponentList.append(round(rp.emProfiles[emName]['ampListNew'][idx], 7))
 
                 sigma = o.params['g%d_sigma' % (idx + 1)].value
                 sigmaError = o.params['g%d_sigma' % (idx + 1)].stderr

@@ -142,19 +142,14 @@ class FittingProfile(object):
         self.linGaussParams['lin_slope'].set(lS, vary=True)
         self.linGaussParams['lin_intercept'].set(lI, vary=True)
 
-        # lineIndexes = dict((v, k+1) for k, v in enumerate(lineNames))
-
         for j, lineName in enumerate(lineNames):
             numComps = self.rp.emProfiles[lineName]['numComps']
             restWave = self.rp.emProfiles[lineName]['restWavelength']
             copyFrom = self.rp.emProfiles[lineName]['copyFrom']
             if copyFrom is not None:
-                # cList = ['gEM{0}{1}_center*'.format(lineIndexes[copyFrom], i+1) for i in range(numComps)]
-                cListCopy = self.rp.emProfiles[copyFrom]['centerList']
-                if self.xAxis == 'wave':
-                    cListCopy = wave_to_vel(self.rp.emProfiles[copyFrom]['restWavelength'], wave=np.array(cListCopy), flux=0)[0]
+                copyFromRestWave = self.rp.emProfiles[copyFrom]['restWavelength']
 
-                cList = vel_to_wave(restWave, vel=np.array(cListCopy), flux=0)[0]
+                cList = ['g{0}{1}_center*{2}'.format(copyFrom.replace('-', ''), (i + 1), (restWave / copyFromRestWave)) for i in range(numComps)]
                 sList = ['g{0}{1}_sigma'.format(copyFrom.replace('-', ''), i + 1) for i in range(numComps)]
 
                 if type(self.rp.emProfiles[lineName]['ampList']) is list:
@@ -168,9 +163,8 @@ class FittingProfile(object):
             else:
                 cList = vel_to_wave(restWave, vel=np.array(cListInit), flux=0)[0]
                 sList = vel_to_wave(restWave, vel=np.array(sListInit), flux=0, delta=True)[0]
-                aList = self.rp.emProfiles[lineName]['ampList']
-                if self.xAxis == 'vel':
-                    aList = vel_to_wave(restWave, vel=0, flux=np.array(aList))[1]
+                aListInit = self.rp.emProfiles[lineName]['ampList']
+                aList = vel_to_wave(restWave, vel=0, flux=np.array(aListInit))[1]
 
             limits = self.rp.emProfiles[lineName]['compLimits']
             for i in range(numComps):

@@ -181,8 +181,7 @@ def fit_profiles(rp, xAxis, initVals):
                                                                            maxIndex=emInfo['maxI'])
 
         if len(emName.split('+')) > 1:
-            fittingProfile = FittingProfile(wave, flux, restWave=emInfo['restWavelength'], lineName=emName,
-                                            fluxError=fluxError, zone=emInfo['zone'], rp=rp, xAxis=xAxis)
+            fittingProfile = FittingProfile(wave, flux, restWave=emInfo['restWavelength'], lineName=emName, fluxError=fluxError, zone=emInfo['zone'], rp=rp, xAxis=xAxis)
             model, comps = fittingProfile.multiple_close_emission_lines(lineNames=emInfo['Lines'], cListInit=rp.centerList[emInfo['zone']], sListInit=rp.sigmaList[emInfo['zone']], lS=rp.linSlope[emInfo['zone']], lI=rp.linInt[emInfo['zone']])
 
             for line in emInfo['Lines']:
@@ -227,9 +226,10 @@ def fit_profiles(rp, xAxis, initVals):
                 if xAxis == 'wave':
                     velCopyCenterList = wave_to_vel(rp.emProfiles[emInfo['copyFrom']]['restWavelength'], wave=np.array(copyCenterList), flux=0)[0]
                     velCopySigmaList = wave_to_vel(rp.emProfiles[emInfo['copyFrom']]['restWavelength'], wave=np.array(copySigmaList), flux=0, delta=True)[0]
+                    velAmpListInit = wave_to_vel(rp.emProfiles[emInfo['copyFrom']]['restWavelength'], wave=0, flux=np.array(ampListInit))[1]
                 else:
-                    velCopyCenterList, velCopySigmaList = copyCenterList, copySigmaList
-                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, velCopyCenterList, velCopySigmaList, ampListInit, rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
+                    velCopyCenterList, velCopySigmaList, velAmpListInit = copyCenterList, copySigmaList, ampListInit
+                model, comps = fittingProfile.lin_and_multi_gaussian(numComps, velCopyCenterList, velCopySigmaList, velAmpListInit, rp.linSlope[emInfo['zone']], rp.linInt[emInfo['zone']], emInfo['compLimits'])
 
                 rp.emProfiles[emName]['centerList'] = []
                 rp.emProfiles[emName]['sigmaList'] = []

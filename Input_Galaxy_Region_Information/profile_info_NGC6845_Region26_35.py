@@ -14,9 +14,9 @@ class RegionParameters(object):
 
     # SPECTRAL LINE INFO FOR ALL EMISSION LINES
     emProfiles = OrderedDict([
-        ('H-Alpha', {'Colour': 'y', 'Order': 21, 'Filter': 'red', 'minI': 1190, 'maxI': 1650, 'restWavelength': 6562.82, 'ampList': [0.2697859, 0.8024948, 0.4458269], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),
-        ('OIII-5007A', {'Colour': 'c', 'Order': 5, 'Filter': 'red', 'minI': 1500, 'maxI': 2170, 'restWavelength': 5006.84, 'ampList': [0.0304902, 0.0876413, 0.0354913], 'zone': 'high', 'sigmaT2': 10.39, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),
-        #('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2350, 'maxI': 2700, 'restWavelength': 4958.91, 'ampList': [0.0080434, 0.0391648, 0.0678399], 'zone': 'high', 'sigmaT2': 10.39, 'compLimits': {'c': 0.01, 's': 0.05, 'a': np.inf}, 'copyFrom': 'OIII-5007A'}),
+        ('H-Alpha', {'Colour': 'y', 'Order': 21, 'Filter': 'red', 'minI': 1190, 'maxI': 1650, 'restWavelength': 6562.82, 'ampList': [0.269783, 0.8024938, 0.4458297], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),
+        ('OIII-5007A', {'Colour': 'c', 'Order': 5, 'Filter': 'red', 'minI': 1500, 'maxI': 2170, 'restWavelength': 5006.84, 'ampList': [0.0304959, 0.0876451, 0.0354783], 'zone': 'high', 'sigmaT2': 10.39, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),
+        ('OIII-4959A', {'Colour': 'g', 'Order': 4, 'Filter': 'red', 'minI': 2350, 'maxI': 2700, 'restWavelength': 4958.91, 'ampList': [0.0080434, 0.0391648, 0.0678399], 'zone': 'high', 'sigmaT2': 10.39, 'compLimits': {'c': 0.01, 's': 0.05, 'a': np.inf}, 'copyFrom': 'OIII-5007A'}),
         #H-Beta_Blue:
         ('H-Beta', {'Colour': 'b', 'Order': 36, 'Filter': 'blue', 'minI': 1616, 'maxI': 2700, 'restWavelength': 4861.33, 'ampList': [0.0684742, 0.2145362, 0.026463], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'c': 0.1, 's': 0.01, 'a': np.inf}, 'copyFrom': 'H-Alpha'}),
         #('H-Beta_Red', {'Colour': 'r', 'Order': 3, 'Filter': 'red', 'minI': 1640, 'maxI': 2040, 'restWavelength': 4861.33, 'ampList': [9.9122054, 6.5330892, 6.8177404], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': False, 's': False}, 'copyFrom': 'H-Beta_Blue'}),
@@ -25,7 +25,7 @@ class RegionParameters(object):
         ('NII-6584A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 1650, 'maxI': 2110, 'restWavelength': 6583.41, 'ampList': [0.132274, 0.3275002, 0.0609671], 'zone': 'low', 'sigmaT2': 11.87, 'compLimits': {'c': 0.1, 's': 0.01, 'a': np.inf}, 'copyFrom': 'H-Alpha'}),
         #('NII-6548A', {'Colour': 'violet', 'Order': 21, 'Filter': 'red', 'minI': 850, 'maxI': 1190, 'restWavelength': 6548.03, 'ampList': [0.0599905, 0.2410469, 0.0819148], 'zone': 'low', 'sigmaT2': 11.87, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': 'NII-6584A'}),
         ('SII-6717A', {'Colour': 'r', 'Order': 22, 'Filter': 'red', 'minI': 1700, 'maxI': 2006, 'restWavelength': 6716.47, 'ampList': [0.0334009, 0.0883627, 0.011889], 'zone': 'low', 'sigmaT2': 5.19, 'compLimits': {'c': 0.1, 's': 0.01, 'a':np.inf}, 'copyFrom': 'H-Alpha'}),
-        # ('SII-6731A', {'Colour': '#58D68D', 'Order': 22, 'Filter': 'red', 'minI': 2068, 'maxI': 2273, 'restWavelength': 6730.85, 'ampList': [1.3593845, 5.9234259, 7.3026765], 'zone': 'low', 'sigmaT2': 5.19, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': 'SII-6717A'}),
+        #('SII-6731A', {'Colour': '#58D68D', 'Order': 22, 'Filter': 'red', 'minI': 2068, 'maxI': 2273, 'restWavelength': 6730.85, 'ampList': [1.3593845, 5.9234259, 7.3026765], 'zone': 'low', 'sigmaT2': 5.19, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': 'SII-6717A'}),
         #('HeI-5876A', {'Colour': '#641E16', 'Order': 15, 'Filter': 'red', 'minI': 1350, 'maxI': 1650, 'restWavelength': 5875.64, 'ampList': [0.4850817, 0.1915922, 4.6927829], 'zone': 'low', 'sigmaT2': 41.54, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),
         #('OII-3729A', {'Colour': '#5D6D7E', 'Order': 14, 'Filter': 'blue', 'minI': 2720, 'maxI': 3000, 'restWavelength': 3728.82, 'ampList': [5.0112717, -22679.7862692, -5.7298895], 'zone': 'low', 'sigmaT2': 10.39, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': None}),
         #('OII-3726A', {'Colour': '#EC7063', 'Order': 14, 'Filter': 'blue', 'minI': 2400, 'maxI': 2720, 'restWavelength': 3726.03, 'ampList': [-77.5325889, 42081.6972815, -36.5274502], 'zone': 'low', 'sigmaT2': 10.39, 'compLimits': {'c': np.inf, 's': np.inf, 'a': np.inf}, 'copyFrom': 'OII-3729A'}),
@@ -49,10 +49,10 @@ class RegionParameters(object):
     ])
 
     # Information for the center, sigma and linear for the low (H-alpha) and high (OIII) zones
-    centerList = {'low': [6166.71725, 6185.74683, 6181.75990], 'high': [6166.62035, 6185.57998, 6182.25494]}
-    sigmaList = {'low': [17.1697944, 47.3986260, 114.509184], 'high': [16.5832838, 41.5415825, 83.1871940]}
-    linSlope = {'low': -9.3543e-08, 'high': 1.6223e-08}
-    linInt = {'low': 0.00162017, 'high': 0.00108601}
+    centerList = {'low': [6166.52737, 6188.67374, 6193.47753], 'high': [6165.34606, 6192.91913, 6194.14835]}
+    sigmaList = {'low': [16.9971820, 50.3988498, 135.296220], 'high': [18.5832838, 59.5623848, 134.025248]}
+    linSlope = {'low': -1.2429e-08 , 'high': -3.9806e-08}
+    linInt = {'low':0.00064188, 'high': 0.00085559}
 
     numComps = {'low': 3, 'high': 3}
     componentLabels = ['Narrow 1', 'Narrow 2', 'Broad', 'Label4', 'Label5']
@@ -63,7 +63,6 @@ class RegionParameters(object):
     distance = 2.68e26  # Distance to region in centimetres (same units as flux)
 
     emLinesForAvgVelCalc = ['H-Alpha', 'H-Beta', 'OIII-5007A', 'NII-6584A', 'SII-6717A']
-
 
 """ NOTES ON HOW TO USE THE ABOVE TABLE
 The limits in 'compLimits' can be in the following forms:
@@ -80,3 +79,4 @@ numComps:
     - If numComps is not listed in the emProfile dictionary, then the number of components will be taken from the
     numComps variable depending on the zone set in the emProfile dictionary
 """
+

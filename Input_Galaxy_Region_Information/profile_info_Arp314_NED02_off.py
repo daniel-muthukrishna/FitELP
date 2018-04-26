@@ -22,7 +22,7 @@ class RegionParameters(object):
         #('OIII-4959A_Blue', {'Colour': '#78281F', 'Order': 37, 'Filter': 'blue', 'minI': 1600, 'maxI': 2250, 'restWavelength': 4958.91, 'ampList': 3, 'zone': 'high', 'sigmaT2': 10.39, 'compLimits': {'a': inf, 'c': False, 's': False}, 'copyFrom': 'OIII-4959A_Red'}),
         #H-Beta_Blue:
         ('H-Beta', {'Colour': 'b', 'Order': 36, 'Filter': 'blue', 'minI': 500, 'maxI': 1250, 'restWavelength': 4861.33, 'ampList': [1.013674, 0.3030191, 0.270502], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': 0.01, 's': 0.1}, 'copyFrom': 'H-Alpha'}),
-        #('H-Beta_Red', {'Colour': 'r', 'Order': 2, 'Filter': 'red', 'minI': 2004, 'maxI': 3000, 'restWavelength': 4861.33, 'ampList': [9.9122054, 6.5330892, 6.8177404], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': False, 's': False}, 'copyFrom': 'H-Beta_Blue'}),
+        ('H-Beta_Red', {'Colour': 'r', 'Order': 2, 'Filter': 'red', 'minI': 2050, 'maxI': 3000, 'restWavelength': 4861.33, 'ampList': [1.013674, 0.3030191, 0.270502], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': [inf, inf, 0.001], 'c': [0.1, 0.1, 0.001], 's':[0.1, 0.1, 0.001]}, 'copyFrom': 'H-Beta'}),
         # ('H-Gamma', {'Colour': 'r', 'Order': 28, 'Filter': 'blue', 'minI': 700, 'maxI': 1200, 'restWavelength': 4340.47, 'ampList': [4.985869, 3.5976242, 4.4060826], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': 0.001, 's': [inf, inf, False]}, 'copyFrom': 'H-Beta_Blue'}),
         # ('H-Delta', {'Colour': 'c', 'Order': 23, 'Filter': 'blue', 'minI': 1400, 'maxI': 2000, 'restWavelength': 4101.74, 'ampList': [2.9131725, 2.0446065, 2.5207195], 'zone': 'low', 'sigmaT2': 164.96, 'compLimits': {'a': inf, 'c': 0.001, 's': 1}, 'copyFrom': 'H-Beta_Blue'}),
         ('NII-6584A', {'Colour': 'violet', 'Order': 20, 'Filter': 'red', 'minI': 3200, 'maxI': 3600, 'restWavelength': 6583.41, 'ampList': [0.6216797, 0.4408475, 0.2138878], 'zone': 'low', 'sigmaT2': 11.87, 'compLimits': {'a': inf, 'c': 0.001, 's': 0.01}, 'copyFrom':'H-Alpha'}),
@@ -55,14 +55,14 @@ class RegionParameters(object):
     linInt = {'low': 0.00090596, 'high': 0.00173101}
 
     numComps = {'low': 3, 'high': 3}
-    componentLabels = ['Narrow 1', 'Narrow 2', 'Broad', 'Label4', 'Label5']
-    componentColours = ['b', 'r', 'g', 'c', 'm']
-    plottingXRange = [3300, 4050]  # velocities
+    componentLabels = ['Narrow 1', 'Narrow 2', 'Broad']#, 'Label4', 'Label5']
+    componentColours = ['b', 'r', 'g']#, 'c', 'm']
+    plottingXRange = [3300, 4100]  # velocities
     sigmaInstrBlue = 4.8
     sigmaInstrRed = 5.9
     distance = 1.63e26  # Distance to region in centimetres (same units as flux)
 
-    emLinesForAvgVelCalc = ['H-Alpha']#, 'H-Beta_Blue', 'OIII-5007A', 'NII-6584A', 'SII-6717A']
+    emLinesForAvgVelCalc = ['H-Alpha', 'H-Beta', 'OIII-5007A', 'NII-6584A', 'SII-6717A']
 
 
 """ NOTES ON HOW TO USE THE ABOVE TABLE

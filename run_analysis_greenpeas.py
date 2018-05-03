@@ -21,7 +21,8 @@ def main():
     regionArray = []
     rpBptPoints = []
     for rp in regionsParameters:
-        region = RegionCalculations(rp, xAxis='wave', initVals='vel')
+        #region = RegionCalculations(rp, xAxis='wave', initVals='vel')
+        region = RegionCalculations(rp, xAxis='wave', initVals='wave')
         regionArray.append(region.lineInArray)
         rpBptPoints.append(region.bptPoints)
 

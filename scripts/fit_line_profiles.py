@@ -294,7 +294,7 @@ class FittingProfile(object):
                 plt.plot(x, components['g%d_' % (i+1)]+components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])
             else:
                 for j, lineName in enumerate(lineNames):
-                    plt.plot(x, components['g{0}{1}_'.format(lineName.replace('-', ''), i + 1)] + components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])
+                    plt.plot(x, components['g{0}{1}_'.format(lineName.replace('-', ''), i + 1)] + components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])  # "%s %s" % (lineName, labelComp[i]))
         # plt.plot(x, components['lin_'], label='lin_')
         plt.plot(x, out.best_fit, color='black', linestyle='--', label='Fit')
         # plt.plot(x, init, label='init')
@@ -302,9 +302,13 @@ class FittingProfile(object):
         plt.ylabel(yLabel)
 
         if plotResiduals is True:
+            frame1 = plt.gca()
+            frame1.axes.get_xaxis().set_visible(False)
             frame2 = fig.add_axes((.1, .1, .8, .2))
-            plt.plot(x, out.best_fit - self.flux)
+            plt.plot(x, self.flux - out.best_fit)
             plt.ylabel('Residuals')
+            plt.locator_params(axis='y', nbins=5)
+
         plt.xlabel(xLabel)
 
         plt.savefig(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)), bbox_inches='tight')

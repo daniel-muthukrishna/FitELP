@@ -40,7 +40,7 @@ def main():
         regionArray.append(region.lineInArray)
         rpBptPoints.append(region.bptPoints)
 
-        plot_profiles(['H-Alpha', 'OIII-5007A', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' Strongest Emission Lines', sortedIndex=[0, 1, 2, 3, 4])
+        plot_profiles(['H-Alpha', 'OIII-5007A', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' Strongest Emission Lines', sortedIndex=[0, 1, 2, 3, 4], logscale=True, ymin=None)
         #plot_profiles(['H-Beta', 'H-Beta_Red'], rp, nameForComps='H-Beta', title=rp.regionName + 'Hbeta Emission Lines', sortedIndex=[0, 1])
 
     bpt_plot(regionsParameters, rpBptPoints)

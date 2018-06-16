@@ -308,14 +308,14 @@ class FittingProfile(object):
             plt.plot(x, self.flux - out.best_fit)
             plt.axhline(y=0, linestyle='--', color='black')
             plt.ylabel('Residuals')
-            plt.locator_params(axis='y', nbins=4)
+            plt.locator_params(axis='y', nbins=3)
 
         plt.xlabel(xLabel)
 
         plt.savefig(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)), bbox_inches='tight')
 
 
-def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, plotAllComps=False, xAxis='vel'):
+def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, plotAllComps=False, xAxis='vel', logscale=False, ymin=None):
     try:
         plt.figure(title)
         ax = plt.subplot(1, 1, 1)
@@ -357,6 +357,12 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, pl
             ax.legend(handles2, labels2)
         else:
             ax.legend()
+
+        if logscale is True:
+            ax.set_yscale('log')
+        if ymin is not None:
+            ax.set_ylim(bottom=ymin)
+
         plt.savefig(os.path.join(constants.OUTPUT_DIR, rp.regionName, title.strip(' ') + '.png'), bbox_inches='tight')
     except KeyError:
         print("SOME IONS IN {0} HAVE NOT BEEN DEFINED.".format(lineNames))

@@ -34,20 +34,25 @@ def main():
     constants.DATA_FILES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Input_Data_Files')
 
     regionArray = []
-    rpBptPoints = []
+    rpBptPoints, rpBptPoints_s, rpBptPoints_o = [], [], []
     for rp in regionsParameters:
         region = RegionCalculations(rp)
         regionArray.append(region.lineInArray)
         rpBptPoints.append(region.bptPoints)
+        rpBptPoints_s.append(region.bptPoints_s)
+        rpBptPoints_o.append(region.bptPoints_o)
 
-        plot_profiles(['H-Alpha', 'OIII-5007A', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' Strongest Emission Lines', sortedIndex=[0, 1, 2, 3, 4], logscale=True, ymin=None)
+        # plot_profiles(['H-Alpha', 'OIII-5007A', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' Strongest Emission Lines', sortedIndex=[0, 1, 2, 3, 4], logscale=True, ymin=None)
         #plot_profiles(['H-Beta', 'H-Beta_Red'], rp, nameForComps='H-Beta', title=rp.regionName + 'Hbeta Emission Lines', sortedIndex=[0, 1])
 
-    bpt_plot(regionsParameters, rpBptPoints)
+    bpt_plot(regionsParameters, rpBptPoints, plot_type='n')
+    bpt_plot(regionsParameters, rpBptPoints_s, plot_type='s')
+    bpt_plot(regionsParameters, rpBptPoints_o, plot_type='o')
     halpha_regions_table_to_latex(regionArray, paperSize='a4', orientation='portrait', longTable=False)
     average_velocities_table_to_latex(regionsParameters, paperSize='a4', orientation='landscape', longTable=False)
 
     plt.show()
+
 
 if __name__ == '__main__':
     main()

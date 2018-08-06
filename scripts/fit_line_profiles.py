@@ -200,7 +200,7 @@ class FittingProfile(object):
         components = out.eval_components()
 
         if not hasattr(self.rp, 'plotResiduals'):
-            self.rp.plotResiduals = False
+            self.rp.plotResiduals = True
         numComps = self.rp.emProfiles[lineName]['numComps']
         self.plot_emission_line(numComps, components, out, self.rp.plotResiduals, lineNames, init=init)
 
@@ -255,14 +255,14 @@ class FittingProfile(object):
         components = out.eval_components()
 
         if not hasattr(self.rp, 'plotResiduals'):
-            self.rp.plotResiduals = False
+            self.rp.plotResiduals = True
         self.plot_emission_line(numOfComponents, components, out, self.rp.plotResiduals, init=init)
 
         self._get_amplitude(numOfComponents, out)
 
         return out, components
 
-    def plot_emission_line(self, numOfComponents, components, out, plotResiduals=False, lineNames=None, init=None):
+    def plot_emission_line(self, numOfComponents, components, out, plotResiduals=True, lineNames=None, init=None):
         ion, lambdaZero = line_label(self.lineName, self.restWave)
         fig = plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
         if plotResiduals is True:
@@ -294,7 +294,7 @@ class FittingProfile(object):
                 plt.plot(x, components['g%d_' % (i+1)]+components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])
             else:
                 for j, lineName in enumerate(lineNames):
-                    plt.plot(x, components['g{0}{1}_'.format(lineName.replace('-', ''), i + 1)] + components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])  # "%s %s" % (lineName, labelComp[i]))
+                    plt.plot(x, components['g{0}{1}_'.format(lineName.replace('-', ''), i + 1)] + components['lin_'], color=self.rp.componentColours[i], linestyle=':', label=labelComp[i])
         # plt.plot(x, components['lin_'], label='lin_')
         plt.plot(x, out.best_fit, color='black', linestyle='--', label='Fit')
         # plt.plot(x, init, label='init')
@@ -302,20 +302,15 @@ class FittingProfile(object):
         plt.ylabel(yLabel)
 
         if plotResiduals is True:
-            frame1 = plt.gca()
-            frame1.axes.get_xaxis().set_visible(False)
             frame2 = fig.add_axes((.1, .1, .8, .2))
-            plt.plot(x, self.flux - out.best_fit)
-            plt.axhline(y=0, linestyle='--', color='black')
+            plt.plot(x, out.best_fit - self.flux)
             plt.ylabel('Residuals')
-            plt.locator_params(axis='y', nbins=3)
-
         plt.xlabel(xLabel)
 
         plt.savefig(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)), bbox_inches='tight')
 
 
-def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, plotAllComps=False, xAxis='vel', logscale=False, ymin=None):
+def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, plotAllComps=False, xAxis='vel'):
     try:
         plt.figure(title)
         ax = plt.subplot(1, 1, 1)
@@ -357,12 +352,6 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, pl
             ax.legend(handles2, labels2)
         else:
             ax.legend()
-
-        if logscale is True:
-            ax.set_yscale('log')
-        if ymin is not None:
-            ax.set_ylim(bottom=ymin)
-
         plt.savefig(os.path.join(constants.OUTPUT_DIR, rp.regionName, title.strip(' ') + '.png'), bbox_inches='tight')
     except KeyError:
         print("SOME IONS IN {0} HAVE NOT BEEN DEFINED.".format(lineNames))

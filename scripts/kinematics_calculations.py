@@ -349,6 +349,7 @@ class RegionCalculations(object):
         self.bptPoints = calc_bpt_points(rp, plot_type='n')
         self.bptPoints_s = calc_bpt_points(rp, plot_type='s')
         self.bptPoints_o = calc_bpt_points(rp, plot_type='o')
+        self.bptPoints_p = calc_bpt_points(rp, plot_type='p')
 
         ratioNII, ratioNIIErr, ratioOIII, ratioOIIIErr = self.bptPoints['global']['x'], self.bptPoints['global']['xErr'], self.bptPoints['global']['y'], self.bptPoints['global']['yErr']
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)

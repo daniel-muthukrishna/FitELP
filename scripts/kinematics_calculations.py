@@ -325,7 +325,7 @@ class RegionCalculations(object):
                     tableVel = vel - rp.systemicVelocity
                 else:
                     tableVel = vel
-                tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], "%.1f $\pm$ %.1f" % (tableVel, velError), r"%.1f $\pm$ %.1f" % (sigInt, sigIntErr), "%.1f $\pm$ %.2f" % (fluxList[idx], fluxListErr[idx]), round(eMFList[idx], 1), "%.1f $\pm$ %.2f" % (globalFlux, globalFluxErr)]
+                tableLine = [lambdaZero1, ion1, rp.componentLabels[idx], "%.1f $\pm$ %.1f" % (tableVel, velError), r"%.1f $\pm$ %.1f" % (sigInt, sigIntErr), "%.2f $\pm$ %.3f" % (fluxList[idx], fluxListErr[idx]), round(eMFList[idx], 1), "%.2f $\pm$ %.3f" % (globalFlux, globalFluxErr)]
                 if idx != 0:
                     tableLine[0:2] = ['', '']
                     tableLine[-1] = ''
@@ -346,9 +346,7 @@ class RegionCalculations(object):
         for mod in allModelComponents:
             print(mod)
 
-        self.bptPoints = calc_bpt_points(rp, plot_type='n')
-        self.bptPoints_s = calc_bpt_points(rp, plot_type='s')
-        self.bptPoints_o = calc_bpt_points(rp, plot_type='o')
+        self.bptPoints = calc_bpt_points(rp)
         ratioNII, ratioNIIErr, ratioOIII, ratioOIIIErr = self.bptPoints['global']['x'], self.bptPoints['global']['xErr'], self.bptPoints['global']['y'], self.bptPoints['global']['yErr']
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 

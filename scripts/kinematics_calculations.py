@@ -117,6 +117,7 @@ def calc_luminosity(rp):
 
 
 def save_measurements(measurementInfo, rp):
+    np.set_printoptions(suppress=False)
     componentFluxesDict = dict((el, []) for el in rp.componentLabels)
     componentFluxesDict['global'] = []
     saveFilename = 'component_fluxes.csv'
@@ -143,16 +144,39 @@ def save_measurements(measurementInfo, rp):
                 writer.writerow([emName, round(flux, 3), round(fluxErr, 3)])
 
     for componentName, fluxInfo in componentFluxesDict.items():
-        fluxInfo = sorted(fluxInfo, key=lambda l:l[3])
+        if len(fluxInfo) == 0:
+            continue
+        fluxInfo = np.array(sorted(fluxInfo, key=lambda l:l[3]))
         with open(os.path.join(constants.OUTPUT_DIR, rp.regionName, "measurements_{0}".format(componentName)), 'w') as csvFile:
             writer = csv.writer(csvFile, delimiter='\t')
-            writer.writerow(["# LINE", "ION", "Flux", "Err", "CONTINUUM", "EW"])
-            for i in range(len(fluxInfo)):
-                emName, flux, fluxErr, restWave, continuum, eW = fluxInfo[i]
-                ionName, lambdaZero = line_label(emName, restWave)
-                ionName = ionName.strip('$').replace("\\", "").replace('mathrm{', "").replace('}', '').split('_')[0]
-                lambdaZero = lambdaZero.strip('$')
-                writer.writerow([lambdaZero, ionName, round(flux, 3), round(fluxErr, 3), continuum, eW])
+            writer.writerow(["# LINE", "ION", "FLUX", "ERR", "CONTINUUM", "EW"])
+            fluxInfoIdx = 0
+            for i, (getEmName, getRestWave, getIonName) in enumerate(constants.ALL_IONS):
+                if getEmName in fluxInfo[:, 0] or (fluxInfoIdx < len(fluxInfo) and getRestWave > fluxInfo[:, 3].astype(float)[fluxInfoIdx] + 1):
+                    if getEmName in fluxInfo[:, 0]:
+                        idx = np.where(fluxInfo[:, 0] == getEmName)[0][0]
+                    else:
+                        idx = fluxInfoIdx
+                    emName, flux, fluxErr, restWave, continuum, eW = fluxInfo[idx]
+                    flux = np.format_float_scientific(float(flux), precision=2)
+                    fluxErr = np.format_float_scientific(float(fluxErr), precision=2)
+                    continuum = np.format_float_scientific(float(continuum), precision=2)
+                    eW = np.format_float_scientific(float(eW), precision=2)
+                    ionName, lambdaZero = line_label(emName, float(restWave))
+                    ionName = ionName.strip('$').replace("\\", "").replace('mathrm{', "").replace('}', '').split('_')[0]
+                    lambdaZero = lambdaZero.strip('$')
+                    fluxInfoIdx += 1
+                else:
+                    emName = getEmName
+                    lambdaZero = getRestWave
+                    ionName = getIonName
+                    flux = 99999.00
+                    fluxErr = 9999
+                    continuum = 9999
+                    eW = 9999
+
+                writer.writerow([lambdaZero, ionName, flux, fluxErr, continuum, eW])
+            writer.writerow(["0000", "NO", "0.00", "0", "0", "0.00"])
 
 
 def fit_profiles(rp, xAxis, initVals):

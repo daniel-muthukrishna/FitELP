@@ -83,7 +83,7 @@ def bpt_plot(rpList, rpBptPoints, globalOnly=False, plot_type='n'):
         bpt_plot_n(rpList, rpBptPoints, globalOnly)
 
 
-def bpt_plot_n(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1'}):
+def bpt_plot_n(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
     plot_lines_and_other_points_n()
 
     # PLOT BPT POINTS
@@ -117,7 +117,7 @@ def bpt_plot_n(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
     plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_plot_N.png'))
 
 
-def bpt_plot_s(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1'}):
+def bpt_plot_s(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
     plot_lines_and_other_points_s()
 
     # PLOT BPT POINTS
@@ -151,7 +151,7 @@ def bpt_plot_s(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
     plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_plot_S.png'))
 
 
-def bpt_plot_o(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1'}):
+def bpt_plot_o(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
     plot_lines_and_other_points_o()
 
     # PLOT BPT POINTS

@@ -28,7 +28,7 @@ def main():
     # from Input_Galaxy_Region_Information.profile_info_NGC6845_Region26 import RegionParameters as NGC6845Region26Params
     # from Input_Galaxy_Region_Information.profile_info_NGC6845_Region26_Counts import RegionParameters as NGC6845Region26Params
 
-    regionsParameters = [HCG31_ACParams]#, HCG31_CParams, HCG31_AParams]#[Arp314_NED02Params,Arp314_NED02_offParams]#[NGC6845Region26NewDispParams], NGC6845Region26_37Params, NGC6845Region26_39Params, NGC6845Region26NewDispParams], # NGC6845Region7Params, NGC6845Region26Params]#
+    regionsParameters = [HCG31_ACParams, HCG31_CParams]#, HCG31_AParams]#[Arp314_NED02Params,Arp314_NED02_offParams]#[NGC6845Region26NewDispParams], NGC6845Region26_37Params, NGC6845Region26_39Params, NGC6845Region26NewDispParams], # NGC6845Region7Params, NGC6845Region26Params]#
 
     constants.OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Output_Files')
     constants.DATA_FILES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Input_Data_Files')

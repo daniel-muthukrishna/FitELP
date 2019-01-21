@@ -124,8 +124,8 @@ def bpt_plot_n(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
                     label = "{0}_{1}".format(rpList[i].regionName, compNames[comp])
                 except KeyError:
                     label = "{0}_{1}".format(rpList[i].regionName, comp)
-                plt.scatter(x, y, marker=markers[j], color=colours[j], label=label)
-                plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr, ecolor=colours[j])
+                plt.scatter(x, y, marker=markers[i], label=label)#, color=colours[j])
+                plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr)#, ecolor=colours[j])
                 # plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom', color=colours[j], fontsize=8)
 
     # PLOT AND SAVE FIGURE
@@ -158,8 +158,8 @@ def bpt_plot_s(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
                     label = "{0}_{1}".format(rpList[i].regionName, compNames[comp])
                 except KeyError:
                     label = "{0}_{1}".format(rpList[i].regionName, comp)
-                plt.scatter(x, y, marker=markers[j], color=colours[j], label=label)
-                plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr, ecolor=colours[j])
+                plt.scatter(x, y, marker=markers[i], label=label)#, color=colours[j])
+                plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr)#, ecolor=colours[j])
                 # plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom', color=colours[j], fontsize=8)
 
     # PLOT AND SAVE FIGURE
@@ -192,8 +192,8 @@ def bpt_plot_o(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
                     label = "{0}_{1}".format(rpList[i].regionName, compNames[comp])
                 except KeyError:
                     label = "{0}_{1}".format(rpList[i].regionName, comp)
-                plt.scatter(x, y, marker=markers[j], color=colours[j], label=label)
-                plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr, ecolor=colours[j])
+                plt.scatter(x, y, marker=markers[i], label=label)#, color=colours[j])
+                plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr)#, ecolor=colours[j])
                 # plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom', color=colours[j], fontsize=8)
 
     # PLOT AND SAVE FIGURE
@@ -226,8 +226,8 @@ def bpt_plot_p(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
                     label = "{0}_{1}".format(rpList[i].regionName, compNames[comp])
                 except KeyError:
                     label = "{0}_{1}".format(rpList[i].regionName, comp)
-                plt.scatter(x, y, marker=markers[j], color=colours[j], label=label)
-                plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr, ecolor=colours[j])
+                plt.scatter(x, y, marker=markers[i], label=label)#, color=colours[j])
+                plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr)#, ecolor=colours[j])
                 # plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom', color=colours[j], fontsize=8)
 
     # PLOT AND SAVE FIGURE

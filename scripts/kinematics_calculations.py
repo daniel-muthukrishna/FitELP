@@ -165,7 +165,7 @@ def save_measurements(measurementInfo, rp):
                         eW = np.format_float_scientific(float(eW), precision=2)
                     except AttributeError:
                         print("Cannot convert floats to scientific notation because you are using an old "
-                              "version of Numpy. Please updat numpy.")
+                              "version of Numpy. Please update numpy.")
                         from decimal import Decimal
                         flux = '%.2E' % Decimal(str(flux))
                         fluxErr = '%.2E' % Decimal(str(fluxErr))

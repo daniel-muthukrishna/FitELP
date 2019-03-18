@@ -9,7 +9,7 @@ VEL_AXIS_LABEL = r"$\mathrm{Velocity \ (km \ s^{-1}})$"
 DELTA_VEL_AXIS_LABEL = r"$\mathrm{\Delta Velocity \ (km \ s^{-1}})$"
 WAVE_AXIS_LABEL = r"$\mathrm{Wavelength (\AA)}$"
 
-ALL_IONS = (('OII-3727A', 3727, '[OII]dob'),
+ALL_IONS = (('OII-3726A', 3726, '[OII]dob'),
             ('OII-3729A', 3729, '[OII]dob'),
             ('H9-3835A', 3835, 'H9'),
             ('NeIII-3868A', 3868, '[NeIII]'),

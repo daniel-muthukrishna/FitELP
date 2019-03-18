@@ -152,11 +152,11 @@ def save_measurements(measurementInfo, rp):
             writer.writerow(["# LINE", "ION", "FLUX", "ERR", "CONTINUUM", "EW"])
             fluxInfoIdx = 0
             for i, (getEmName, getRestWave, getIonName) in enumerate(constants.ALL_IONS):
-                if getEmName in fluxInfo[:, 0] or (fluxInfoIdx < len(fluxInfo) and getRestWave > fluxInfo[:, 3].astype(float)[fluxInfoIdx] + 1):
-                    if getEmName in fluxInfo[:, 0]:
-                        idx = np.where(fluxInfo[:, 0] == getEmName)[0][0]
-                    else:
-                        idx = fluxInfoIdx
+                if getEmName in fluxInfo[:, 0]:# or ((fluxInfoIdx < len(fluxInfo) and getRestWave > fluxInfo[:, 3].astype(float)[fluxInfoIdx] + 1)):
+                    # if getEmName in fluxInfo[:, 0]:
+                    idx = np.where(fluxInfo[:, 0] == getEmName)[0][0]
+                    # else:
+                    #     idx = fluxInfoIdx
                     emName, flux, fluxErr, restWave, continuum, eW = fluxInfo[idx]
                     try:
                         flux = np.format_float_scientific(float(flux), precision=2)

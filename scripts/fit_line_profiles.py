@@ -307,7 +307,6 @@ class FittingProfile(object):
             frame2 = fig.add_axes((.1, .1, .8, .2))
             plt.plot(x, self.flux - out.best_fit)
             plt.axhline(y=0, linestyle='--', color='black')
-            plt.plot(x, out.best_fit - self.flux)
             plt.ylabel('Residuals')
             plt.locator_params(axis='y', nbins=3)
         plt.xlabel(xLabel)

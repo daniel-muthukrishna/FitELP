@@ -63,6 +63,7 @@ class RegionParameters(object):
     distance = 2.68e26  # Distance to region in centimetres (same units as flux)
 
     emLinesForAvgVelCalc = ['H-Alpha', 'H-Beta', 'OIII-5007A', 'NII-6584A', 'SII-6717A']
+    plotResiduals = False  # True
 
 """ NOTES ON HOW TO USE THE ABOVE TABLE
 The limits in 'compLimits' can be in the following forms:

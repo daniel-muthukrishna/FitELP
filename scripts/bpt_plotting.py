@@ -282,7 +282,7 @@ def plot_lines_and_other_points_n():
     yErr = unumpy.std_devs(ratioOIII)
 
     plt.scatter(x, y, marker='s', color='grey', alpha=0.3, label="Olave et al. 2015")
-    plt.errorbar(x, y, xerr=xErr, yerr=yErr, color='grey', ecolor='grey', elinewidth=0.5, fmt=None, alpha=0.3)
+    plt.errorbar(x, y, xerr=xErr, yerr=yErr, color='grey', ecolor='grey', elinewidth=0.5, fmt='none', alpha=0.3)
 
 
 def plot_lines_and_other_points_s():

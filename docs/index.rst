@@ -36,14 +36,6 @@ The project is licensed under the MIT license.
 
 Authors
 -------
-Daniel Muthukrishna, http://www.danielmuthukrishna.com
-Federico Campuzano Castro
+`Daniel Muthukrishna <http://www.danielmuthukrishna.com>`,
+Federico Campuzano Castro,
 Veronica Firpo
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

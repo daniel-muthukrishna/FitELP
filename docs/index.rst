@@ -18,6 +18,10 @@ The code is currently still in development, and there may be many issues present
    :maxdepth: 2
    :caption: Contents:
 
+   installation
+   usage
+   example
+
 Contribute
 ----------
 

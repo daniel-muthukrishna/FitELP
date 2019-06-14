@@ -283,6 +283,19 @@ def fit_profiles(rp, xAxis, initVals):
 
 class RegionCalculations(object):
     def __init__(self, rp, xAxis='vel', initVals='vel'):
+        """ Compute kinematics of a region.
+
+        Parameters
+        ----------
+        rp : RegionParameters object
+            An instance of the RegionParameters class.
+        xAxis : str
+            Plots the x axis in velocity space if xAxis='vel' and in wavelength space if xAxis='wave'. Default is 'vel'.
+        initVals : str
+            Interprets the initial values from all the parameters (i.e. center, sigma, amplitude)
+            as velocities if initVals='vel' or as wavelengths if initVals='wave'
+        """
+
         zoneNames = {zone: [] for zone in rp.centerList.keys()}
         ampListAll = []
         allModelComponents = []

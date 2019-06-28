@@ -15,12 +15,13 @@ echelle or long slit spectroscopy.
 The code is currently still in development, and there may be many issues present. Contact the authors for assistance.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    installation
    usage
    example
+   api
 
 Contribute
 ----------

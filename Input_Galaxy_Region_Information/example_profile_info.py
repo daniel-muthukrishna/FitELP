@@ -1,4 +1,4 @@
-from emission_line_analysis.line_profile_info import RegionParameters
+from src.line_profile_info import RegionParameters
 import numpy as np
 
 

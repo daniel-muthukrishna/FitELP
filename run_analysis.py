@@ -1,11 +1,11 @@
 import os
 import sys
 import matplotlib.pyplot as plt
-from emission_line_analysis.make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex
-from emission_line_analysis.bpt_plotting import bpt_plot
-from emission_line_analysis.kinematics_calculations import RegionCalculations
-from emission_line_analysis.fit_line_profiles import plot_profiles
-import emission_line_analysis.constants as constants
+from src.make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex
+from src.bpt_plotting import bpt_plot
+from src.kinematics_calculations import RegionCalculations
+from src.fit_line_profiles import plot_profiles
+import src.constants as constants
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Input_Galaxy_Region_Information'))
 

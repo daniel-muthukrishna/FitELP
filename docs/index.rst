@@ -41,6 +41,6 @@ The project is licensed under the MIT license.
 
 Authors
 -------
-`Daniel Muthukrishna <http://www.danielmuthukrishna.com>`,
+`Daniel Muthukrishna <http://www.danielmuthukrishna.com>`_,
 Federico Campuzano Castro,
 Veronica Firpo

@@ -46,36 +46,32 @@ Full Documentation
 ------
 
 
-.. autoclass:: src.bpt_plotting.bpt_plot
-    :members:
+.. autofunction:: src.bpt_plotting.bpt_plot
 
 
 ------
 
 
-.. autoclass:: src.fit_line_profiles.plot_profiles
-    :members:
+.. autofunction:: src.fit_line_profiles.plot_profiles
 
 
 ------
 
 
-.. autoclass:: src.make_latex_tables.average_velocities_table_to_latex
-    :members:
+.. autofunction:: src.make_latex_tables.average_velocities_table_to_latex
 
 
 ------
 
 
-.. autoclass:: src.make_latex_tables.halpha_regions_table_to_latex
-    :members:
+.. autofunction:: src.make_latex_tables.halpha_regions_table_to_latex
 
 
 ------
 
 
-.. autoclass:: src.make_latex_tables.comp_table_to_latex
-    :members:
+.. autofunction:: src.make_latex_tables.comp_table_to_latex
 
 
 ------
+

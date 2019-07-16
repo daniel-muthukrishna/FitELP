@@ -1,11 +1,11 @@
 import os
 import sys
 import matplotlib.pyplot as plt
-from scripts.make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex
-from scripts.bpt_plotting import bpt_plot
-from scripts.kinematics_calculations import RegionCalculations
-from scripts.fit_line_profiles import plot_profiles
-import scripts.constants as constants
+from emission_line_analysis.make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex
+from emission_line_analysis.bpt_plotting import bpt_plot
+from emission_line_analysis.kinematics_calculations import RegionCalculations
+from emission_line_analysis.fit_line_profiles import plot_profiles
+import emission_line_analysis.constants as constants
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Input_Galaxy_Region_Information'))
 
@@ -21,7 +21,7 @@ def main():
     regionArray = []
     rpBptPoints = []
     for rp in regionsParameters:
-        region = RegionCalculations(rp, xAxis='wave', initVals='vel')
+        region = RegionCalculations(rp, xAxis='vel', initVals='vel')
         regionArray.append(region.lineInArray)
         rpBptPoints.append(region.bptPoints)
 

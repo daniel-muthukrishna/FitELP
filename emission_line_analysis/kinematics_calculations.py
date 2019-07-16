@@ -2,12 +2,12 @@ import csv
 import os
 import sys
 import numpy as np
-from scripts.label_tools import line_label
-from scripts.read_spectra import GalaxyRegion
-from scripts.fit_line_profiles import FittingProfile, plot_profiles, vel_to_wave, wave_to_vel
-from scripts.make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex, comp_table_to_latex
-from scripts.bpt_plotting import calc_bpt_points, bpt_plot
-import scripts.constants as constants
+from emission_line_analysis.label_tools import line_label
+from emission_line_analysis.read_spectra import GalaxyRegion
+from emission_line_analysis.fit_line_profiles import FittingProfile, plot_profiles, vel_to_wave, wave_to_vel
+from emission_line_analysis.make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex, comp_table_to_latex
+from emission_line_analysis.bpt_plotting import calc_bpt_points, bpt_plot
+import emission_line_analysis.constants as constants
 
 constants.init()
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../scripts'))

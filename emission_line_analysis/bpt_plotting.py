@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import warnings
 from uncertainties import ufloat, umath, unumpy
-import scripts.constants as constants
+import emission_line_analysis.constants as constants
 
 constants.init()
 

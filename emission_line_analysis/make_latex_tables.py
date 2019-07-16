@@ -1,6 +1,6 @@
 import os
 import numpy as np
-import scripts.constants as constants
+import emission_line_analysis.constants as constants
 
 constants.init()
 

@@ -1,10 +1,8 @@
-=========================
-EmissioneLineAnalysis API
-=========================
+===
+API
+===
 
-ChainConsumer has a number of different methods that can be access. In the latest version
-of ChainConsumer, the increasing number of methods has had them put into smaller classes within
-ChainConsumer.
+EmissionLineAnalysis has a few important classes and methods.
 
 Basic Methods
 -------------
@@ -12,7 +10,7 @@ Basic Methods
 The methods found in the ChainConsumer class itself all relate to add, manipulating, and configuring
 the chains fed in.
 
-* :func:`chainconsumer.ChainConsumer.add_chain` - Add a chain!
+* :func:`emission_line_analysis.line_profile_info.RegionParameters.add_em_line` - Add an emission line
 
 
 The full documentation can be found below.
@@ -20,15 +18,16 @@ The full documentation can be found below.
 Full Documentation
 ------------------
 
-.. autoclass:: scripts.line_profile_info.RegionParameters
+.. autoclass:: emission_line_analysis.line_profile_info.RegionParameters
     :members:
 
 
 ------
 
 
-.. autoclass:: scripts.line_profile_info.RegionCalculations
+.. autoclass:: emission_line_analysis.line_profile_info.RegionCalculations
     :members:
 
 
 ------
+

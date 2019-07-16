@@ -4,7 +4,7 @@ import astropy.units as u
 import matplotlib.pyplot as plt
 import numpy as np
 from specutils.io import read_fits
-import scripts.constants as constants
+import emission_line_analysis.constants as constants
 
 constants.init()
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Data_Files'))

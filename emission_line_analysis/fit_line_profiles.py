@@ -4,8 +4,8 @@ import numpy as np
 from lmfit import Parameters
 from lmfit.models import GaussianModel, LinearModel
 from astropy.constants import c
-from scripts.label_tools import line_label
-import scripts.constants as constants
+from emission_line_analysis.label_tools import line_label
+import emission_line_analysis.constants as constants
 
 constants.init()
 

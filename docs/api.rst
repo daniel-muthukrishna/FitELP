@@ -32,14 +32,14 @@ The full documentation can be found below.
 Full Documentation
 ------------------
 
-.. autoclass:: src.kinematics_calculations.RegionCalculations
+.. autoclass:: src.line_profile_info.RegionParameters
     :members:
 
 
 ------
 
 
-.. autoclass:: src.line_profile_info.RegionParameters
+.. autoclass:: src.kinematics_calculations.RegionCalculations
     :members:
 
 

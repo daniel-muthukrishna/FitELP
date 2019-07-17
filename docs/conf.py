@@ -47,9 +47,8 @@ extensions = [
     'sphinx.ext.autosummary'
 ]
 
-autoclass_content = 'both'
-autosummary_generate = True
-
+# autoclass_content = 'both'
+# autosummary_generate = True
 
 
 # Add any paths that contain templates here, relative to this directory.

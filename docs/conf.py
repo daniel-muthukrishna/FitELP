@@ -47,7 +47,7 @@ extensions = [
     'sphinx.ext.autosummary'
 ]
 
-# autoclass_content = 'both'
+autoclass_content = 'both'
 # autosummary_generate = True
 
 

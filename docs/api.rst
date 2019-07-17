@@ -32,11 +32,14 @@ The full documentation can be found below.
 Full Documentation
 ------------------
 
+.. autoclass:: src.kinematics_calculations.RegionCalculations
+    :members:
+
 
 ------
 
 
-.. autoclass:: src.kinematics_calculations.RegionCalculations
+.. autoclass:: src.line_profile_info.RegionParameters
     :members:
 
 
@@ -68,5 +71,7 @@ Full Documentation
 
 
 .. autofunction:: src.make_latex_tables.comp_table_to_latex
+
+
 
 

@@ -39,15 +39,14 @@ Full Documentation
 ------
 
 
-.. automodule:: src.kinematics_calculations
+.. autoclass:: src.kinematics_calculations.RegionCalculations
     :members:
 
 
 ------
 
 
-.. automodule:: src.bpt_plotting
-    :members: bpt_plot
+.. autofunction:: src.bpt_plotting.bpt_plot
 
 
 ------

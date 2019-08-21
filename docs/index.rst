@@ -40,4 +40,4 @@ Authors
 -------
 `Daniel Muthukrishna <http://www.danielmuthukrishna.com>`_,
 Federico Campuzano Castro,
-Verónica Firpo <http://www.gemini.edu/sciops/gemini-research-staff/staff-list#vfirpo>`_
+`Verónica Firpo <http://www.gemini.edu/sciops/gemini-research-staff/staff-list#vfirpo>`_

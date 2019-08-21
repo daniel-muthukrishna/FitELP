@@ -40,4 +40,4 @@ Authors
 -------
 `Daniel Muthukrishna <http://www.danielmuthukrishna.com>`_,
 Federico Campuzano Castro,
-Veronica Firpo
+Verónica Firpo

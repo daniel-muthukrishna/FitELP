@@ -9,7 +9,7 @@ class RegionParameters(object):
                  center_list, sigma_list, lin_slope, lin_int, num_comps, component_labels, component_colors,
                  plotting_x_range, sigma_instr_blue, sigma_inst_red, distance, em_lines_for_avg_vel_calc,
                  plot_residuals=True, show_systemic_velocity=False, systemic_velocity=None):
-        """ List information about each line profile
+        """ List information about a region containing multiple emission lines
 
         Parameters
         ----------

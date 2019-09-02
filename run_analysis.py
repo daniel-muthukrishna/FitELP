@@ -9,10 +9,13 @@ from src.kinematics_calculations import RegionCalculations
 from src.fit_line_profiles import plot_profiles
 from src.line_profile_info import RegionParameters
 
+# Path to the directory you wish to save the ouput plots, tables and results.
 constants.OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Output_Files')
+
+# Path to the directory containing your input data files (Optional).
 constants.DATA_FILES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Input_Data_Files')
 
-
+# Set up example region to simultaneously fit multiple emission lines
 example_region_1 = RegionParameters(region_name='example-region-1',
                                     blue_spec_file='HCG31-C_B.fc.fits',
                                     red_spec_file='HCG31-C_R.fc.fits',
@@ -38,6 +41,7 @@ example_region_1 = RegionParameters(region_name='example-region-1',
                                     systemic_velocity=4000
                                     )
 
+# Add emission lines to fit
 example_region_1.add_em_line(name='H-Alpha', plot_color='y', order=20, filter='red', min_idx=2931, max_idx=3360, rest_wavelength=6562.82, amp_list=[1.1393854, 8.58, 4.8228556], zone='low', sigma_tsquared=164.96, comp_limits={'a': np.inf, 'c': np.inf, 's': np.inf}, copy_from=None)
 example_region_1.add_em_line(name='OIII-5007A', plot_color='c', order=4, filter='red', min_idx=2300, max_idx=3440, rest_wavelength=5006.84, amp_list=[1.1548058, 8.5919068, 4.2634018], zone='high',sigma_tsquared=10.39, comp_limits={'a': np.inf, 'c': np.inf, 's': np.inf}, copy_from=None)
 example_region_1.add_em_line(name='OIII-4959A', plot_color='g', order=4, filter='red', min_idx=1080, max_idx=2000, rest_wavelength=4958.91, amp_list=[0.3902536, 2.7844993, 1.3837819], zone='high',sigma_tsquared=10.39, comp_limits={'a': np.inf, 'c': False, 's': False}, copy_from='OIII-5007A')

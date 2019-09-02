@@ -5,14 +5,15 @@
 
 EmissionLineAnalysis
 ====================
-Fit emission profiles with multiple gaussian components. Takes echelle or long slit data as an input.
-The fitting procedure is based around the code lmfit, https://lmfit.github.io/lmfit-py/.
+EmissionLineAnalysis is a powerful Python code to perform spectral emission line fits with multiple gaussian components in echelle or long-slit data. The fitting procedure is based around the code lmfit, https://lmfit.github.io/lmfit-py/.
 
-Currently this project was designed for the analysis of the internal kinematics of giant star forming regions in
-interacting galaxies. Data is from the MIKE spectrograph. However, it can be used to model any emission lines in
-echelle or long slit spectroscopy.
+Currently this project was designed for the analysis of the internal kinematics of star forming regions using MIKE echelle spectrograph data of Las Campanas Observatory, Chile. However, it can be used to model any emission lines in echelle or long-slit spectroscopy.
 
 The code is currently still in development, and there may be many issues present. Contact the authors for assistance.
+
+An example fit to an emission line is shown below.
+
+.. image:: Figures/example_emission_line_fit.png
 
 .. toctree::
    :maxdepth: 3
@@ -43,4 +44,4 @@ Authors
 -------
 `Daniel Muthukrishna <http://www.danielmuthukrishna.com>`_,
 Federico Campuzano Castro,
-Veronica Firpo
+`Verónica Firpo <http://www.gemini.edu/sciops/gemini-research-staff/staff-list#vfirpo>`_

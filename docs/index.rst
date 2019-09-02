@@ -11,6 +11,10 @@ Currently this project was designed for the analysis of the internal kinematics 
 
 The code is currently still in development, and there may be many issues present. Contact the authors for assistance.
 
+An example fit to an emission line is shown below.
+
+.. image:: Figures/example_emission_line_fit.png
+
 .. toctree::
    :maxdepth: 3
    :caption: Contents:

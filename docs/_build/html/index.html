@@ -151,12 +151,11 @@
             
   <div class="section" id="emissionlineanalysis">
 <h1>EmissionLineAnalysis<a class="headerlink" href="#emissionlineanalysis" title="Permalink to this headline">¶</a></h1>
-<p>Fit emission profiles with multiple gaussian components. Takes echelle or long slit data as an input.
-The fitting procedure is based around the code lmfit, <a class="reference external" href="https://lmfit.github.io/lmfit-py/">https://lmfit.github.io/lmfit-py/</a>.</p>
-<p>Currently this project was designed for the analysis of the internal kinematics of giant star forming regions in
-interacting galaxies. Data is from the MIKE spectrograph. However, it can be used to model any emission lines in
-echelle or long slit spectroscopy.</p>
+<p>EmissionLineAnalysis is a powerful Python code to perform spectral emission line fits with multiple gaussian components in echelle or long-slit data. The fitting procedure is based around the code lmfit, <a class="reference external" href="https://lmfit.github.io/lmfit-py/">https://lmfit.github.io/lmfit-py/</a>.</p>
+<p>Currently this project was designed for the analysis of the internal kinematics of star forming regions using MIKE echelle spectrograph data of Las Campanas Observatory, Chile. However, it can be used to model any emission lines in echelle or long-slit spectroscopy.</p>
 <p>The code is currently still in development, and there may be many issues present. Contact the authors for assistance.</p>
+<p>An example fit to an emission line is shown below.</p>
+<img alt="_images/example_emission_line_fit.png" src="_images/example_emission_line_fit.png" />
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -165,7 +164,17 @@ echelle or long slit spectroscopy.</p>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies">Dependencies</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#fit-emission-lines">Fit emission lines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#compute-kinematics-of-a-region">Compute kinematics of a region</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#plot-multiple-profiles">Plot multiple profiles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#make-bpt-plot">Make BPT plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#make-table-of-average-velocities">Make table of average velocities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage.html#make-table-of-h-alpha-and-sfr">Make table of H-alpha and SFR</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="example.html">Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api.html#basic-classes-and-methods">Basic Classes and Methods</a></li>
@@ -195,7 +204,7 @@ echelle or long slit spectroscopy.</p>
 <h2>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="http://www.danielmuthukrishna.com">Daniel Muthukrishna</a>,
 Federico Campuzano Castro,
-Veronica Firpo</p>
+<a class="reference external" href="http://www.gemini.edu/sciops/gemini-research-staff/staff-list#vfirpo">Verónica Firpo</a></p>
 </div>
 </div>
 

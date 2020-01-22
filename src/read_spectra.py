@@ -3,8 +3,8 @@ import sys
 import astropy.units as u
 import matplotlib.pyplot as plt
 import numpy as np
-from specutils.io import read_fits
 import src.constants as constants
+import src.read_fits_file
 
 constants.init()
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Data_Files'))
@@ -13,24 +13,14 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../
 def read_spectra(filename, scaleFlux):
     """ Reads spectra from input FITS File
     Stores the wavelength (in Angstroms) in a vector 'x'
-    and the fluxes scaled by 10**14 in a vector 'y'
     x and y are an array of the wavelengths and fluxes of each of the orders"""
-    x = []
-    y = []
-    try:
-        spectra = read_fits.read_fits_spectrum1d(filename)
-    except (OSError, IOError):
-        spectra = read_fits.read_fits_spectrum1d(os.path.join(constants.DATA_FILES, filename))
 
-    if isinstance(spectra, list):
-        for spectrum in spectra:
-            x.append(spectrum.dispersion / u.angstrom)
-            y.append(spectrum.flux * scaleFlux)
-        x = np.array(x)
-        y = np.array(y)
-    else:
-        x = np.array([spectra.dispersion / u.angstrom])
-        y = np.array([spectra.flux * scaleFlux])
+    if not os.path.isfile(filename):
+        filename = os.path.join(constants.DATA_FILES, filename)
+
+    spectra = src.read_fits_file.readmultispec(filename)
+    x = spectra['wavelen']
+    y = spectra['flux']
 
     return x, y
 

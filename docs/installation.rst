@@ -15,7 +15,7 @@ The source code can be downloaded from GitHub and dependencies can be installed 
 
 Dependencies
 ------------
-:code:`numpy`, :code:`matplotlib`, :code:`uncertainties`, :code:`lmfit`, :code:`astropy`, :code:`specutils`.
+:code:`numpy`, :code:`matplotlib`, :code:`uncertainties`, :code:`lmfit`, :code:`astropy`.
 
 These can all be install with `pip` if they were not already installed by the setup file.
 You will also need LaTex installed.

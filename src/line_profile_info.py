@@ -24,7 +24,9 @@ class RegionParameters(object):
         red_spec_error_file : str
             FITS file path of the red spectrum
         scale_flux : float
-            scale the fluxes form the files by this factor during fitting
+            scales the fluxes from the files by this factor during fitting.
+            If scale_flux is not 1e14, then you will need to edit the string _FLUX_UNITS_WAVE constant in constants.py
+            to reflect the scaling so that the axis labels and tables are correct.
         center_list : dict
             The center values of the gaussians for the low (H-Alpha) and high (OIII) zones of each gaussian.
             E.g. centerList = {'low': [3918.56, 3969.72, 3978.93], 'high': [3923.50, 3970.63, 3984.13]}
@@ -126,7 +128,7 @@ class RegionParameters(object):
             - a list indicating the limits for each component
             - a single number indicating the percentage limits for ALL components
             - a tuple (minValue, maxValue) indicating the min and max not in a percentage
-            - inf: indicating that the component cannot vary
+            - inf: indicating that the component can vary
             - False: indicating that the value is fixed
         copy_from : str or None
             The name of the emission line top copy from. If None, it will not copy any information

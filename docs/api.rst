@@ -21,6 +21,7 @@ Plotting Methods
 
 Latex Tables Methods
 --------------------
+
 * :func:`src.make_latex_tables.average_velocities_table_to_latex` - Make line profile velocities table
 * :func:`src.make_latex_tables.halpha_regions_table_to_latex` - Make region information summary table
 * :func:`src.make_latex_tables.comp_table_to_latex` - Make table detailing gaussian components of each emission line
@@ -71,7 +72,5 @@ Full Documentation
 
 
 .. autofunction:: src.make_latex_tables.comp_table_to_latex
-
-
 
 

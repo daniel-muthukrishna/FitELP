@@ -3,11 +3,15 @@ import os
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
 DATA_FILES = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Data_Files')
 
-FLUX_VEL_AXIS_LABEL = r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1})}$"
-FLUX_WAVE_AXIS_LABEL = r"$\mathrm{Flux \ (10^{-14} \ erg \ s^{-1} \ cm^{-2})}$"
+_FLUX_UNITS_WAVE = r"10^{-14} \ erg \ s^{-1} \ cm^{-2}"
+_FLUX_UNITS_VEL = _FLUX_UNITS_WAVE + r" \ (km \ s^{-1})^{-1}"
+FLUX_UNITS_TEXT = r"$(\mathrm{" + _FLUX_UNITS_WAVE + r"})$"
+FLUX_VEL_AXIS_LABEL = r"$\mathrm{Flux \ (" + _FLUX_UNITS_WAVE + r")}$"
+FLUX_WAVE_AXIS_LABEL = r"$\mathrm{Flux \ (" + _FLUX_UNITS_WAVE + r")}$"
 VEL_AXIS_LABEL = r"$\mathrm{Velocity \ (km \ s^{-1}})$"
 DELTA_VEL_AXIS_LABEL = r"$\mathrm{\Delta Velocity \ (km \ s^{-1}})$"
 WAVE_AXIS_LABEL = r"$\mathrm{Wavelength (\AA)}$"
+
 
 ALL_IONS = (('OII-3726A', 3726, '[OII]dob'),
             ('OII-3729A', 3729, '[OII]dob'),

@@ -20,7 +20,7 @@ def read_spectra(filename, scaleFlux):
 
     spectra = src.read_fits_file.readmultispec(filename)
     x = spectra['wavelen']
-    y = spectra['flux']
+    y = spectra['flux'] * scaleFlux
 
     return x, y
 

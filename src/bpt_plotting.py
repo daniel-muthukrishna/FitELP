@@ -78,13 +78,20 @@ def calc_bpt_points(rp, plot_type='n'):
 
     compList = ['global'] + list(fluxes['H-Alpha'].keys())
     for comp in compList:
-        ratioX = umath.log10(xNumerator[comp] / xDenominator[comp])
-        ratioY = umath.log10(yNumerator[comp] / yDenominator[comp])
         bptPoints[comp] = {}
-        bptPoints[comp]['x'] = ratioX.nominal_value
-        bptPoints[comp]['xErr'] = ratioX.std_dev
-        bptPoints[comp]['y'] = ratioY.nominal_value
-        bptPoints[comp]['yErr'] = ratioY.std_dev
+        if xNumerator[comp] >= 0 and xDenominator[comp] >=  0 and yNumerator[comp] >= 0 and yDenominator[comp] >= 0:
+            ratioX = umath.log10(xNumerator[comp] / xDenominator[comp])
+            ratioY = umath.log10(yNumerator[comp] / yDenominator[comp])
+            bptPoints[comp]['x'] = ratioX.nominal_value
+            bptPoints[comp]['xErr'] = ratioX.std_dev
+            bptPoints[comp]['y'] = ratioY.nominal_value
+            bptPoints[comp]['yErr'] = ratioY.std_dev
+        else:
+            warnings.warn("Cannot compute BPT diagram as some component fluxes are negative")
+            bptPoints[comp]['x'] = None
+            bptPoints[comp]['xErr'] = None
+            bptPoints[comp]['y'] = None
+            bptPoints[comp]['yErr'] = None
 
     return bptPoints
 

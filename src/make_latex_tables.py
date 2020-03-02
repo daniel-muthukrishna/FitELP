@@ -55,8 +55,8 @@ def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrai
     headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',
                 r'$\mathrm{\sigma_{int}}$', r'$\mathrm{Flux}$', r'$\mathrm{EM_f}$', r'$\mathrm{GlobalFlux}$']
     headingUnits = [r'$(\mathrm{\AA})$', '', '', r'$(\mathrm{km \ s^{-1}})$',
-                    r'$(\mathrm{km \ s^{-1}})$', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$',
-                    '', r'$(\mathrm{10^{-14} \ erg \ s^{-1} \ cm^{-2} \ (km \ s^{-1})^{-1}})$']
+                    r'$(\mathrm{km \ s^{-1}})$', constants.FLUX_UNITS_TEXT,
+                    '', constants.FLUX_UNITS_TEXT]
     headingLines = [headings, headingUnits]
     caption = rp.regionName
     nCols = len(headings)

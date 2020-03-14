@@ -52,8 +52,6 @@ example_region_1.add_em_line(name='SII-6717A', plot_color='r', order=22, filter=
 example_region_1.add_em_line(name='SII-6731A', plot_color='#58D68D', order=22, filter='red', min_idx=986, max_idx=1290, rest_wavelength=6730.85, amp_list=[0.0324219, 0.6733394, 0.2678776], zone='low',sigma_tsquared=5.19, comp_limits={'a': np.inf, 'c': 1, 's': 1}, copy_from='SII-6717A')
 example_region_1.add_em_line(name='H-Gamma', plot_color='r', order=27, filter='blue', min_idx=1625, max_idx=2183, rest_wavelength=4340.47, amp_list=[0.1402979, 3.2042614, 1.7970957], zone='low',sigma_tsquared=164.96, comp_limits={'a': np.inf, 'c': False, 's': False}, copy_from='H-Beta')
 example_region_1.add_em_line(name='H-Delta', plot_color='c', order=22, filter='blue', min_idx=2390, max_idx=2810, rest_wavelength=4101.74, amp_list=[0.1402979, 3.2042614, 1.7970957], zone='low',sigma_tsquared=164.96, comp_limits={'a': np.inf, 'c': False, 's': False}, copy_from='H-Beta')
-example_region_1.add_em_line(name='SIII-9069A', plot_color='#27AE60', order=35, filter='red', min_idx=485, max_idx=881, rest_wavelength=9068.9, amp_list=[0.0807574, 1.0986008, 0.5388915], zone='low',sigma_tsquared=5.19, comp_limits={'a': np.inf, 'c': 0.001, 's': 0.1}, copy_from='H-Alpha')
-
 
 def main():
     regions_parameters = [example_region_1]

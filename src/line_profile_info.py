@@ -49,9 +49,6 @@ class RegionParameters(object):
         component_colors : list
             Colour to plot each of the components in the order that they appear in component_labels.
             E.g. componentColours = ['r', 'c', 'g']
-        plotting_x_range: list
-            The wavelength (or velocity) range to plot each of the emission line gaussians.
-            E.g. plotting_x_range = [3600, 4400]
         sigma_instr_blue : float
             The instrument sigma in the blue arm.
         sigma_inst_red : float
@@ -61,13 +58,16 @@ class RegionParameters(object):
         em_lines_for_avg_vel_calc : list
             The emission lines to use to calculate the average velocity.
             E.g. emLinesForAvgVelCalc = ['H-Alpha', 'H-Beta', 'OIII-5007A', 'NII-6584A', 'SII-6717A']
+        plotting_x_range: list or None
+            The wavelength (or velocity) range to plot each of the emission line gaussians.
+            E.g. plotting_x_range = [3600, 4400]
         plot_residuals : bool
             Whether to plot the residuals of the fit in an extra panel below the gaussian
             Default is True.
         show_systemic_velocity : bool
             Assumed False if it is not defined. If True, the xAxis is plotted
             as the measured velocity minus the systemicVelocity: (velocity - systemicVelocity)
-        systemic_velocity : float
+        systemic_velocity : float or None
             Required if show_systemic_velocity is True.
         """
 
@@ -130,10 +130,14 @@ class RegionParameters(object):
             - a tuple (minValue, maxValue) indicating the min and max not in a percentage
             - inf: indicating that the component can vary
             - False: indicating that the value is fixed
-        copy_from : str or None
-            The name of the emission line top copy from. If None, it will not copy any information
+        copy_from : str or None or list
+            The name of the emission line to copy from. If None, it will not copy any information.
+            If it is a list, it must be the length of the number of components you have (as defined in num_comps in
+            RegionParameters). Each element of the list must be a string indicating which emission line to
+            copy for each component.
 
         """
+
         self.emProfiles[name] = {'Colour': plot_color, 'Order': order, 'Filter': filter,
                                  'minI': min_idx, 'maxI': max_idx, 'restWavelength': rest_wavelength,
                                  'ampList': amp_list, 'zone': zone, 'sigmaT2': sigma_tsquared,

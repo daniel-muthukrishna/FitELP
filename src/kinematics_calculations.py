@@ -242,13 +242,24 @@ def fit_profiles(rp, xAxis, initVals):
                 if type(emInfo['copyFrom']) is list:
                     copyAmpList, copyCenterList, copySigmaList = [], [], []
                     for copyIdx in range(len(emInfo['copyFrom'])):
-                        copyAmpList.append(rp.emProfiles[emInfo['copyFrom'][copyIdx]]['ampListNew'][copyIdx])
-                        copyCenterList.append(rp.emProfiles[emInfo['copyFrom'][copyIdx]]['centerList'][copyIdx])
-                        copySigmaList.append(rp.emProfiles[emInfo['copyFrom'][copyIdx]]['sigmaList'][copyIdx])
+                        copyFrom = rp.emProfiles[emInfo['copyFrom'][copyIdx]]
+                        copyAmpList.append(copyFrom['ampListNew'][copyIdx])
+                        copyCenterList.append(copyFrom['centerList'][copyIdx])
+                        copySigmaList.append(copyFrom['sigmaList'][copyIdx])
+
+                        sigObsCopy = copyFrom[copyIdx]
+                        sigIntCopy, _ = calc_vel_dispersion(sigObsCopy, 0, copyFrom['sigmaT2'], copyFrom['Filter'], rp)
+                        copySigmaList.append(sigIntCopy)
                 else:
-                    copyAmpList = rp.emProfiles[emInfo['copyFrom']]['ampListNew']
-                    copyCenterList = rp.emProfiles[emInfo['copyFrom']]['centerList']
-                    copySigmaList = rp.emProfiles[emInfo['copyFrom']]['sigmaList']
+                    copyFrom = rp.emProfiles[emInfo['copyFrom']]
+                    copyAmpList = copyFrom['ampListNew']
+                    copyCenterList = copyFrom['centerList']
+
+                    copySigmaObsList = copyFrom['sigmaList']
+                    copySigmaList = []
+                    for idx in range(numComps):
+                        sigIntCopy, _ = calc_vel_dispersion(copySigmaObsList[idx], 0, copyFrom['sigmaT2'], copyFrom['Filter'], rp)
+                        copySigmaList.append(sigIntCopy)
 
                 if type(rp.emProfiles[emName]['ampList']) is list:
                     ampListInit = emInfo['ampList']

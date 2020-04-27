@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Data_Files'))
 
 
-def calc_vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
+def calc_vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp, correctCopiedSigma=False):
     # Assuming negligible error in temp or instrument
     if filter == 'blue':
         sigmaInstr = rp.sigmaInstrBlue
@@ -43,13 +43,17 @@ def calc_vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp):
     # intrinsic = np.sqrt(totalSigmaSquared)
     # intrinsicError = 0.5 * totalSigmaSquared ** (-0.5) * totalSigmaSquaredError
     #
-    if sigmaObs**2 > (sigmaTemp2 + sigmaInstr**2):
-        totalSigmaSquared = sigmaObs**2 - sigmaInstr**2 - sigmaTemp2
+    if correctCopiedSigma:
+        totalSigmaSquared = sigmaObs**2 + sigmaInstr**2 + sigmaTemp2
         totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError
     else:
-        print("ERROR: INVALID SIGMA")
-        totalSigmaSquared = 1e-99
-        totalSigmaSquaredError = 0
+        if sigmaObs**2 > (sigmaTemp2 + sigmaInstr**2):
+            totalSigmaSquared = sigmaObs**2 - sigmaInstr**2 - sigmaTemp2
+            totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError
+        else:
+            print("ERROR: INVALID SIGMA")
+            totalSigmaSquared = 1e-99
+            totalSigmaSquaredError = 0
     intrinsic = np.sqrt(totalSigmaSquared)
     intrinsicError = 0.5 * totalSigmaSquared**(-0.5) * totalSigmaSquaredError
 
@@ -351,8 +355,13 @@ class RegionCalculations(object):
                     sigma, sigmaError, velError = wave_to_vel(emInfo['restWavelength'], wave=np.array((sigma, sigmaError, velError)), flux=0, delta=True)[0]
                     vel = wave_to_vel(emInfo['restWavelength'], wave=vel, flux=0)[0]
 
-                sigInt, sigIntErr = calc_vel_dispersion(sigma, sigmaError, emInfo['sigmaT2'], emInfo['Filter'], rp)
+                if emInfo['copyFrom'] is None:
+                    correctCopiedSigma = False
+                else:
+                    correctCopiedSigma = True
+                sigInt, sigIntErr = calc_vel_dispersion(sigma, sigmaError, emInfo['sigmaT2'], emInfo['Filter'], rp, correctCopiedSigma=correctCopiedSigma)
                 rp.emProfiles[emName]['sigIntList'].append(sigInt)
+
                 if hasattr(rp, 'showSystemicVelocity') and rp.showSystemicVelocity is True:
                     tableVel = vel - rp.systemicVelocity
                 else:

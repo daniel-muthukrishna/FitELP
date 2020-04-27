@@ -7,7 +7,7 @@ class RegionParameters(object):
 
     def __init__(self, region_name, blue_spec_file, red_spec_file, blue_spec_error_file, red_spec_error_file, scale_flux,
                  center_list, sigma_list, lin_slope, lin_int, num_comps, component_labels, component_colors,
-                 plotting_x_range, sigma_instr_blue, sigma_inst_red, distance, em_lines_for_avg_vel_calc,
+                 sigma_instr_blue, sigma_inst_red, distance, em_lines_for_avg_vel_calc, plotting_x_range=None,
                  plot_residuals=True, show_systemic_velocity=False, systemic_velocity=None):
         """ List information about a region containing multiple emission lines
 

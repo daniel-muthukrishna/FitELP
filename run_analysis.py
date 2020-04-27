@@ -16,11 +16,11 @@ constants.OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 constants.DATA_FILES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Input_Data_Files')
 
 # Set up example region to simultaneously fit multiple emission lines
-example_region_1 = RegionParameters(region_name='example-region-1',
-                                    blue_spec_file='HCG31-C_B.fc.fits',
-                                    red_spec_file='HCG31-C_R.fc.fits',
-                                    blue_spec_error_file='HCG31-C_B_ErrorFlux.fc.fits',
-                                    red_spec_error_file='HCG31-AC_R_ErrorFlux.fc.fits',
+example_region_1 = RegionParameters(region_name='example-region-HCG31A',
+                                    blue_spec_file='HCG31-A_B.fc.fits',
+                                    red_spec_file='HCG31-A_R.fc.fits',
+                                    blue_spec_error_file='HCG31-A_B_ErrorFlux.fc.fits',
+                                    red_spec_error_file='HCG31-A_R_ErrorFlux.fc.fits',
                                     scale_flux=1e14,
                                     center_list={'low': [3918.56152, 3978.93476, 4009.07339],
                                                  'high': [3923.50164, 3984.13367, 4013.03660]},

@@ -281,7 +281,7 @@ class FittingProfile(object):
             else:
                 x = self.x
                 xLabel = constants.VEL_AXIS_LABEL
-            if hasattr(self.rp, 'rp.plottingXRange'):
+            if hasattr(self.rp, 'rp.plottingXRange') and self.rp.plottingXRange is not None:
                 plt.xlim(self.rp.plottingXRange)
             yLabel = constants.FLUX_VEL_AXIS_LABEL
         else:

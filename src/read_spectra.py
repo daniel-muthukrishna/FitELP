@@ -22,6 +22,10 @@ def read_spectra(filename, scaleFlux):
     x = spectra['wavelen']
     y = spectra['flux'] * scaleFlux
 
+    if len(x.shape) == 1:
+        x = np.array([x])
+        y = np.array([y])
+
     return x, y
 
 

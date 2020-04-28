@@ -44,6 +44,7 @@ def calc_vel_dispersion(sigmaObs, sigmaObsError, sigmaTemp2, filter, rp, correct
     # intrinsicError = 0.5 * totalSigmaSquared ** (-0.5) * totalSigmaSquaredError
     #
     if correctCopiedSigma:
+        # SigmaObs here is the SigmaIntrinsic of the copied line
         totalSigmaSquared = sigmaObs**2 + sigmaInstr**2 + sigmaTemp2
         totalSigmaSquaredError = 2 * sigmaObs * sigmaObsError
     else:
@@ -253,7 +254,8 @@ def fit_profiles(rp, xAxis, initVals):
 
                         sigObsCopy = copyFrom[copyIdx]
                         sigIntCopy, _ = calc_vel_dispersion(sigObsCopy, 0, copyFrom['sigmaT2'], copyFrom['Filter'], rp)
-                        copySigmaList.append(sigIntCopy)
+                        newSigObs, _ = calc_vel_dispersion(sigIntCopy, 0, emInfo['sigmaT2'], emInfo['Filter'], rp, correctCopiedSigma=True)
+                        copySigmaList.append(newSigObs)
                 else:
                     copyFrom = rp.emProfiles[emInfo['copyFrom']]
                     copyAmpList = copyFrom['ampListNew']
@@ -263,7 +265,8 @@ def fit_profiles(rp, xAxis, initVals):
                     copySigmaList = []
                     for idx in range(numComps):
                         sigIntCopy, _ = calc_vel_dispersion(copySigmaObsList[idx], 0, copyFrom['sigmaT2'], copyFrom['Filter'], rp)
-                        copySigmaList.append(sigIntCopy)
+                        newSigObs, _ = calc_vel_dispersion(sigIntCopy, 0, emInfo['sigmaT2'], emInfo['Filter'], rp, correctCopiedSigma=True)
+                        copySigmaList.append(newSigObs)
 
                 if type(rp.emProfiles[emName]['ampList']) is list:
                     ampListInit = emInfo['ampList']
@@ -355,11 +358,7 @@ class RegionCalculations(object):
                     sigma, sigmaError, velError = wave_to_vel(emInfo['restWavelength'], wave=np.array((sigma, sigmaError, velError)), flux=0, delta=True)[0]
                     vel = wave_to_vel(emInfo['restWavelength'], wave=vel, flux=0)[0]
 
-                if emInfo['copyFrom'] is None:
-                    correctCopiedSigma = False
-                else:
-                    correctCopiedSigma = True
-                sigInt, sigIntErr = calc_vel_dispersion(sigma, sigmaError, emInfo['sigmaT2'], emInfo['Filter'], rp, correctCopiedSigma=correctCopiedSigma)
+                sigInt, sigIntErr = calc_vel_dispersion(sigma, sigmaError, emInfo['sigmaT2'], emInfo['Filter'], rp)
                 rp.emProfiles[emName]['sigIntList'].append(sigInt)
 
                 if hasattr(rp, 'showSystemicVelocity') and rp.showSystemicVelocity is True:

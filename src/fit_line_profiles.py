@@ -1,5 +1,6 @@
 import os
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import numpy as np
 from lmfit import Parameters
 from lmfit.models import GaussianModel, LinearModel
@@ -308,7 +309,9 @@ class FittingProfile(object):
             plt.plot(x, self.flux - out.best_fit)
             plt.axhline(y=0, linestyle='--', color='black')
             plt.ylabel('Residuals')
-            plt.locator_params(axis='y', nbins=3)
+            # plt.locator_params(axis='y', nbins=3)
+            # nbins = len(frame2.get_yticklabels())
+            frame2.yaxis.set_major_locator(MaxNLocator(nbins=3, prune='upper'))
         plt.xlabel(xLabel)
 
         plt.savefig(os.path.join(constants.OUTPUT_DIR, self.rp.regionName, self.lineName + " {0} Component Linear-Gaussian Model".format(numOfComponents)), bbox_inches='tight')

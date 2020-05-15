@@ -95,7 +95,7 @@ class RegionParameters(object):
 
         self.emProfiles = OrderedDict()
 
-    def add_em_line(self, name, plot_color, order, filter, min_idx, max_idx, rest_wavelength, num_comps, amp_list, zone, sigma_tsquared, comp_limits, copy_from):
+    def add_em_line(self, name, plot_color, order, filter, min_idx, max_idx, rest_wavelength, amp_list, zone, sigma_tsquared, comp_limits, copy_from, num_comps=None):
         """ Emission line info
 
         Parameters
@@ -114,7 +114,7 @@ class RegionParameters(object):
             Maximum index of the region in the echelle spectra that includes this emission line.
         rest_wavelength : float
             The rest wavelength of this emission line.
-        num_comps : int
+        num_comps : int (optional)
             The number of Gaussian components to fit the emission line.
             This overrides the num_comps set in RegionParameters for this emission line only.
         amp_list: list or float

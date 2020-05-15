@@ -203,7 +203,7 @@ def fit_profiles(rp, xAxis, initVals):
     f.close()
 
     for emName, emInfo in rp.emProfiles.items():
-        if 'numComps' in emInfo:
+        if 'numComps' in emInfo and emInfo['numComps'] is not None:
             numComps = emInfo['numComps']
         else:
             numComps = rp.numComps[emInfo['zone']]

@@ -375,7 +375,7 @@ class RegionCalculations(object):
 
         save_measurements(measurementInfo, rp)
         # Create Component Table
-        comp_table_to_latex(allModelComponents, rp, paperSize='a4', orientation='portrait', longTable=True)
+        comp_table_to_latex(allModelComponents, rp, paperSize='a4', orientation='portrait', longTable=True, xAxisUnits=xAxis)
 
         print("------------ List all Amplitudes  %s ----------" % rp.regionName)
         for ampComps in ampListAll:

@@ -3,10 +3,12 @@ import os
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
 DATA_FILES = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Data_Files')
 
-_FLUX_UNITS_WAVE = r"10^{-14} \ erg \ s^{-1} \ cm^{-2}"
-_FLUX_UNITS_VEL = _FLUX_UNITS_WAVE + r" \ (km \ s^{-1})^{-1}"
-FLUX_UNITS_TEXT = r"$(\mathrm{" + _FLUX_UNITS_WAVE + r"})$"
-FLUX_VEL_AXIS_LABEL = r"$\mathrm{Flux \ (" + _FLUX_UNITS_WAVE + r")}$"
+_FLUX_UNITS = r"10^{-14} \ erg \ s^{-1} \ cm^{-2}"
+_FLUX_UNITS_WAVE = _FLUX_UNITS + r" \ \AA^{-1}"
+_FLUX_UNITS_VEL = _FLUX_UNITS + r" \ km \ s^{-1}"
+FLUX_UNITS_HEADER_WAVE = r"$(\mathrm{" + _FLUX_UNITS_WAVE + r"})$"
+FLUX_UNITS_HEADER_VEL = r"$(\mathrm{" + _FLUX_UNITS_VEL + r"})$"
+FLUX_VEL_AXIS_LABEL = r"$\mathrm{Flux \ (" + _FLUX_UNITS_VEL + r")}$"
 FLUX_WAVE_AXIS_LABEL = r"$\mathrm{Flux \ (" + _FLUX_UNITS_WAVE + r")}$"
 VEL_AXIS_LABEL = r"$\mathrm{Velocity \ (km \ s^{-1}})$"
 DELTA_VEL_AXIS_LABEL = r"$\mathrm{\Delta Velocity \ (km \ s^{-1}})$"

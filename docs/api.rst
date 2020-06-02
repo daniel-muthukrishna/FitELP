@@ -2,7 +2,8 @@
 API
 ===
 
-EmissionLineAnalysis has a few important classes and methods.
+An application programming interface (API) defines a set of routines to provides access to functions of a software without using a user interface.
+EmissionLineAnalysis has a few entry points into the API. Following we show the more important classes and methods.
 
 Basic Classes and Methods
 -------------------------

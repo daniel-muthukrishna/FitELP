@@ -31,7 +31,7 @@ EmissionLineAnalysis allows you to:
 
 
 
-The code is currently still in development, and there may be many issues present. Contact the authors for assistance.
+.. note:: The code is currently still in development, and there may be many issues present. Contact the authors for assistance.
 
 
 .. toctree::

@@ -11,23 +11,23 @@ The Python code was designed for the analysis of the internal kinematics of star
 
 EmissionLineAnalysis allows you to:
 
--Modelling all individual emission-lines profiles with multiple-gaussian components. 
+* Modelling all individual emission-lines profiles with multiple-gaussian components. 
 
--Visualise the individual fit of the emission-lines profiles with/without residuals.
+* Visualise the individual fit of the emission-lines profiles with/without residuals.
 
--Perform an kinematic analysis of each target.
+* Perform an kinematic analysis of each target.
 
--Produces pdf and latex tables with the results for each ion on each gaussian component:
+* Produces pdf and latex tables with the results for each ion on each gaussian component:
 
-   -- radial velocities, velocity dispersion, fluxes, emission measure (EM), and global flux, with the corresponding errors.
+   - radial velocities, velocity dispersion, fluxes, emission measure (EM), and global flux, with the corresponding errors.
    
-   -- Average of radial velocities and velocity dispersion with the corresponding errors.
+   - Average of radial velocities and velocity dispersion with the corresponding errors.
    
-   -- H-alpha luminosity and the corresponding Star Formation Rate (SFR) base on ... equation, abscissa and ordinate values of the BPT-NII diagnostic diagram.
+   - H-alpha luminosity and the corresponding Star Formation Rate (SFR) base on ... equation, abscissa and ordinate values of the BPT-NII diagnostic diagram.
    
--Visualise the different BPT diagnostic diagrams. 
+* Visualise the different BPT diagnostic diagrams. 
 
--Produces latex tables with the flux, continuum, equivalent width, with the corresponding errors and for each ion.
+* Produces latex tables with the flux, continuum, equivalent width, with the corresponding errors and for each ion.
 
 
 

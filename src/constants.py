@@ -11,7 +11,7 @@ WAVE_AXIS_LABEL = r"$\mathrm{Wavelength (\AA)}$"
 
 class FluxUnitsLabels(object):
     def __init__(self, scale_flux):
-        _FLUX_UNITS = fr"10^{{{int(np.log10(scale_flux))}}} \ erg \ s^{{{-1}}} \ cm^{{{-2}}}"
+        _FLUX_UNITS = r"10^{" + str(-int(np.log10(scale_flux))) + r"} \ erg \ s^{-1} \ cm^{-2}"
         _FLUX_UNITS_WAVE = _FLUX_UNITS + r" \ \AA^{-1}"
         _FLUX_UNITS_VEL = _FLUX_UNITS + r" \ km \ s^{-1}"
         self.FLUX_UNITS_HEADER_WAVE = r"$(\mathrm{" + _FLUX_UNITS_WAVE + r"})$"

@@ -37,7 +37,7 @@ def get_bpt_fluxes(rp, plot_type='NII'):
 
     for ionNameKey, ionName in zip(ionNameKeys, ionNames):
         if ionName not in rp.emProfiles:
-            print(f"Warning: {ionName} not added to the list of emission lines of this region")
+            print(f"Warning: {0} not added to the list of emission lines of this region".format(ionName))
         fluxes[ionNameKey] = {}
         fluxes[ionNameKey]['global'] = ufloat(rp.emProfiles[ionName]['globalFlux'], rp.emProfiles[ionName]['globalFluxErr'])
         for i in range(len(rp.emProfiles[ionName]['compFluxList'])):

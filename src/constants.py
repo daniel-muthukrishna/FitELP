@@ -1,18 +1,23 @@
 import os
+import numpy as np
 
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Output_Files')
 DATA_FILES = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../Input_Data_Files')
 
-_FLUX_UNITS = r"10^{-14} \ erg \ s^{-1} \ cm^{-2}"
-_FLUX_UNITS_WAVE = _FLUX_UNITS + r" \ \AA^{-1}"
-_FLUX_UNITS_VEL = _FLUX_UNITS + r" \ km \ s^{-1}"
-FLUX_UNITS_HEADER_WAVE = r"$(\mathrm{" + _FLUX_UNITS_WAVE + r"})$"
-FLUX_UNITS_HEADER_VEL = r"$(\mathrm{" + _FLUX_UNITS_VEL + r"})$"
-FLUX_VEL_AXIS_LABEL = r"$\mathrm{Flux \ (" + _FLUX_UNITS_VEL + r")}$"
-FLUX_WAVE_AXIS_LABEL = r"$\mathrm{Flux \ (" + _FLUX_UNITS_WAVE + r")}$"
 VEL_AXIS_LABEL = r"$\mathrm{Velocity \ (km \ s^{-1}})$"
 DELTA_VEL_AXIS_LABEL = r"$\mathrm{\Delta Velocity \ (km \ s^{-1}})$"
 WAVE_AXIS_LABEL = r"$\mathrm{Wavelength (\AA)}$"
+
+
+class FluxUnitsLabels(object):
+    def __init__(self, scale_flux):
+        _FLUX_UNITS = fr"10^{{{int(np.log10(scale_flux))}}} \ erg \ s^{{{-1}}} \ cm^{{{-2}}}"
+        _FLUX_UNITS_WAVE = _FLUX_UNITS + r" \ \AA^{-1}"
+        _FLUX_UNITS_VEL = _FLUX_UNITS + r" \ km \ s^{-1}"
+        self.FLUX_UNITS_HEADER_WAVE = r"$(\mathrm{" + _FLUX_UNITS_WAVE + r"})$"
+        self.FLUX_UNITS_HEADER_VEL = r"$(\mathrm{" + _FLUX_UNITS_VEL + r"})$"
+        self.FLUX_VEL_AXIS_LABEL = r"$\mathrm{Flux \ (" + _FLUX_UNITS_VEL + r")}$"
+        self.FLUX_WAVE_AXIS_LABEL = r"$\mathrm{Flux \ (" + _FLUX_UNITS_WAVE + r")}$"
 
 
 ALL_IONS = (('OII-3726A', 3726, '[OII]dob'),
@@ -64,8 +69,6 @@ ALL_IONS = (('OII-3726A', 3726, '[OII]dob'),
 def init():
     global OUTPUT_DIR
     global DATA_FILES
-    global FLUX_VEL_AXIS_LABEL
-    global FLUX_WAVE_AXIS_LABEL
     global VEL_AXIS_LABEL
     global DELTA_VEL_AXIS_LABEL
     global WAVE_AXIS_LABEL

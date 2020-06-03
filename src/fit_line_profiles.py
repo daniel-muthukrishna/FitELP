@@ -203,7 +203,7 @@ class FittingProfile(object):
         if not hasattr(self.rp, 'plotResiduals'):
             self.rp.plotResiduals = True
         numComps = self.rp.emProfiles[lineName]['numComps']
-        self.plot_emission_line(numComps, components, out, self.rp.plotResiduals, lineNames, init=init)
+        self.plot_emission_line(numComps, components, out, self.rp.plotResiduals, lineNames, init=init, scaleFlux=self.rp.scaleFlux)
 
         return out, components
 
@@ -257,13 +257,13 @@ class FittingProfile(object):
 
         if not hasattr(self.rp, 'plotResiduals'):
             self.rp.plotResiduals = True
-        self.plot_emission_line(numOfComponents, components, out, self.rp.plotResiduals, init=init)
+        self.plot_emission_line(numOfComponents, components, out, self.rp.plotResiduals, init=init, scaleFlux=self.rp.scaleFlux)
 
         self._get_amplitude(numOfComponents, out)
 
         return out, components
 
-    def plot_emission_line(self, numOfComponents, components, out, plotResiduals=True, lineNames=None, init=None):
+    def plot_emission_line(self, numOfComponents, components, out, plotResiduals=True, lineNames=None, init=None, scaleFlux=1e14):
         ion, lambdaZero = line_label(self.lineName, self.restWave)
         fig = plt.figure("%s %s %s" % (self.rp.regionName, ion, lambdaZero))
         if plotResiduals is True:
@@ -274,7 +274,7 @@ class FittingProfile(object):
         if self.xAxis == 'wave':
             x = self.x
             xLabel = constants.WAVE_AXIS_LABEL
-            yLabel = constants.FLUX_WAVE_AXIS_LABEL
+            yLabel = constants.FluxUnitsLabels(scaleFlux).FLUX_WAVE_AXIS_LABEL
         elif self.xAxis == 'vel':
             if hasattr(self.rp, 'showSystemicVelocity') and self.rp.showSystemicVelocity is True:
                 x = self.x - self.rp.systemicVelocity
@@ -284,7 +284,7 @@ class FittingProfile(object):
                 xLabel = constants.VEL_AXIS_LABEL
             if hasattr(self.rp, 'rp.plottingXRange') and self.rp.plottingXRange is not None:
                 plt.xlim(self.rp.plottingXRange)
-            yLabel = constants.FLUX_VEL_AXIS_LABEL
+            yLabel = constants.FluxUnitsLabels(scaleFlux).FLUX_VEL_AXIS_LABEL
         else:
             raise Exception("Invalid xAxis argument. Must be either 'wave' or 'vel'. ")
 

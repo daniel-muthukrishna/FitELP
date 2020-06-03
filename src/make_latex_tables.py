@@ -49,11 +49,11 @@ def halpha_regions_table_to_latex(regionInfoArray, directory=None, paperSize='a4
     table_to_latex(regionInfoArray, headingLines, saveFileName, directory, caption, centering, paperSize, orientation, longTable)
 
 
-def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrait', longTable=True, xAxisUnits='vel'):
+def comp_table_to_latex(componentArray, rp, paperSize='a4', orientation='portrait', longTable=True, xAxisUnits='vel', scaleFlux=1e14):
     if xAxisUnits == 'wave':
-        flux_units_text = constants.FLUX_UNITS_HEADER_WAVE
+        flux_units_text = constants.FluxUnitsLabels(scaleFlux).FLUX_UNITS_HEADER_WAVE
     else:
-        flux_units_text = constants.FLUX_UNITS_HEADER_VEL
+        flux_units_text = constants.FluxUnitsLabels(scaleFlux).FLUX_UNITS_HEADER_VEL
     saveFileName = 'ComponentTable'
     directory = os.path.join(constants.OUTPUT_DIR, rp.regionName)
     headings = [r'$\mathrm{\lambda_0}$', r'$\mathrm{Ion}$', r'$\mathrm{Comp.}$', r'$\mathrm{v_r}$',

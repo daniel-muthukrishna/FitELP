@@ -10,12 +10,12 @@ Example script of fitting multiple gaussian components in the emission line prof
     import sys
     import numpy as np
     import matplotlib.pyplot as plt
-    import scripts.constants as constants
-    from scripts.make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex
-    from scripts.bpt_plotting import bpt_plot
-    from scripts.kinematics_calculations import RegionCalculations
-    from scripts.fit_line_profiles import plot_profiles
-    from scripts.line_profile_info import RegionParameters
+    import src.constants as constants
+    from src.make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex
+    from src.bpt_plotting import bpt_plot
+    from src.kinematics_calculations import RegionCalculations
+    from src.fit_line_profiles import plot_profiles
+    from src.line_profile_info import RegionParameters
 
     # Path to the directory you wish to save the ouput plots, tables and results.
     constants.OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Output_Files')
@@ -79,10 +79,10 @@ Example script of fitting multiple gaussian components in the emission line prof
                       title=rp.regionName + ' Strongest Emission Lines', sortedIndex=[0, 1, 2, 3, 4], logscale=True,
                       ymin=None)
 
-    bpt_plot(regions_parameters, rp_bpt_points, plot_type='n')
-    bpt_plot(regions_parameters, rp_bpt_points_s, plot_type='s')
-    bpt_plot(regions_parameters, rp_bpt_points_o, plot_type='o')
-    bpt_plot(regions_parameters, rp_bpt_points_p, plot_type='p')
+    bpt_plot(regions_parameters, rp_bpt_points, plot_type='NII')
+    bpt_plot(regions_parameters, rp_bpt_points_s, plot_type='SII')
+    bpt_plot(regions_parameters, rp_bpt_points_o, plot_type='OI')
+    bpt_plot(regions_parameters, rp_bpt_points_p, plot_type='NIIvsSII')
     halpha_regions_table_to_latex(region_array, paperSize='a4', orientation='portrait', longTable=False)
     average_velocities_table_to_latex(regions_parameters, paperSize='a4', orientation='landscape', longTable=False)
 

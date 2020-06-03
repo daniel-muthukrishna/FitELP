@@ -62,19 +62,19 @@ def main():
     for rp in regions_parameters:
         region = RegionCalculations(rp, xAxis='vel', initVals='vel')
         region_array.append(region.lineInArray)
-        rp_bpt_points.append(region.bptPoints)
-        rp_bpt_points_s.append(region.bptPoints_s)
-        rp_bpt_points_o.append(region.bptPoints_o)
-        rp_bpt_points_p.append(region.bptPoints_p)
+        rp_bpt_points.append(region.bptPoints_NII)
+        rp_bpt_points_s.append(region.bptPoints_SII)
+        rp_bpt_points_o.append(region.bptPoints_OI)
+        rp_bpt_points_p.append(region.bptPoints_NIIvsSII)
 
         plot_profiles(['H-Alpha', 'OIII-5007A', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A',
                       title=rp.regionName + ' Strongest Emission Lines', sortedIndex=[0, 1, 2, 3, 4], logscale=True,
                       ymin=None)
 
-    bpt_plot(regions_parameters, rp_bpt_points, plot_type='n')
-    bpt_plot(regions_parameters, rp_bpt_points_s, plot_type='s')
-    bpt_plot(regions_parameters, rp_bpt_points_o, plot_type='o')
-    bpt_plot(regions_parameters, rp_bpt_points_p, plot_type='p')
+    bpt_plot(regions_parameters, rp_bpt_points, plot_type='NII')
+    bpt_plot(regions_parameters, rp_bpt_points_s, plot_type='SII')
+    bpt_plot(regions_parameters, rp_bpt_points_o, plot_type='OI')
+    bpt_plot(regions_parameters, rp_bpt_points_p, plot_type='NIIvsSII')
     halpha_regions_table_to_latex(region_array, paperSize='a4', orientation='portrait', longTable=False)
     average_velocities_table_to_latex(regions_parameters, paperSize='a4', orientation='landscape', longTable=False)
 

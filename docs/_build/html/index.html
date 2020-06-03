@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>EmissionLineAnalysis &mdash; EmissionLineAnalysis  documentation</title>
+  <title>EmissionLineAnalysis Documentation &mdash; EmissionLineAnalysis  documentation</title>
   
 
   
@@ -130,7 +130,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>EmissionLineAnalysis</li>
+      <li>EmissionLineAnalysis Documentation</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -149,13 +149,28 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="emissionlineanalysis">
-<h1>EmissionLineAnalysis<a class="headerlink" href="#emissionlineanalysis" title="Permalink to this headline">¶</a></h1>
-<p>EmissionLineAnalysis is a powerful Python code to perform spectral emission line fits with multiple gaussian components in echelle or long-slit data. The fitting procedure is based around the code lmfit, <a class="reference external" href="https://lmfit.github.io/lmfit-py/">https://lmfit.github.io/lmfit-py/</a>.</p>
-<p>Currently this project was designed for the analysis of the internal kinematics of star forming regions using MIKE echelle spectrograph data of Las Campanas Observatory, Chile. However, it can be used to model any emission lines in echelle or long-slit spectroscopy.</p>
-<p>The code is currently still in development, and there may be many issues present. Contact the authors for assistance.</p>
-<p>An example fit to an emission line is shown below.</p>
-<img alt="_images/example_emission_line_fit.png" src="_images/example_emission_line_fit.png" />
+  <div class="section" id="emissionlineanalysis-documentation">
+<h1>EmissionLineAnalysis Documentation<a class="headerlink" href="#emissionlineanalysis-documentation" title="Permalink to this headline">¶</a></h1>
+<p>EmissionLineAnalysis is a tool specifically designed to perform spectral emission-line fits with multiple gaussian components in echelle or long-slit data. The actual fitting procedure is based on the Non-Linear Least-Square&nbsp;Minimization and Curve-Fitting (LMFIT) package,&nbsp;<a class="reference external" href="https://lmfit.github.io/lmfit-py/">https://lmfit.github.io/lmfit-py/</a> (Newville et al. 2014, <a class="reference external" href="https://doi.org/10.5281/zenodo.11813">https://doi.org/10.5281/zenodo.11813</a>).</p>
+<p>The Python code was designed for the analysis of the internal kinematics of star-forming regions using echelle data. However, it can be used to model any emission-lines in both in echelle and longslit spectroscopy.</p>
+<p>EmissionLineAnalysis allows you to:</p>
+<ul class="simple">
+<li>Modelling all individual emission-lines profiles with multiple-gaussian components.</li>
+<li>Visualise the individual fit of the emission-lines profiles with/without residuals.</li>
+<li>Perform an kinematic analysis of each target.</li>
+<li>Produces pdf and latex tables with the results for each ion on each gaussian component:</li>
+</ul>
+<p>&nbsp; &nbsp;- radial velocities, velocity dispersion, fluxes, emission measure (EM), and global flux, with the corresponding errors.</p>
+<p>&nbsp; &nbsp;- Average of radial velocities and velocity dispersion with the corresponding errors.</p>
+<p>&nbsp; &nbsp;- H-alpha luminosity and the corresponding Star Formation Rate (SFR) base on … equation, abscissa and ordinate values of the BPT-NII diagnostic diagram.</p>
+<ul class="simple">
+<li>Visualise the different BPT diagnostic diagrams.</li>
+<li>Produces latex tables with the flux, continuum, equivalent width, with the corresponding errors and for each ion.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The code is currently still in development, and there may be many issues present. Contact the authors for assistance.</p>
+</div>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -203,7 +218,6 @@
 <div class="section" id="authors">
 <h2>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="http://www.danielmuthukrishna.com">Daniel Muthukrishna</a>,
-Federico Campuzano Castro,
 <a class="reference external" href="http://www.gemini.edu/sciops/gemini-research-staff/staff-list#vfirpo">Verónica Firpo</a></p>
 </div>
 </div>

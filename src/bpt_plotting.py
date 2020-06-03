@@ -4,37 +4,40 @@ import numpy as np
 import warnings
 from uncertainties import ufloat, umath, unumpy
 import src.constants as constants
+from src.helpers import sum_dict_values
 
 constants.init()
 
 
-def get_bpt_fluxes(rp, plot_type='n'):
+def get_bpt_fluxes(rp, plot_type='NII'):
     fluxes = {}
     if 'H-Alpha' in rp.emProfiles:
-        if plot_type == 's':
-            ionNameKeys = ['H-Alpha', 'OIII-5007A', 'H-Beta', 'SII-6717A']
-        elif plot_type == 'o':
+        if plot_type == 'SII':
+            ionNameKeys = ['H-Alpha', 'OIII-5007A', 'H-Beta', 'SII-6717A', 'SII-6731A']
+        elif plot_type == 'OI':
             ionNameKeys = ['H-Alpha', 'OIII-5007A', 'H-Beta', 'OI-6300A']
-        elif plot_type == 'p':
-            ionNameKeys = ['H-Alpha', 'SII-6717A', 'H-Alpha','NII-6584A']
+        elif plot_type == 'NIIvsSII':
+            ionNameKeys = ['H-Alpha', 'SII-6717A', 'SII-6731A', 'H-Alpha', 'NII-6584A']
         else:
             ionNameKeys = ['NII-6584A', 'H-Alpha', 'OIII-5007A', 'H-Beta']
         ionNames = ionNameKeys
     else:
-        if plot_type == 's':
-            ionNameKeys = ['H-Alpha', 'OIII-5007A', 'H-Beta', 'SII-6717A']
-            ionNames = ['H1r_6563A', 'O3_5007A', 'H1r_4861A', 'S2_6717A']
-        elif plot_type == 'o':
+        if plot_type == 'SII':
+            ionNameKeys = ['H-Alpha', 'OIII-5007A', 'H-Beta', 'SII-6717A', 'SII-6731A']
+            ionNames = ['H1r_6563A', 'O3_5007A', 'H1r_4861A', 'S2_6717A', 'S2_6731A']
+        elif plot_type == 'OI':
             ionNameKeys = ['H-Alpha', 'OIII-5007A', 'H-Beta', 'OI-6300A']
             ionNames = ['H1r_6563A', 'O3_5007A', 'H1r_4861A', 'O1_6300A']
-        elif plot_type == 'p':
-            ionNameKeys = ['H-Alpha', 'SII-6717A', 'H-Alpha','NII-6584A']
-            ionNames = ['H1r_6563A', 'S2_6717A', 'H1r_6563A', 'N2_6584A']
+        elif plot_type == 'NIIvsSII':
+            ionNameKeys = ['H-Alpha', 'SII-6717A', 'SII-6731A', 'H-Alpha','NII-6584A']
+            ionNames = ['H1r_6563A', 'S2_6717A', 'SII-6731A', 'H1r_6563A', 'N2_6584A']
         else:
             ionNameKeys = ['NII-6584A', 'H-Alpha', 'OIII-5007A', 'H-Beta']
             ionNames = ['N2_6584A', 'H1r_6563A', 'O3_5007A', 'H1r_4861A']
 
     for ionNameKey, ionName in zip(ionNameKeys, ionNames):
+        if ionName not in rp.emProfiles:
+            print(f"Warning: {ionName} not added to the list of emission lines of this region")
         fluxes[ionNameKey] = {}
         fluxes[ionNameKey]['global'] = ufloat(rp.emProfiles[ionName]['globalFlux'], rp.emProfiles[ionName]['globalFluxErr'])
         for i in range(len(rp.emProfiles[ionName]['compFluxList'])):
@@ -43,7 +46,20 @@ def get_bpt_fluxes(rp, plot_type='n'):
     return fluxes
 
 
-def calc_bpt_points(rp, plot_type='n'):
+def calc_bpt_points(rp, plot_type='NII'):
+    
+    def get_SII_fluxes(fluxes, bptPoints):
+        if 'SII-6717A' not in fluxes:
+            xNumerator = fluxes['SII-6731A']
+            bptPoints['SII_label'] = r"$\log(\mathrm{[SII]6731\AA / H\alpha})$"
+        elif 'SII-6731A' not in fluxes:
+            xNumerator = fluxes['SII-6717A']
+            bptPoints['SII_label'] = r"$\log(\mathrm{[SII]6717\AA / H\alpha})$"
+        else:
+            xNumerator = sum_dict_values(fluxes['SII-6717A'], fluxes['SII-6731A'])
+            bptPoints['SII_label'] = r"$\log(\mathrm{([SII]6717\AA + [SII]6731\AA) / H\alpha})$"
+        return xNumerator, bptPoints
+    
     bptPoints = {}
     try:
         fluxes = get_bpt_fluxes(rp, plot_type)
@@ -52,28 +68,28 @@ def calc_bpt_points(rp, plot_type='n'):
         bptPoints['global'] = {'x': 0, 'xErr': 0, 'y': 0, 'yErr': 0}
         return bptPoints
 
-    if plot_type == 'n':
+    if plot_type == 'NII':
         xNumerator = fluxes['NII-6584A']
         xDenominator = fluxes['H-Alpha']
         yNumerator = fluxes['OIII-5007A']
         yDenominator = fluxes['H-Beta']
-    elif plot_type == 's':
-        xNumerator = fluxes['SII-6717A']
+    elif plot_type == 'SII':
+        xNumerator, bptPoints = get_SII_fluxes(fluxes, bptPoints)
         xDenominator = fluxes['H-Alpha']
         yNumerator = fluxes['OIII-5007A']
         yDenominator = fluxes['H-Beta']
-    elif plot_type == 'o':
+    elif plot_type == 'OI':
         xNumerator = fluxes['OI-6300A']
         xDenominator = fluxes['H-Alpha']
         yNumerator = fluxes['OIII-5007A']
         yDenominator = fluxes['H-Beta']
-    elif plot_type == 'p':
-        xNumerator = fluxes['SII-6717A']
+    elif plot_type == 'NIIvsSII':
+        xNumerator, bptPoints = get_SII_fluxes(fluxes, bptPoints)
         xDenominator = fluxes['H-Alpha']
         yNumerator = fluxes['NII-6584A']
         yDenominator = fluxes['H-Alpha']
     else:
-        warnings.warn("Invalid BPT plot_type {}, using plot_type 'n' instead.".format(plot_type))
+        warnings.warn("Invalid BPT plot_type {}, using plot_type 'NII' instead.".format(plot_type))
         xNumerator = fluxes['NII-6584A']
 
     compList = ['global'] + list(fluxes['H-Alpha'].keys())
@@ -96,22 +112,22 @@ def calc_bpt_points(rp, plot_type='n'):
     return bptPoints
 
 
-def bpt_plot(rpList, rpBptPoints, globalOnly=False, plot_type='n'):
-    if plot_type == 'n':
-        bpt_plot_n(rpList, rpBptPoints, globalOnly)
-    elif plot_type == 's':
-        bpt_plot_s(rpList, rpBptPoints, globalOnly)
-    elif plot_type == 'o':
-        bpt_plot_o(rpList, rpBptPoints, globalOnly)
-    elif plot_type == 'p':
-        bpt_plot_p(rpList, rpBptPoints, globalOnly)
+def bpt_plot(rpList, rpBptPoints, globalOnly=False, plot_type='NII'):
+    if plot_type == 'NII':
+        bpt_plot_NII(rpList, rpBptPoints, globalOnly)
+    elif plot_type == 'SII':
+        bpt_plot_SII(rpList, rpBptPoints, globalOnly)
+    elif plot_type == 'OI':
+        bpt_plot_OI(rpList, rpBptPoints, globalOnly)
+    elif plot_type == 'NIIvsSII':
+        bpt_plot_NIIvsSII(rpList, rpBptPoints, globalOnly)
     else:
-        warnings.warn("Invalid BPT plot_type {}, using plot_type 'n' instead.".format(plot_type))
-        bpt_plot_n(rpList, rpBptPoints, globalOnly)
+        warnings.warn("Invalid BPT plot_type {}, using plot_type 'NII' instead.".format(plot_type))
+        bpt_plot_NII(rpList, rpBptPoints, globalOnly)
 
 
-def bpt_plot_n(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
-    plot_lines_and_other_points_n()
+def bpt_plot_NII(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
+    plot_lines_and_other_points_NII()
 
     # PLOT BPT POINTS
     colours = ['b', 'r', 'g', 'm', 'c', 'violet', 'y', '#5D6D7E']
@@ -123,6 +139,8 @@ def bpt_plot_n(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
             compList = ['global']
         else:
             compList = list(bptPoints.keys())
+            if 'SII_label' in compList:
+                compList.remove('SII_label')
 
         for j, comp in enumerate(compList):
             x, xErr, y, yErr = bptPoints[comp]['x'], bptPoints[comp]['xErr'], bptPoints[comp]['y'], bptPoints[comp]['yErr']
@@ -141,11 +159,11 @@ def bpt_plot_n(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
     plt.xlabel(r"$\log(\mathrm{[NII]6584\AA / H\alpha})$")
     plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
     plt.legend(fontsize=9)
-    plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_plot_N.png'))
+    plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_plot_NII.png'))
 
 
-def bpt_plot_s(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
-    plot_lines_and_other_points_s()
+def bpt_plot_SII(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
+    plot_lines_and_other_points_SII()
 
     # PLOT BPT POINTS
     colours = ['b', 'r', 'g', 'm', 'c', 'violet', 'y', '#5D6D7E']
@@ -157,6 +175,8 @@ def bpt_plot_s(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
             compList = ['global']
         else:
             compList = list(bptPoints.keys())
+            if 'SII_label' in compList:
+                compList.remove('SII_label')
 
         for j, comp in enumerate(compList):
             x, xErr, y, yErr = bptPoints[comp]['x'], bptPoints[comp]['xErr'], bptPoints[comp]['y'], bptPoints[comp]['yErr']
@@ -172,14 +192,14 @@ def bpt_plot_s(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
     # PLOT AND SAVE FIGURE
     plt.xlim(-1.5, 0.5)
     plt.ylim(-1, 1.5)
-    plt.xlabel(r"$\log(\mathrm{[SII]6716\AA / H\alpha})$")
+    plt.xlabel(bptPoints['SII_label'])
     plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
     plt.legend(fontsize=9)
-    plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_plot_S.png'))
+    plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_plot_SII.png'))
 
 
-def bpt_plot_o(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
-    plot_lines_and_other_points_o()
+def bpt_plot_OI(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
+    plot_lines_and_other_points_OI()
 
     # PLOT BPT POINTS
     colours = ['b', 'r', 'g', 'm', 'c', 'violet', 'y', '#5D6D7E']
@@ -191,6 +211,9 @@ def bpt_plot_o(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
             compList = ['global']
         else:
             compList = list(bptPoints.keys())
+            if 'SII_label' in compList:
+                compList.remove('SII_label')
+
 
         for j, comp in enumerate(compList):
             x, xErr, y, yErr = bptPoints[comp]['x'], bptPoints[comp]['xErr'], bptPoints[comp]['y'], bptPoints[comp]['yErr']
@@ -209,11 +232,11 @@ def bpt_plot_o(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
     plt.xlabel(r"$\log(\mathrm{[OI]6300\AA / H\alpha})$")
     plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
     plt.legend(fontsize=9)
-    plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_plot_O.png'))
+    plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_plot_OI.png'))
 
 
-def bpt_plot_p(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
-    plot_lines_and_other_points_p()
+def bpt_plot_NIIvsSII(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
+    plot_lines_and_other_points_NIIvsSII()
 
     # PLOT BPT POINTS
     colours = ['b', 'r', 'g', 'm', 'c', 'violet', 'y', '#5D6D7E']
@@ -225,6 +248,8 @@ def bpt_plot_p(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
             compList = ['global']
         else:
             compList = list(bptPoints.keys())
+            if 'SII_label' in compList:
+                compList.remove('SII_label')
 
         for j, comp in enumerate(compList):
             x, xErr, y, yErr = bptPoints[comp]['x'], bptPoints[comp]['xErr'], bptPoints[comp]['y'], bptPoints[comp]['yErr']
@@ -240,13 +265,14 @@ def bpt_plot_p(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1': 'N1'
     # PLOT AND SAVE FIGURE
     # plt.xlim(-1.5, 0.5)
     # plt.ylim(-0.5, 1.5)
-    plt.xlabel(r"$\log(\mathrm{[SII]6717\AA / H\alpha})$")
+
+    plt.xlabel(bptPoints['SII_label'])
     plt.ylabel(r"$\log(\mathrm{[NII]6584\AA / H\alpha}$")
     plt.legend(fontsize=9)
-    plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_plot_P.png'))
+    plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_plot_NIIvsSII.png'))
 
 
-def plot_lines_and_other_points_n():
+def plot_lines_and_other_points_NII():
     # PLOT LINES
     plt.figure('BPT Plot OIII/NII')
     # y1: log([OIII]5007/Hbeta) = 0.61 / (log([NII]6584/Halpha) - 0.05) + 1.3  (curve of Kauffmann+03 line)
@@ -292,7 +318,7 @@ def plot_lines_and_other_points_n():
     plt.errorbar(x, y, xerr=xErr, yerr=yErr, color='grey', ecolor='grey', elinewidth=0.5, fmt='none', alpha=0.3)
 
 
-def plot_lines_and_other_points_s():
+def plot_lines_and_other_points_SII():
     # https://sites.google.com/site/agndiagnostics/home/bpt
 
     # PLOT LINES
@@ -312,7 +338,7 @@ def plot_lines_and_other_points_s():
     plt.text(-0.5, 0.55, r'AGNs', fontsize=12)
 
 
-def plot_lines_and_other_points_o():
+def plot_lines_and_other_points_OI():
     # PLOT LINES
     plt.figure('BPT Plot OIII/OI')
     # y1: log([OIII]/Hb) = 0.73 / (log([OI]/Ha) + 0.59) + 1.33    (main AGN line)
@@ -330,6 +356,6 @@ def plot_lines_and_other_points_o():
     plt.text(-0.6, 1., r'AGNs', fontsize=12)
 
 
-def plot_lines_and_other_points_p():
+def plot_lines_and_other_points_NIIvsSII():
     # PLOT LINES
     plt.figure('BPT Plot SII/HI')

@@ -23,7 +23,7 @@ def main():
     for rp in regionsParameters:
         region = RegionCalculations(rp, xAxis='vel', initVals='vel')
         regionArray.append(region.lineInArray)
-        rpBptPoints.append(region.bptPoints)
+        rpBptPoints.append(region.bptPoints_NII)
 
         plot_profiles(['OIII-5007A', 'H-Alpha', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' Strongest Emission Lines', sortedIndex=[0, 1, 2, 3, 4], xAxis='wave')
 

@@ -5,15 +5,18 @@ Installation
 
 From Source
 -----------
-The source code can be downloaded from GitHub by running the following command:
+The source code can be downloaded from GitHub and dependencies can be installed by running the following commands:
 
 .. code-block:: bash
 
-    git clone https://github.com/daniel-muthukrishna/astrorapid.git
+    git clone https://github.com/daniel-muthukrishna/EmissionLineAnalysis.git
+    cd EmissionLineAnalysis
+    python setup.py install
 
 Dependencies
 ------------
-:code:`numpy`, :code:`matplotlib`, :code:`uncertainties`, :code:`lmfit`, :code:`astropy`, :code:`specutils`.
+:code:`numpy`, :code:`matplotlib`, :code:`uncertainties`, :code:`lmfit`, :code:`astropy`.
 
-These can all be install with `pip`. You will also need latex installed.
+These can all be install with `pip` if they were not already installed by the setup file.
+You will also need LaTex installed.
 

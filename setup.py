@@ -49,7 +49,7 @@ setup(name='EmissionLineAnalysis',
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['numpy', 'matplotlib', 'uncertainties', 'lmfit', 'astropy'],
+    install_requires=['numpy', 'matplotlib', 'uncertainties', 'lmfit==0.9.10', 'astropy'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

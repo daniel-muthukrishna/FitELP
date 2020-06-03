@@ -325,7 +325,7 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, pl
 
         if xAxis == 'wave':
             xLabel = constants.WAVE_AXIS_LABEL
-            yLabel = constants.FLUX_WAVE_AXIS_LABEL
+            yLabel = constants.FluxUnitsLabels(rp.scaleFlux).FLUX_WAVE_AXIS_LABEL
         elif xAxis == 'vel':
             if hasattr(rp, 'showSystemicVelocity') and rp.showSystemicVelocity is True:
                 xLabel = constants.DELTA_VEL_AXIS_LABEL
@@ -333,7 +333,7 @@ def plot_profiles(lineNames, rp, nameForComps='', title='', sortedIndex=None, pl
                 xLabel = constants.VEL_AXIS_LABEL
             if hasattr(rp, 'rp.plottingXRange'):
                 plt.xlim(rp.plottingXRange)
-            yLabel = constants.FLUX_VEL_AXIS_LABEL
+            yLabel = constants.FluxUnitsLabels(rp.scaleFlux).FLUX_VEL_AXIS_LABEL
         else:
             raise Exception("Invalid xAxis argument. Must be either 'wave' or 'vel'. ")
         plt.xlabel(xLabel)

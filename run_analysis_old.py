@@ -38,10 +38,10 @@ def main():
     for rp in regionsParameters:
         region = RegionCalculations(rp)
         regionArray.append(region.lineInArray)
-        rpBptPoints.append(region.bptPoints)
-        rpBptPoints_s.append(region.bptPoints_s)
-        rpBptPoints_o.append(region.bptPoints_o)
-        rpBptPoints_p.append(region.bptPoints_p)
+        rpBptPoints.append(region.bptPoints_NII)
+        rpBptPoints_s.append(region.bptPoints_SII)
+        rpBptPoints_o.append(region.bptPoints_OI)
+        rpBptPoints_p.append(region.bptPoints_NIIvsSII)
 
         # plot_profiles(['H-Alpha', 'OIII-5007A', 'H-Beta', 'NII-6584A', 'SII-6717A'], rp, nameForComps='SII-6717A', title=rp.regionName + ' Strongest Emission Lines', sortedIndex=[0, 1, 2, 3, 4], logscale=True, ymin=None)
         #plot_profiles(['H-Beta', 'H-Beta_Red'], rp, nameForComps='H-Beta', title=rp.regionName + 'Hbeta Emission Lines', sortedIndex=[0, 1])

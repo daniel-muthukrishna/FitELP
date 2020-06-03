@@ -386,12 +386,12 @@ class RegionCalculations(object):
         for mod in allModelComponents:
             print(mod)
 
-        self.bptPoints = calc_bpt_points(rp, plot_type='n')
-        self.bptPoints_s = calc_bpt_points(rp, plot_type='s')
-        self.bptPoints_o = calc_bpt_points(rp, plot_type='o')
-        self.bptPoints_p = calc_bpt_points(rp, plot_type='p')
+        self.bptPoints_NII = calc_bpt_points(rp, plot_type='NII')
+        self.bptPoints_SII = calc_bpt_points(rp, plot_type='SII')
+        self.bptPoints_OI = calc_bpt_points(rp, plot_type='OI')
+        self.bptPoints_NIIvsSII = calc_bpt_points(rp, plot_type='NIIvsSII')
 
-        ratioNII, ratioNIIErr, ratioOIII, ratioOIIIErr = self.bptPoints['global']['x'], self.bptPoints['global']['xErr'], self.bptPoints['global']['y'], self.bptPoints['global']['yErr']
+        ratioNII, ratioNIIErr, ratioOIII, ratioOIIIErr = self.bptPoints_NII['global']['x'], self.bptPoints_NII['global']['xErr'], self.bptPoints_NII['global']['y'], self.bptPoints_NII['global']['yErr']
         luminosity, luminosityError, sfr, sfrError = calc_luminosity(rp)
 
         self.lineInArray = [rp.regionName, "%.2f $\pm$ %.3f" % (sfr, sfrError), "%.1f $\pm$ %.3f" % (luminosity, luminosityError), "%.2f $\pm$ %.3f" % (ratioNII, ratioNIIErr), "%.2f $\pm$ %.3f" % (ratioOIII, ratioOIIIErr)]

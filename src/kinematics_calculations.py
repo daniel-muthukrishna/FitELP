@@ -111,7 +111,7 @@ def calc_luminosity(rp):
     else:
         calcLuminosity = 4 * np.pi * rp.emProfiles['H1r_6563A']['globalFlux'] * rp.distance**2 / rp.scaleFlux
         calcLuminosityError = 4 * np.pi * rp.distance**2 * rp.emProfiles['H1r_6563A']['globalFluxErr'] / rp.scaleFlux
-    starFormRate = 5.5e-42 * calcLuminosity
+    starFormRate = 5.5e-42 * calcLuminosity #D. Calzetti 2000ApJ...533..682C
     starFormRateError = 5.5e-42 * calcLuminosityError
 
     logLuminosity = np.log10(calcLuminosity)

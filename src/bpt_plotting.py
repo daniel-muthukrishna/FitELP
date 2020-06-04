@@ -274,7 +274,7 @@ def bpt_plot_NIIvsSII(rpList, rpBptPoints, globalOnly=False, compNames={'Narrow1
 
 def plot_lines_and_other_points_NII():
     # PLOT LINES
-    plt.figure('BPT Plot OIII/NII')
+    plt.figure('BPT_NII')
     # y1: log([OIII]5007/Hbeta) = 0.61 / (log([NII]6584/Halpha) - 0.05) + 1.3  (curve of Kauffmann+03 line)
     # y2: log([OIII]5007/Hbeta) = 0.61 / (log([NII]6584/Halpha) - 0.47) + 1.19    (curve of Kewley+01 line)
     x1 = np.arange(-2, 0.02, 0.01)
@@ -285,12 +285,14 @@ def plot_lines_and_other_points_NII():
     plt.plot(x2, y2, 'k--')
 
     # AREA LABELS
-    plt.text(-1, -0.8, r'Starburst', fontsize=12)
-    plt.text(-0.22, -0.75, r'Transition', fontsize=12)
-    plt.text(-0.18, -0.9, r'Objects', fontsize=12)
-    plt.text(0.16, -0.5, r'LINERs', fontsize=12)
-    plt.text(0.05, 0.55, r'Seyferts', fontsize=12)
-    plt.text(-1.46, 1.1, r'Extreme Starburst Line', fontsize=12)
+    plt.text(-1.25, -0.5, r'Photoionization', fontsize=12)
+    plt.text(0.05, 0.55, r'Shocks', fontsize=12)
+#     plt.text(-1, -0.8, r'Starburst', fontsize=12)
+#     plt.text(-0.22, -0.75, r'Transition', fontsize=12)
+#     plt.text(-0.18, -0.9, r'Objects', fontsize=12)
+#     plt.text(0.16, -0.5, r'LINERs', fontsize=12)
+#     plt.text(0.05, 0.55, r'Seyferts', fontsize=12)
+#     plt.text(-1.46, 1.1, r'Extreme Starburst Line', fontsize=12)
 
     # OTHER POINTS FROM PAPER
     # Olave et al., 2015 (regions of NGC6845)
@@ -322,7 +324,7 @@ def plot_lines_and_other_points_SII():
     # https://sites.google.com/site/agndiagnostics/home/bpt
 
     # PLOT LINES
-    plt.figure('BPT Plot OIII/SII')
+    plt.figure('BPT_SII')
     # y1: log([OIII]/Hb) = 0.72 / (log([SII]/Ha) - 0.32) + 1.30    (main AGN line)
     # y2: log([OIII]/Hb) = 1.89 log([SII]/Ha) + 0.76   (LINER/Sy2 line)
     x1 = np.arange(-2, 0.02, 0.01)
@@ -340,7 +342,7 @@ def plot_lines_and_other_points_SII():
 
 def plot_lines_and_other_points_OI():
     # PLOT LINES
-    plt.figure('BPT Plot OIII/OI')
+    plt.figure('BPT_OI')
     # y1: log([OIII]/Hb) = 0.73 / (log([OI]/Ha) + 0.59) + 1.33    (main AGN line)
     # y2: log([OIII]/Hb) = 1.18 log([OI]/Ha) + 1.30  (LINER/Sy2 line)
     x1 = np.arange(-2, 0.25, 0.01)
@@ -358,4 +360,4 @@ def plot_lines_and_other_points_OI():
 
 def plot_lines_and_other_points_NIIvsSII():
     # PLOT LINES
-    plt.figure('BPT Plot SII/HI')
+    plt.figure('BPT_NIIvsSII')

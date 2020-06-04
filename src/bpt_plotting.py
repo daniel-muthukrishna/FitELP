@@ -127,8 +127,7 @@ def bpt_plot(rpList, rpBptPoints, globalOnly=False, plot_type='NII'):
         bpt_plot_NII(rpList, rpBptPoints, globalOnly)
 
 
-def bpt_plot_NII(rpList, rpBptPoints, globalOnly=False,
-                 compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
+def bpt_plot_NII(rpList, rpBptPoints, globalOnly=False):
     plot_lines_and_other_points_NII()
 
     # PLOT BPT POINTS
@@ -148,10 +147,7 @@ def bpt_plot_NII(rpList, rpBptPoints, globalOnly=False,
             x, xErr, y, yErr = bptPoints[comp]['x'], bptPoints[comp]['xErr'], bptPoints[comp]['y'], bptPoints[comp][
                 'yErr']
             if (x, y) != (0, 0):
-                try:
-                    label = "{0}_{1}".format(rpList[i].regionName, compNames[comp])
-                except KeyError:
-                    label = "{0}_{1}".format(rpList[i].regionName, comp)
+                label = "{0}_{1}".format(rpList[i].regionName, comp)
                 plt.scatter(x, y, marker=markers[i], label=label)  # , color=colours[j])
                 plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr)  # , ecolor=colours[j])
                 # plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom', color=colours[j], fontsize=8)
@@ -165,8 +161,7 @@ def bpt_plot_NII(rpList, rpBptPoints, globalOnly=False,
     plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_NII.png'))
 
 
-def bpt_plot_SII(rpList, rpBptPoints, globalOnly=False,
-                 compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
+def bpt_plot_SII(rpList, rpBptPoints, globalOnly=False):
     plot_lines_and_other_points_SII()
 
     # PLOT BPT POINTS
@@ -186,10 +181,7 @@ def bpt_plot_SII(rpList, rpBptPoints, globalOnly=False,
             x, xErr, y, yErr = bptPoints[comp]['x'], bptPoints[comp]['xErr'], bptPoints[comp]['y'], bptPoints[comp][
                 'yErr']
             if (x, y) != (0, 0):
-                try:
-                    label = "{0}_{1}".format(rpList[i].regionName, compNames[comp])
-                except KeyError:
-                    label = "{0}_{1}".format(rpList[i].regionName, comp)
+                label = "{0}_{1}".format(rpList[i].regionName, comp)
                 plt.scatter(x, y, marker=markers[i], label=label)  # , color=colours[j])
                 plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr)  # , ecolor=colours[j])
                 # plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom', color=colours[j], fontsize=8)
@@ -203,8 +195,7 @@ def bpt_plot_SII(rpList, rpBptPoints, globalOnly=False,
     plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_SII.png'))
 
 
-def bpt_plot_OI(rpList, rpBptPoints, globalOnly=False,
-                compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
+def bpt_plot_OI(rpList, rpBptPoints, globalOnly=False):
     plot_lines_and_other_points_OI()
 
     # PLOT BPT POINTS
@@ -224,10 +215,7 @@ def bpt_plot_OI(rpList, rpBptPoints, globalOnly=False,
             x, xErr, y, yErr = bptPoints[comp]['x'], bptPoints[comp]['xErr'], bptPoints[comp]['y'], bptPoints[comp][
                 'yErr']
             if (x, y) != (0, 0):
-                try:
-                    label = "{0}_{1}".format(rpList[i].regionName, compNames[comp])
-                except KeyError:
-                    label = "{0}_{1}".format(rpList[i].regionName, comp)
+                label = "{0}_{1}".format(rpList[i].regionName, comp)
                 plt.scatter(x, y, marker=markers[i], label=label)  # , color=colours[j])
                 plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr)  # , ecolor=colours[j])
                 # plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom', color=colours[j], fontsize=8)
@@ -241,8 +229,7 @@ def bpt_plot_OI(rpList, rpBptPoints, globalOnly=False,
     plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_OI.png'))
 
 
-def bpt_plot_NIIvsSII(rpList, rpBptPoints, globalOnly=False,
-                      compNames={'Narrow1': 'N1', 'Narrow2': 'N2', 'Broad1': 'B1', 'Broad': 'B'}):
+def bpt_plot_NIIvsSII(rpList, rpBptPoints, globalOnly=False):
     plot_lines_and_other_points_NIIvsSII()
 
     # PLOT BPT POINTS
@@ -262,10 +249,7 @@ def bpt_plot_NIIvsSII(rpList, rpBptPoints, globalOnly=False,
             x, xErr, y, yErr = bptPoints[comp]['x'], bptPoints[comp]['xErr'], bptPoints[comp]['y'], bptPoints[comp][
                 'yErr']
             if (x, y) != (0, 0):
-                try:
-                    label = "{0}_{1}".format(rpList[i].regionName, compNames[comp])
-                except KeyError:
-                    label = "{0}_{1}".format(rpList[i].regionName, comp)
+                label = "{0}_{1}".format(rpList[i].regionName, comp)
                 plt.scatter(x, y, marker=markers[i], label=label)  # , color=colours[j])
                 plt.errorbar(x=x, y=y, xerr=xErr, yerr=yErr)  # , ecolor=colours[j])
                 # plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords='offset points', ha='right', va='bottom', color=colours[j], fontsize=8)

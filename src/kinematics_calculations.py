@@ -166,7 +166,7 @@ def save_measurements(measurementInfo, rp):
                         flux = np.format_float_scientific(float(flux) / rp.scaleFlux, precision=2)
                         fluxErr = np.format_float_scientific(float(fluxErr) / rp.scaleFlux, precision=2)
                         continuum = np.format_float_scientific(float(continuum) / rp.scaleFlux, precision=2)
-                        eW = np.format_float_scientific(float(eW) / rp.scaleFlux, precision=2)
+                        eW = np.format_float_scientific(float(eW), precision=2)
                     except AttributeError:
                         print("Cannot convert floats to scientific notation because you are using an old "
                               "version of Numpy. Please update numpy.")
@@ -174,7 +174,7 @@ def save_measurements(measurementInfo, rp):
                         flux = '%.2E' % Decimal(str(float(flux) / rp.scaleFlux))
                         fluxErr = '%.2E' % Decimal(str(float(fluxErr) / rp.scaleFlux))
                         continuum = '%.2E' % Decimal(str(float(continuum) / rp.scaleFlux))
-                        eW = '%.2E' % Decimal(str(float(eW) / rp.scaleFlux))
+                        eW = '%.2E' % Decimal(str(float(eW)))
                     ionName, lambdaZero = line_label(emName, float(restWave))
                     ionName = ionName.strip('$').replace("\\", "").replace('mathrm{', "").replace('}', '').split('_')[0]
                     lambdaZero = lambdaZero.strip('$')

@@ -22,37 +22,41 @@ class RegionParameters(object):
         blue_spec_error_file : str
             FITS file path of the blue spectrum error
         red_spec_error_file : str
-            FITS file path of the red spectrum
+            FITS file path of the red spectrum error
         scale_flux : float
             scales the fluxes from the files by this factor during fitting.
-            If scale_flux is not 1e14, then you will need to edit the string _FLUX_UNITS_WAVE constant in constants.py
+            (?) If scale_flux is not 1e14, then you will need to edit the string _FLUX_UNITS_WAVE constant in constants.py
             to reflect the scaling so that the axis labels and tables are correct.
         center_list : dict
-            The center values of the gaussians for the low (H-Alpha) and high (OIII) zones of each gaussian.
+            The center values of the gaussian components for the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007) zones 
+            of each gaussian. These values will depend on the type of fit, if it is in velocity or wavelength.
             E.g. centerList = {'low': [3918.56, 3969.72, 3978.93], 'high': [3923.50, 3970.63, 3984.13]}
         sigma_list : dict
-            The sigma values of the gaussians for the low (H-Alpha) and high (OIII) zones of each gaussian.
+            The sigma values of the gaussian components for the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007) zones 
+            of each gaussian. These values will depend on the type of fit, if it is in velocity or wavelength.
             E.g. sigmaList = {'low': [17.123, 13.868, 45.207],'high': [15.740, 12.875, 43.667]}
         lin_slope : dict
-            The linear slope values representing the continuum for the low (H-Alpha) and high (OIII) zones.
+            The linear slope values representing the continuum for the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007) 
+            zones. This value will depend on the type of fit, if it is in velocity or wavelength.
             E.g. lin_slope = {'low': -5.2237e-08, 'high': -2.8976e-07}
         lin_int : dict
-            The linear intercept values representing the continuum for the low (H-Alpha) and high (OIII) zones.
+            The linear intercept values representing the continuum the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007) 
+            zones. This value will depend on the type of fit, if it is in velocity or wavelength.
             E.g. lin_int = {'low': 0.00139680, 'high': 0.00254310}
         num_comps : dict
-            The number of components for the low (H-Alpha) and high (OIII).
-            This should be the length of the lists of the center and sigma of each of the guassian components
-            E.g. num_comps = {'low': 3, 'high': 3}
+            The number of gaussian components for the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007) zones.
+            This should be the length of the lists of the center and sigma of each of the gaussian components
+            E.g. num_comps = {'low': 3, 'high': 3} or num_comps = {'low': 3, 'high': 5}
         component_labels : list
-            Labels for each of the components in the order that they are presented in all other lists.
+            Labels for each of the gaussian components in the order that they are presented in all other lists.
             E.g. component_labels = ['Narrow 1', 'Narrow 2', 'Broad']
         component_colors : list
-            Colour to plot each of the components in the order that they appear in component_labels.
+            Colour to plot each of the gaussian components in the order that they appear in component_labels.
             E.g. componentColours = ['r', 'c', 'g']
         sigma_instr_blue : float
-            The instrument sigma in the blue arm.
+            The instrumental profile (σi) in the blue-arm of the spectrograph. It is well approximated by a single Gaussian function.
         sigma_inst_red : float
-            The instrument sigma in the blue arm.
+            The instrumental profile (σi) in the red-arm of the spectrograph. It is well approximated by a single Gaussian function.
         distance : float
             The distance to the region in centimetres (same units that distance appears in the input flux)
         em_lines_for_avg_vel_calc : list
@@ -102,16 +106,17 @@ class RegionParameters(object):
         ----------
         name : str
             Name of emission line. E.g. 'H-Alpha' or NII-6584A. This name must be in the appropriate format.
+            This name must be in the appropriate format (see ALL_IONS list in constants.py).
         plot_color : str
             The color that this emission line should appear in each of the plots.
         order : int
-            The order that this emission line appears in the Echelee FITS files.
+            The order that this emission line appears in the Echelle FITS files or 1 for Longslit FIT file.
         filter : str
-            'red' or 'blue'. Indicating the filter that this emission line appears in the echelle spectra.
+            'red' or 'blue'. Indicating the red-arm or blue-arm of the spectrograph where the emission line appears in the spectrum.
         min_idx : int
-            Minimum index of the region in the echelle spectra that includes this emission line.
+            Minimum index of the region in the spectra that includes this emission line.
         max_idx : int
-            Maximum index of the region in the echelle spectra that includes this emission line.
+            Maximum index of the region in the spectra that includes this emission line.
         rest_wavelength : float
             The rest wavelength of this emission line.
         num_comps : int (optional)
@@ -123,9 +128,14 @@ class RegionParameters(object):
             If this is a float, then the amplitudes from the emission line listed in the copy_from parameter will be
             used and divided by this value.
         zone : str
-            'low' or 'high'.
+            'low' or 'high' ionization zone. Two-ionization-zone scheme is assumed: the low-ionization zone where
+            the hydrogen recombination lines and [OI], [OII], [NII], [SII] forbidden lines are emitted, and the
+            high-ionization zone where the helium recombination lines and [OIII], [SIII], [ArIII], [NeIII]
+            forbidden lines are emitted (Hägele et al., 2012).
         sigma_tsquared : float
-            sigma of the temperature squared
+            squared of the random thermal motion (σt). In the example, the thermal contribution was derived from the
+            Boltzmann’s equation, assuming a typical kinetic temperature T≃10^4K and the atomic mass of the
+            corresponding element.
         comp_limits : dict
             The limits in 'compLimits' can be in the following forms:
             - a list indicating the limits for each component

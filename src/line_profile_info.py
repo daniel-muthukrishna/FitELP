@@ -24,9 +24,7 @@ class RegionParameters(object):
         red_spec_error_file : str
             FITS file path of the red spectrum error
         scale_flux : float
-            scales the fluxes from the files by this factor during fitting.
-            (?) If scale_flux is not 1e14, then you will need to edit the string _FLUX_UNITS_WAVE constant in constants.py
-            to reflect the scaling so that the axis labels and tables are correct.
+            scales the fluxes from the files by this factor during fitting.            
         center_list : dict
             The center values of the gaussian components for the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007) zones 
             of each gaussian. These values will depend on the type of fit, if it is in velocity or wavelength.

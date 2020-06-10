@@ -14,7 +14,7 @@ class RegionParameters(object):
         Parameters
         ----------
         region_name : str
-            Name of galaxy region. Do not use underscores in name, as this may affect latex compiling.
+            Name of object. Do not use underscores in name, as this may affect latex compiling.
         blue_spec_file : str
             FITS file path of the blue spectrum
         red_spec_file : str

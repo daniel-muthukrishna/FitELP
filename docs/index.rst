@@ -2,6 +2,8 @@
    sphinx-quickstart on Fri Jun 14 15:02:56 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
+   
+.. note:: You are reading the most recent edition of this documentation which content the latest available version.
 
 EmissionLineAnalysis Documentation
 ==================================
@@ -23,7 +25,7 @@ EmissionLineAnalysis allows you to:
    
    - Average of radial velocities and velocity dispersion with the corresponding errors.
    
-   - H-alpha luminosity and the corresponding Star Formation Rate (SFR) base on ... equation, abscissa and ordinate values of the BPT-NII diagnostic diagram.
+   - H-alpha luminosity and the corresponding Star Formation Rate (SFR) base on Calzetti et al.(2000) equation, abscissa and ordinate values of the BPT-NII diagnostic diagram.
    
 * Visualise the different BPT diagnostic diagrams. 
 

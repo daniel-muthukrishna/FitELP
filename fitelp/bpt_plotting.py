@@ -38,12 +38,16 @@ def get_bpt_fluxes(rp, plot_type='NII'):
     for ionNameKey, ionName in zip(ionNameKeys, ionNames):
         if ionName not in rp.emProfiles:
             print("Warning: {} not added to the list of emission lines of this region".format(ionName))
-        fluxes[ionNameKey] = {}
-        fluxes[ionNameKey]['global'] = ufloat(rp.emProfiles[ionName]['globalFlux'],
-                                              rp.emProfiles[ionName]['globalFluxErr'])
-        for i in range(len(rp.emProfiles[ionName]['compFluxList'])):
-            fluxes[ionNameKey][rp.componentLabels[i]] = ufloat(rp.emProfiles[ionName]['compFluxList'][i],
-                                                               rp.emProfiles[ionName]['compFluxListErr'][i])
+
+        if (ionName not in rp.emProfiles and ionNameKey in ['SII-6717A', 'SII-6731A']):
+            print("Using other SII line for BPT plot if available")
+        else:
+            fluxes[ionNameKey] = {}
+            fluxes[ionNameKey]['global'] = ufloat(rp.emProfiles[ionName]['globalFlux'],
+                                                  rp.emProfiles[ionName]['globalFluxErr'])
+            for i in range(len(rp.emProfiles[ionName]['compFluxList'])):
+                fluxes[ionNameKey][rp.componentLabels[i]] = ufloat(rp.emProfiles[ionName]['compFluxList'][i],
+                                                                   rp.emProfiles[ionName]['compFluxListErr'][i])
 
     return fluxes
 
@@ -175,6 +179,7 @@ def bpt_plot_SII(rpList, rpBptPoints, globalOnly=False):
         else:
             compList = list(bptPoints.keys())
             if 'SII_label' in compList:
+                SII_label = bptPoints['SII_label']
                 compList.remove('SII_label')
 
         for j, comp in enumerate(compList):
@@ -189,7 +194,7 @@ def bpt_plot_SII(rpList, rpBptPoints, globalOnly=False):
     # PLOT AND SAVE FIGURE
     plt.xlim(-1.5, 0.5)
     plt.ylim(-1, 1.5)
-    plt.xlabel(bptPoints['SII_label'])
+    plt.xlabel(SII_label)
     plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
     plt.legend(fontsize=9)
     plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_SII.png'))

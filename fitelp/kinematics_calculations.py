@@ -377,10 +377,11 @@ class RegionCalculations(object):
         # Create Component Table
         comp_table_to_latex(allModelComponents, rp, paperSize='a4', orientation='portrait', longTable=True, xAxisUnits=xAxis, scaleFlux=rp.scaleFlux)
 
-        print("------------ List all Amplitudes  %s ----------" % rp.regionName)
+        print("------------ List new Amplitude fit parameters with add_em_line format for easy updating of user's code.  %s ----------" % rp.regionName)
         for ampComps in ampListAll:
             ampCompsList, emInfo, emName = ampComps[1:4]
-            print("# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + ", " + "'compLimits': " + str(emInfo['compLimits']) + ", " + "'copyFrom': '" + str(emInfo['copyFrom']) + ", " + "'numComps': " + str(emInfo['numComps']) + "'}),")
+            # print("# ('" + emName + "', {'Colour': '" + emInfo['Colour'] + "', " + "'Order': " + str(emInfo['Order']) + ", " + "'Filter': '" + emInfo['Filter'] + "', " + "'minI': " + str(emInfo['minI']) + ", " + "'maxI': " + str(emInfo['maxI']) + ", " + "'restWavelength': " + str(emInfo['restWavelength']) + ", " + "'ampList': " + str(ampCompsList) + ", " + "'zone': '" + emInfo['zone'] + "', " + "'sigmaT2': " + str(emInfo['sigmaT2']) + ", " + "'compLimits': " + str(emInfo['compLimits']) + ", " + "'copyFrom': '" + str(emInfo['copyFrom']) + ", " + "'numComps': " + str(emInfo['numComps']) + "'}),")
+            print(f"example_region.add_em_line(name='{emName}', plot_color='{emInfo['Colour']}', order={str(emInfo['Order'])}, filter='{emInfo['Filter']}', min_idx={str(emInfo['minI'])}, max_idx={str(emInfo['maxI'])}, rest_wavelength={str(emInfo['restWavelength'])}, num_comps={str(emInfo['numComps'])}, amp_list={str(ampCompsList)}, zone='{emInfo['zone']}', sigma_tsquared={str(emInfo['sigmaT2'])}, comp_limits={str(emInfo['compLimits'])}, copy_from={str(emInfo['copyFrom'])})".replace("inf", "np.inf"))
 
         print("------------ Component information %s ------------"  % rp.regionName)
         for mod in allModelComponents:

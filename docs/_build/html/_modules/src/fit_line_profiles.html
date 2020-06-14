@@ -1,0 +1,561 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.fit_line_profiles &mdash; EmissionLineAnalysis  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> EmissionLineAnalysis
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example.html">Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">EmissionLineAnalysis</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>src.fit_line_profiles</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for src.fit_line_profiles</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="k">import</span> <span class="n">MaxNLocator</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">lmfit</span> <span class="k">import</span> <span class="n">Parameters</span>
+<span class="kn">from</span> <span class="nn">lmfit.models</span> <span class="k">import</span> <span class="n">GaussianModel</span><span class="p">,</span> <span class="n">LinearModel</span>
+<span class="kn">from</span> <span class="nn">astropy.constants</span> <span class="k">import</span> <span class="n">c</span>
+<span class="kn">from</span> <span class="nn">src.label_tools</span> <span class="k">import</span> <span class="n">line_label</span>
+<span class="kn">import</span> <span class="nn">src.constants</span> <span class="k">as</span> <span class="nn">constants</span>
+
+<span class="n">constants</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">vel_to_wave</span><span class="p">(</span><span class="n">restWave</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">fluxError</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">delta</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">wave</span> <span class="o">=</span> <span class="p">(</span><span class="n">vel</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;km/s&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">*</span> <span class="n">restWave</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">wave</span> <span class="o">=</span> <span class="p">(</span><span class="n">vel</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;km/s&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">*</span> <span class="n">restWave</span> <span class="o">+</span> <span class="n">restWave</span>
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">flux</span> <span class="o">/</span> <span class="p">(</span><span class="n">restWave</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;km/s&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fluxError</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fluxError</span> <span class="o">=</span> <span class="n">fluxError</span> <span class="o">/</span> <span class="p">(</span><span class="n">restWave</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;km/s&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">vel</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">fluxError</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">wave</span><span class="p">,</span> <span class="n">flux</span>
+
+
+<span class="k">def</span> <span class="nf">wave_to_vel</span><span class="p">(</span><span class="n">restWave</span><span class="p">,</span> <span class="n">wave</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">fluxError</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">delta</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="n">wave</span> <span class="o">/</span> <span class="n">restWave</span><span class="p">)</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;km/s&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">vel</span> <span class="o">=</span> <span class="p">((</span><span class="n">wave</span> <span class="o">-</span> <span class="n">restWave</span><span class="p">)</span> <span class="o">/</span> <span class="n">restWave</span><span class="p">)</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;km/s&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">flux</span> <span class="o">*</span> <span class="p">(</span><span class="n">restWave</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;km/s&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fluxError</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fluxError</span> <span class="o">=</span> <span class="n">fluxError</span> <span class="o">*</span> <span class="p">(</span><span class="n">restWave</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;km/s&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">vel</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">fluxError</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">vel</span><span class="p">,</span> <span class="n">flux</span>
+
+
+<span class="k">class</span> <span class="nc">FittingProfile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wave</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">restWave</span><span class="p">,</span> <span class="n">lineName</span><span class="p">,</span> <span class="n">zone</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">fluxError</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xAxis</span><span class="o">=</span><span class="s1">&#39;vel&#39;</span><span class="p">,</span> <span class="n">initVals</span><span class="o">=</span><span class="s1">&#39;vel&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The input vel and flux must be limited to a single emission line profile&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flux</span> <span class="o">=</span> <span class="n">flux</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fluxError</span> <span class="o">=</span> <span class="n">fluxError</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restWave</span> <span class="o">=</span> <span class="n">restWave</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineName</span> <span class="o">=</span> <span class="n">lineName</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zone</span> <span class="o">=</span> <span class="n">zone</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rp</span> <span class="o">=</span> <span class="n">rp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xAxis</span> <span class="o">=</span> <span class="n">xAxis</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initVals</span> <span class="o">=</span> <span class="n">initVals</span>
+
+        <span class="k">if</span> <span class="n">xAxis</span> <span class="o">==</span> <span class="s1">&#39;vel&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fluxError</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux</span> <span class="o">=</span> <span class="n">wave_to_vel</span><span class="p">(</span><span class="n">restWave</span><span class="p">,</span> <span class="n">wave</span><span class="p">,</span> <span class="n">flux</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluxError</span> <span class="o">=</span> <span class="n">wave_to_vel</span><span class="p">(</span><span class="n">restWave</span><span class="p">,</span> <span class="n">wave</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">fluxError</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">vel</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">wave</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluxError</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fluxErrorCR</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluxError</span><span class="c1"># - self.continuum</span>
+            <span class="k">return</span> <span class="mf">1.</span><span class="o">/</span><span class="n">fluxErrorCR</span>
+
+    <span class="k">def</span> <span class="nf">_get_amplitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numOfComponents</span><span class="p">,</span> <span class="n">modelFit</span><span class="p">):</span>
+        <span class="n">amplitudeTotal</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numOfComponents</span><span class="p">):</span>
+            <span class="n">amplitudeTotal</span> <span class="o">=</span> <span class="n">amplitudeTotal</span> <span class="o">+</span> <span class="n">modelFit</span><span class="o">.</span><span class="n">best_values</span><span class="p">[</span><span class="s1">&#39;g</span><span class="si">%d</span><span class="s1">_amplitude&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Amplitude Total is </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">amplitudeTotal</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">amplitudeTotal</span>
+
+    <span class="k">def</span> <span class="nf">_gaussian_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fits a gaussian with given parameters.</span>
+<span class="sd">        pars is the lmfit Parameters for the fit, prefix is the label of the gaussian, c is the center, s is sigma,</span>
+<span class="sd">        a is amplitude. Returns the Gaussian model&quot;&quot;&quot;</span>
+        <span class="n">varyCentre</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">varySigma</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">varyAmp</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">varyCentre</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">cMin</span><span class="p">,</span> <span class="n">cMax</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+            <span class="n">cMin</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">cMax</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cMin</span> <span class="o">=</span> <span class="n">c</span> <span class="o">-</span> <span class="n">c</span><span class="o">*</span><span class="n">limits</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span>
+            <span class="n">cMax</span> <span class="o">=</span> <span class="n">c</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="n">limits</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">varySigma</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">sMin</span><span class="p">,</span> <span class="n">sMax</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+            <span class="n">sMin</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sMax</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sMin</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">s</span> <span class="o">*</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">]</span>
+            <span class="n">sMax</span> <span class="o">=</span> <span class="n">s</span> <span class="o">+</span> <span class="n">s</span> <span class="o">*</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">varyAmp</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">aMin</span><span class="p">,</span> <span class="n">aMax</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+            <span class="n">aMin</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">aMax</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">aMin</span> <span class="o">=</span> <span class="n">a</span> <span class="o">-</span> <span class="n">a</span> <span class="o">*</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span>
+            <span class="n">aMax</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">a</span> <span class="o">*</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span>
+
+        <span class="n">g</span> <span class="o">=</span> <span class="n">GaussianModel</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span>
+        <span class="n">pars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">make_params</span><span class="p">())</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">pars</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;center&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">expr</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="n">cMin</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">cMax</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="n">varyCentre</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pars</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;center&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="n">cMin</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">cMax</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="n">varyCentre</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">pars</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;sigma&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">expr</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="n">sMin</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">sMax</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="n">varySigma</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pars</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;sigma&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="n">sMin</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">sMax</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="n">varySigma</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">pars</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;amplitude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">expr</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="n">aMin</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">aMax</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="n">varyAmp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pars</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;amplitude&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="n">aMin</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">aMax</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="n">varyAmp</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">g</span>
+
+    <span class="k">def</span> <span class="nf">multiple_close_emission_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lineNames</span><span class="p">,</span> <span class="n">cListInit</span><span class="p">,</span> <span class="n">sListInit</span><span class="p">,</span> <span class="n">lS</span><span class="p">,</span> <span class="n">lI</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;All lists should be the same length&quot;&quot;&quot;</span>
+        <span class="n">gList</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Assume initial parameters are in velocity</span>
+
+        <span class="n">lin</span> <span class="o">=</span> <span class="n">LinearModel</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;lin_&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span> <span class="o">=</span> <span class="n">lin</span><span class="o">.</span><span class="n">guess</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">lin</span><span class="o">.</span><span class="n">make_params</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span><span class="p">[</span><span class="s1">&#39;lin_slope&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">lS</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span><span class="p">[</span><span class="s1">&#39;lin_intercept&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">lI</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">lineName</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lineNames</span><span class="p">):</span>
+            <span class="n">numComps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">lineName</span><span class="p">][</span><span class="s1">&#39;numComps&#39;</span><span class="p">]</span>
+            <span class="n">restWave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">lineName</span><span class="p">][</span><span class="s1">&#39;restWavelength&#39;</span><span class="p">]</span>
+            <span class="n">copyFrom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">lineName</span><span class="p">][</span><span class="s1">&#39;copyFrom&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">copyFrom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">copyFromRestWave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">copyFrom</span><span class="p">][</span><span class="s1">&#39;restWavelength&#39;</span><span class="p">]</span>
+
+                <span class="n">cList</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;g</span><span class="si">{0}{1}</span><span class="s1">_center*</span><span class="si">{2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">copyFrom</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">restWave</span> <span class="o">/</span> <span class="n">copyFromRestWave</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numComps</span><span class="p">)]</span>
+                <span class="n">sList</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;g</span><span class="si">{0}{1}</span><span class="s1">_sigma&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">copyFrom</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numComps</span><span class="p">)]</span>
+
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">lineName</span><span class="p">][</span><span class="s1">&#39;ampList&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="n">aList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">lineName</span><span class="p">][</span><span class="s1">&#39;ampList&#39;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xAxis</span> <span class="o">==</span> <span class="s1">&#39;vel&#39;</span><span class="p">:</span>
+                        <span class="n">aList</span> <span class="o">=</span> <span class="n">vel_to_wave</span><span class="p">(</span><span class="n">restWave</span><span class="p">,</span> <span class="n">vel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">flux</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">aList</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ampRatio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">lineName</span><span class="p">][</span><span class="s1">&#39;ampList&#39;</span><span class="p">]</span>
+                    <span class="n">aList</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;g</span><span class="si">{0}{1}</span><span class="s1">_amplitude*</span><span class="si">{2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">copyFrom</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ampRatio</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numComps</span><span class="p">)]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cList</span> <span class="o">=</span> <span class="n">vel_to_wave</span><span class="p">(</span><span class="n">restWave</span><span class="p">,</span> <span class="n">vel</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cListInit</span><span class="p">),</span> <span class="n">flux</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">sList</span> <span class="o">=</span> <span class="n">vel_to_wave</span><span class="p">(</span><span class="n">restWave</span><span class="p">,</span> <span class="n">vel</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sListInit</span><span class="p">),</span> <span class="n">flux</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">aListInit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">lineName</span><span class="p">][</span><span class="s1">&#39;ampList&#39;</span><span class="p">]</span>
+                <span class="n">aList</span> <span class="o">=</span> <span class="n">vel_to_wave</span><span class="p">(</span><span class="n">restWave</span><span class="p">,</span> <span class="n">vel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">flux</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">aListInit</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">lineName</span><span class="p">][</span><span class="s1">&#39;compLimits&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numComps</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="n">cLimit</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cLimit</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="n">sLimit</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sLimit</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="n">aLimit</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">aLimit</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span>
+                <span class="n">lims</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="n">cLimit</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="n">sLimit</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="n">aLimit</span><span class="p">}</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lineNames</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;g</span><span class="si">{0}</span><span class="s1">_&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;g</span><span class="si">{0}{1}</span><span class="s1">_&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lineName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">gList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gaussian_component</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">cList</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">sList</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">aList</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">lims</span><span class="p">))</span>
+        <span class="n">gList</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">gList</span><span class="p">)</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">lin</span> <span class="o">+</span> <span class="n">gList</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">init</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">OUTPUT_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_Log.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">regionName</span><span class="p">)),</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;######## </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> Linear and Multi-gaussian Model ##########</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineName</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">fit_report</span><span class="p">())</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;######## </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> Linear and Multi-gaussian Model ##########</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineName</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">fit_report</span><span class="p">())</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">components</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">eval_components</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="p">,</span> <span class="s1">&#39;plotResiduals&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">plotResiduals</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">numComps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">lineName</span><span class="p">][</span><span class="s1">&#39;numComps&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_emission_line</span><span class="p">(</span><span class="n">numComps</span><span class="p">,</span> <span class="n">components</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">plotResiduals</span><span class="p">,</span> <span class="n">lineNames</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">scaleFlux</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">scaleFlux</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="n">components</span>
+
+    <span class="k">def</span> <span class="nf">lin_and_multi_gaussian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numOfComponents</span><span class="p">,</span> <span class="n">cList</span><span class="p">,</span> <span class="n">sList</span><span class="p">,</span> <span class="n">aList</span><span class="p">,</span> <span class="n">lS</span><span class="p">,</span> <span class="n">lI</span><span class="p">,</span> <span class="n">limits</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;All lists should be the same length&quot;&quot;&quot;</span>
+        <span class="n">gList</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xAxis</span> <span class="o">==</span> <span class="s1">&#39;wave&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">initVals</span> <span class="o">==</span> <span class="s1">&#39;vel&#39;</span><span class="p">:</span>
+            <span class="n">cList</span> <span class="o">=</span> <span class="n">vel_to_wave</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restWave</span><span class="p">,</span> <span class="n">vel</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cList</span><span class="p">),</span> <span class="n">flux</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sList</span> <span class="o">=</span> <span class="n">vel_to_wave</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restWave</span><span class="p">,</span> <span class="n">vel</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sList</span><span class="p">),</span> <span class="n">flux</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">aList</span> <span class="o">=</span> <span class="n">vel_to_wave</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restWave</span><span class="p">,</span> <span class="n">vel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">flux</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">aList</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">xAxis</span> <span class="o">==</span> <span class="s1">&#39;vel&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">initVals</span> <span class="o">==</span> <span class="s1">&#39;wave&#39;</span><span class="p">:</span>
+            <span class="n">cList</span> <span class="o">=</span> <span class="n">wave_to_vel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restWave</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cList</span><span class="p">),</span> <span class="n">flux</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">sList</span> <span class="o">=</span> <span class="n">wave_to_vel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restWave</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sList</span><span class="p">),</span> <span class="n">flux</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">aList</span> <span class="o">=</span> <span class="n">wave_to_vel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">restWave</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">flux</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">aList</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">lin</span> <span class="o">=</span> <span class="n">LinearModel</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;lin_&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span> <span class="o">=</span> <span class="n">lin</span><span class="o">.</span><span class="n">guess</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">lin</span><span class="o">.</span><span class="n">make_params</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span><span class="p">[</span><span class="s1">&#39;lin_slope&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">lS</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span><span class="p">[</span><span class="s1">&#39;lin_intercept&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">lI</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numOfComponents</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">cLimit</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cLimit</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">sLimit</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sLimit</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">limits</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">aLimit</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">aLimit</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span>
+            <span class="n">lims</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="n">cLimit</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="n">sLimit</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="n">aLimit</span><span class="p">}</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;g</span><span class="si">{0}</span><span class="s1">_&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">gList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gaussian_component</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">cList</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">sList</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">aList</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">lims</span><span class="p">))</span>
+        <span class="n">gList</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">gList</span><span class="p">)</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">lin</span> <span class="o">+</span> <span class="n">gList</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">init</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">linGaussParams</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">OUTPUT_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_Log.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">regionName</span><span class="p">)),</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;######## </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> Linear and Multi-gaussian Model ##########</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineName</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">fit_report</span><span class="p">())</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;######## </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> Linear and Multi-gaussian Model ##########</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineName</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">fit_report</span><span class="p">())</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">components</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">eval_components</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="p">,</span> <span class="s1">&#39;plotResiduals&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">plotResiduals</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_emission_line</span><span class="p">(</span><span class="n">numOfComponents</span><span class="p">,</span> <span class="n">components</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">plotResiduals</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">scaleFlux</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">scaleFlux</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_amplitude</span><span class="p">(</span><span class="n">numOfComponents</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="n">components</span>
+
+    <span class="k">def</span> <span class="nf">plot_emission_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numOfComponents</span><span class="p">,</span> <span class="n">components</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">plotResiduals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lineNames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scaleFlux</span><span class="o">=</span><span class="mf">1e14</span><span class="p">):</span>
+        <span class="n">ion</span><span class="p">,</span> <span class="n">lambdaZero</span> <span class="o">=</span> <span class="n">line_label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineName</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">restWave</span><span class="p">)</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">lambdaZero</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">plotResiduals</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">frame1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">((</span><span class="o">.</span><span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="mi">3</span><span class="p">,</span> <span class="o">.</span><span class="mi">8</span><span class="p">,</span> <span class="o">.</span><span class="mi">6</span><span class="p">))</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ion</span><span class="p">,</span> <span class="n">lambdaZero</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xAxis</span> <span class="o">==</span> <span class="s1">&#39;wave&#39;</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">xLabel</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">WAVE_AXIS_LABEL</span>
+            <span class="n">yLabel</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">FluxUnitsLabels</span><span class="p">(</span><span class="n">scaleFlux</span><span class="p">)</span><span class="o">.</span><span class="n">FLUX_WAVE_AXIS_LABEL</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">xAxis</span> <span class="o">==</span> <span class="s1">&#39;vel&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="p">,</span> <span class="s1">&#39;showSystemicVelocity&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">showSystemicVelocity</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">systemicVelocity</span>
+                <span class="n">xLabel</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">DELTA_VEL_AXIS_LABEL</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+                <span class="n">xLabel</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">VEL_AXIS_LABEL</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="p">,</span> <span class="s1">&#39;rp.plottingXRange&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">plottingXRange</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">plottingXRange</span><span class="p">)</span>
+            <span class="n">yLabel</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">FluxUnitsLabels</span><span class="p">(</span><span class="n">scaleFlux</span><span class="p">)</span><span class="o">.</span><span class="n">FLUX_VEL_AXIS_LABEL</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Invalid xAxis argument. Must be either &#39;wave&#39; or &#39;vel&#39;. &quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numOfComponents</span><span class="p">):</span>
+            <span class="n">labelComp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">componentLabels</span>
+            <span class="k">if</span> <span class="n">lineNames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">components</span><span class="p">[</span><span class="s1">&#39;g</span><span class="si">%d</span><span class="s1">_&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span><span class="o">+</span><span class="n">components</span><span class="p">[</span><span class="s1">&#39;lin_&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">componentColours</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">labelComp</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">lineName</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lineNames</span><span class="p">):</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">components</span><span class="p">[</span><span class="s1">&#39;g</span><span class="si">{0}{1}</span><span class="s1">_&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lineName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">+</span> <span class="n">components</span><span class="p">[</span><span class="s1">&#39;lin_&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">componentColours</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">labelComp</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="c1"># plt.plot(x, components[&#39;lin_&#39;], label=&#39;lin_&#39;)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">out</span><span class="o">.</span><span class="n">best_fit</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Fit&#39;</span><span class="p">)</span>
+        <span class="c1"># plt.plot(x, init, label=&#39;init&#39;)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">yLabel</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">plotResiduals</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">frame1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+            <span class="n">frame1</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">frame2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">((</span><span class="o">.</span><span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="mi">8</span><span class="p">,</span> <span class="o">.</span><span class="mi">2</span><span class="p">))</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux</span> <span class="o">-</span> <span class="n">out</span><span class="o">.</span><span class="n">best_fit</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Residuals&#39;</span><span class="p">)</span>
+            <span class="c1"># plt.locator_params(axis=&#39;y&#39;, nbins=3)</span>
+            <span class="c1"># nbins = len(frame2.get_yticklabels())</span>
+            <span class="n">frame2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MaxNLocator</span><span class="p">(</span><span class="n">nbins</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">prune</span><span class="o">=</span><span class="s1">&#39;upper&#39;</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xLabel</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">OUTPUT_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rp</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineName</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="si">{0}</span><span class="s2"> Component Linear-Gaussian Model&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">numOfComponents</span><span class="p">)),</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="plot_profiles"><a class="viewcode-back" href="../../api.html#src.fit_line_profiles.plot_profiles">[docs]</a><span class="k">def</span> <span class="nf">plot_profiles</span><span class="p">(</span><span class="n">lineNames</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">nameForComps</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">sortedIndex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotAllComps</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xAxis</span><span class="o">=</span><span class="s1">&#39;vel&#39;</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>  <span class="c1"># Recombination Emission Lines&quot;)</span>
+
+        <span class="k">if</span> <span class="n">xAxis</span> <span class="o">==</span> <span class="s1">&#39;wave&#39;</span><span class="p">:</span>
+            <span class="n">xLabel</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">WAVE_AXIS_LABEL</span>
+            <span class="n">yLabel</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">FluxUnitsLabels</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">scaleFlux</span><span class="p">)</span><span class="o">.</span><span class="n">FLUX_WAVE_AXIS_LABEL</span>
+        <span class="k">elif</span> <span class="n">xAxis</span> <span class="o">==</span> <span class="s1">&#39;vel&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rp</span><span class="p">,</span> <span class="s1">&#39;showSystemicVelocity&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">rp</span><span class="o">.</span><span class="n">showSystemicVelocity</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">xLabel</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">DELTA_VEL_AXIS_LABEL</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">xLabel</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">VEL_AXIS_LABEL</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rp</span><span class="p">,</span> <span class="s1">&#39;rp.plottingXRange&#39;</span><span class="p">):</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">plottingXRange</span><span class="p">)</span>
+            <span class="n">yLabel</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">FluxUnitsLabels</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">scaleFlux</span><span class="p">)</span><span class="o">.</span><span class="n">FLUX_VEL_AXIS_LABEL</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Invalid xAxis argument. Must be either &#39;wave&#39; or &#39;vel&#39;. &quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xLabel</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">yLabel</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lineNames</span><span class="p">)):</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">comps</span><span class="p">,</span> <span class="n">lab</span> <span class="o">=</span> <span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">lineNames</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;plotInfo&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">xAxis</span> <span class="o">==</span> <span class="s1">&#39;vel&#39;</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rp</span><span class="p">,</span> <span class="s1">&#39;showSystemicVelocity&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">rp</span><span class="o">.</span><span class="n">showSystemicVelocity</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">rp</span><span class="o">.</span><span class="n">systemicVelocity</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">lab</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">plotAllComps</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">lineNames</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;numComps&#39;</span><span class="p">]):</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">comps</span><span class="p">[</span><span class="s1">&#39;g</span><span class="si">%d</span><span class="s1">_&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">+</span> <span class="n">comps</span><span class="p">[</span><span class="s1">&#39;lin_&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">rp</span><span class="o">.</span><span class="n">componentColours</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">nameForComps</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">lineNames</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;numComps&#39;</span><span class="p">]):</span>
+                        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">comps</span><span class="p">[</span><span class="s1">&#39;g</span><span class="si">%d</span><span class="s1">_&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">+</span> <span class="n">comps</span><span class="p">[</span><span class="s1">&#39;lin_&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">rp</span><span class="o">.</span><span class="n">componentColours</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sortedIndex</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+            <span class="n">handles2</span> <span class="o">=</span> <span class="p">[</span><span class="n">handles</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">sortedIndex</span><span class="p">]</span>
+            <span class="n">labels2</span> <span class="o">=</span> <span class="p">[</span><span class="n">labels</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">sortedIndex</span><span class="p">]</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles2</span><span class="p">,</span> <span class="n">labels2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">logscale</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ymin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="n">ymin</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">OUTPUT_DIR</span><span class="p">,</span> <span class="n">rp</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="n">title</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">),</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SOME IONS IN </span><span class="si">{0}</span><span class="s2"> HAVE NOT BEEN DEFINED.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lineNames</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daniel Muthukrishna
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

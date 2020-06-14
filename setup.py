@@ -8,7 +8,7 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-setup(name='EmissionLineAnalysis',
+setup(name='FitELP',
     version='0.1.0',
     description='A powerful Python code to perform spectral emission line fits with multiple gaussian components in echelle or long-slit data. ',
     url='https://github.com/daniel-muthukrishna/EmissionLineAnalysis',

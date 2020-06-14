@@ -2,12 +2,12 @@ import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-import src.constants as constants
-from src.make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex
-from src.bpt_plotting import bpt_plot
-from src.kinematics_calculations import RegionCalculations
-from src.fit_line_profiles import plot_profiles
-from src.line_profile_info import RegionParameters
+import fitelp.constants as constants
+from fitelp.make_latex_tables import average_velocities_table_to_latex, halpha_regions_table_to_latex
+from fitelp.bpt_plotting import bpt_plot
+from fitelp.kinematics_calculations import RegionCalculations
+from fitelp.fit_line_profiles import plot_profiles
+from fitelp.line_profile_info import RegionParameters
 
 # Path to the directory you wish to save the ouput plots, tables and results.
 constants.OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Output_Files')

@@ -1,0 +1,552 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.bpt_plotting &mdash; EmissionLineAnalysis  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> EmissionLineAnalysis
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example.html">Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">EmissionLineAnalysis</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>src.bpt_plotting</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for src.bpt_plotting</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">uncertainties</span> <span class="k">import</span> <span class="n">ufloat</span><span class="p">,</span> <span class="n">umath</span><span class="p">,</span> <span class="n">unumpy</span>
+<span class="kn">import</span> <span class="nn">src.constants</span> <span class="k">as</span> <span class="nn">constants</span>
+<span class="kn">from</span> <span class="nn">src.helpers</span> <span class="k">import</span> <span class="n">sum_dict_values</span>
+
+<span class="n">constants</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">get_bpt_fluxes</span><span class="p">(</span><span class="n">rp</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="s1">&#39;NII&#39;</span><span class="p">):</span>
+    <span class="n">fluxes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="s1">&#39;H-Alpha&#39;</span> <span class="ow">in</span> <span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;SII&#39;</span><span class="p">:</span>
+            <span class="n">ionNameKeys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;H-Alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;OIII-5007A&#39;</span><span class="p">,</span> <span class="s1">&#39;H-Beta&#39;</span><span class="p">,</span> <span class="s1">&#39;SII-6717A&#39;</span><span class="p">,</span> <span class="s1">&#39;SII-6731A&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;OI&#39;</span><span class="p">:</span>
+            <span class="n">ionNameKeys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;H-Alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;OIII-5007A&#39;</span><span class="p">,</span> <span class="s1">&#39;H-Beta&#39;</span><span class="p">,</span> <span class="s1">&#39;OI-6300A&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;NIIvsSII&#39;</span><span class="p">:</span>
+            <span class="n">ionNameKeys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;H-Alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;SII-6717A&#39;</span><span class="p">,</span> <span class="s1">&#39;SII-6731A&#39;</span><span class="p">,</span> <span class="s1">&#39;H-Alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;NII-6584A&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ionNameKeys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;NII-6584A&#39;</span><span class="p">,</span> <span class="s1">&#39;H-Alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;OIII-5007A&#39;</span><span class="p">,</span> <span class="s1">&#39;H-Beta&#39;</span><span class="p">]</span>
+        <span class="n">ionNames</span> <span class="o">=</span> <span class="n">ionNameKeys</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;SII&#39;</span><span class="p">:</span>
+            <span class="n">ionNameKeys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;H-Alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;OIII-5007A&#39;</span><span class="p">,</span> <span class="s1">&#39;H-Beta&#39;</span><span class="p">,</span> <span class="s1">&#39;SII-6717A&#39;</span><span class="p">,</span> <span class="s1">&#39;SII-6731A&#39;</span><span class="p">]</span>
+            <span class="n">ionNames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;H1r_6563A&#39;</span><span class="p">,</span> <span class="s1">&#39;O3_5007A&#39;</span><span class="p">,</span> <span class="s1">&#39;H1r_4861A&#39;</span><span class="p">,</span> <span class="s1">&#39;S2_6717A&#39;</span><span class="p">,</span> <span class="s1">&#39;S2_6731A&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;OI&#39;</span><span class="p">:</span>
+            <span class="n">ionNameKeys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;H-Alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;OIII-5007A&#39;</span><span class="p">,</span> <span class="s1">&#39;H-Beta&#39;</span><span class="p">,</span> <span class="s1">&#39;OI-6300A&#39;</span><span class="p">]</span>
+            <span class="n">ionNames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;H1r_6563A&#39;</span><span class="p">,</span> <span class="s1">&#39;O3_5007A&#39;</span><span class="p">,</span> <span class="s1">&#39;H1r_4861A&#39;</span><span class="p">,</span> <span class="s1">&#39;O1_6300A&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;NIIvsSII&#39;</span><span class="p">:</span>
+            <span class="n">ionNameKeys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;H-Alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;SII-6717A&#39;</span><span class="p">,</span> <span class="s1">&#39;SII-6731A&#39;</span><span class="p">,</span> <span class="s1">&#39;H-Alpha&#39;</span><span class="p">,</span><span class="s1">&#39;NII-6584A&#39;</span><span class="p">]</span>
+            <span class="n">ionNames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;H1r_6563A&#39;</span><span class="p">,</span> <span class="s1">&#39;S2_6717A&#39;</span><span class="p">,</span> <span class="s1">&#39;SII-6731A&#39;</span><span class="p">,</span> <span class="s1">&#39;H1r_6563A&#39;</span><span class="p">,</span> <span class="s1">&#39;N2_6584A&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ionNameKeys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;NII-6584A&#39;</span><span class="p">,</span> <span class="s1">&#39;H-Alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;OIII-5007A&#39;</span><span class="p">,</span> <span class="s1">&#39;H-Beta&#39;</span><span class="p">]</span>
+            <span class="n">ionNames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;N2_6584A&#39;</span><span class="p">,</span> <span class="s1">&#39;H1r_6563A&#39;</span><span class="p">,</span> <span class="s1">&#39;O3_5007A&#39;</span><span class="p">,</span> <span class="s1">&#39;H1r_4861A&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">ionNameKey</span><span class="p">,</span> <span class="n">ionName</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ionNameKeys</span><span class="p">,</span> <span class="n">ionNames</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ionName</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Warning: </span><span class="si">{ionName}</span><span class="s2"> not added tot he list of emission lines of this region&quot;</span><span class="p">)</span>
+        <span class="n">fluxes</span><span class="p">[</span><span class="n">ionNameKey</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">fluxes</span><span class="p">[</span><span class="n">ionNameKey</span><span class="p">][</span><span class="s1">&#39;global&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ufloat</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">ionName</span><span class="p">][</span><span class="s1">&#39;globalFlux&#39;</span><span class="p">],</span> <span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">ionName</span><span class="p">][</span><span class="s1">&#39;globalFluxErr&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">ionName</span><span class="p">][</span><span class="s1">&#39;compFluxList&#39;</span><span class="p">])):</span>
+            <span class="n">fluxes</span><span class="p">[</span><span class="n">ionNameKey</span><span class="p">][</span><span class="n">rp</span><span class="o">.</span><span class="n">componentLabels</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">ufloat</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">ionName</span><span class="p">][</span><span class="s1">&#39;compFluxList&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">rp</span><span class="o">.</span><span class="n">emProfiles</span><span class="p">[</span><span class="n">ionName</span><span class="p">][</span><span class="s1">&#39;compFluxListErr&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">fluxes</span>
+
+
+<span class="k">def</span> <span class="nf">calc_bpt_points</span><span class="p">(</span><span class="n">rp</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="s1">&#39;NII&#39;</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">get_SII_fluxes</span><span class="p">(</span><span class="n">fluxes</span><span class="p">,</span> <span class="n">bptPoints</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;SII-6717A&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fluxes</span><span class="p">:</span>
+            <span class="n">xNumerator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;SII-6731A&#39;</span><span class="p">]</span>
+            <span class="n">bptPoints</span><span class="p">[</span><span class="s1">&#39;SII_label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\log(\mathrm{[SII]6731\AA / H\alpha})$&quot;</span>
+        <span class="k">elif</span> <span class="s1">&#39;SII-6731A&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fluxes</span><span class="p">:</span>
+            <span class="n">xNumerator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;SII-6717A&#39;</span><span class="p">]</span>
+            <span class="n">bptPoints</span><span class="p">[</span><span class="s1">&#39;SII_label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\log(\mathrm{[SII]6717\AA / H\alpha})$&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xNumerator</span> <span class="o">=</span> <span class="n">sum_dict_values</span><span class="p">(</span><span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;SII-6717A&#39;</span><span class="p">],</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;SII-6731A&#39;</span><span class="p">])</span>
+            <span class="n">bptPoints</span><span class="p">[</span><span class="s1">&#39;SII_label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\log(\mathrm{([SII]6717\AA + [SII]6731\AA) / H\alpha})$&quot;</span>
+        <span class="k">return</span> <span class="n">xNumerator</span><span class="p">,</span> <span class="n">bptPoints</span>
+    
+    <span class="n">bptPoints</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">fluxes</span> <span class="o">=</span> <span class="n">get_bpt_fluxes</span><span class="p">(</span><span class="n">rp</span><span class="p">,</span> <span class="n">plot_type</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ion not defined for BPT plot:&quot;</span><span class="p">,</span> <span class="n">plot_type</span><span class="p">)</span>
+        <span class="n">bptPoints</span><span class="p">[</span><span class="s1">&#39;global&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;xErr&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;yErr&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">bptPoints</span>
+
+    <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;NII&#39;</span><span class="p">:</span>
+        <span class="n">xNumerator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;NII-6584A&#39;</span><span class="p">]</span>
+        <span class="n">xDenominator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;H-Alpha&#39;</span><span class="p">]</span>
+        <span class="n">yNumerator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;OIII-5007A&#39;</span><span class="p">]</span>
+        <span class="n">yDenominator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;H-Beta&#39;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;SII&#39;</span><span class="p">:</span>
+        <span class="n">xNumerator</span><span class="p">,</span> <span class="n">bptPoints</span> <span class="o">=</span> <span class="n">get_SII_fluxes</span><span class="p">(</span><span class="n">fluxes</span><span class="p">,</span> <span class="n">bptPoints</span><span class="p">)</span>
+        <span class="n">xDenominator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;H-Alpha&#39;</span><span class="p">]</span>
+        <span class="n">yNumerator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;OIII-5007A&#39;</span><span class="p">]</span>
+        <span class="n">yDenominator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;H-Beta&#39;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;OI&#39;</span><span class="p">:</span>
+        <span class="n">xNumerator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;OI-6300A&#39;</span><span class="p">]</span>
+        <span class="n">xDenominator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;H-Alpha&#39;</span><span class="p">]</span>
+        <span class="n">yNumerator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;OIII-5007A&#39;</span><span class="p">]</span>
+        <span class="n">yDenominator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;H-Beta&#39;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;NIIvsSII&#39;</span><span class="p">:</span>
+        <span class="n">xNumerator</span><span class="p">,</span> <span class="n">bptPoints</span> <span class="o">=</span> <span class="n">get_SII_fluxes</span><span class="p">(</span><span class="n">fluxes</span><span class="p">,</span> <span class="n">bptPoints</span><span class="p">)</span>
+        <span class="n">xDenominator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;H-Alpha&#39;</span><span class="p">]</span>
+        <span class="n">yNumerator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;NII-6584A&#39;</span><span class="p">]</span>
+        <span class="n">yDenominator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;H-Alpha&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Invalid BPT plot_type </span><span class="si">{}</span><span class="s2">, using plot_type &#39;NII&#39; instead.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plot_type</span><span class="p">))</span>
+        <span class="n">xNumerator</span> <span class="o">=</span> <span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;NII-6584A&#39;</span><span class="p">]</span>
+
+    <span class="n">compList</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;global&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">fluxes</span><span class="p">[</span><span class="s1">&#39;H-Alpha&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">compList</span><span class="p">:</span>
+        <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">xNumerator</span><span class="p">[</span><span class="n">comp</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">xDenominator</span><span class="p">[</span><span class="n">comp</span><span class="p">]</span> <span class="o">&gt;=</span>  <span class="mi">0</span> <span class="ow">and</span> <span class="n">yNumerator</span><span class="p">[</span><span class="n">comp</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">yDenominator</span><span class="p">[</span><span class="n">comp</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ratioX</span> <span class="o">=</span> <span class="n">umath</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">xNumerator</span><span class="p">[</span><span class="n">comp</span><span class="p">]</span> <span class="o">/</span> <span class="n">xDenominator</span><span class="p">[</span><span class="n">comp</span><span class="p">])</span>
+            <span class="n">ratioY</span> <span class="o">=</span> <span class="n">umath</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">yNumerator</span><span class="p">[</span><span class="n">comp</span><span class="p">]</span> <span class="o">/</span> <span class="n">yDenominator</span><span class="p">[</span><span class="n">comp</span><span class="p">])</span>
+            <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ratioX</span><span class="o">.</span><span class="n">nominal_value</span>
+            <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;xErr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ratioX</span><span class="o">.</span><span class="n">std_dev</span>
+            <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ratioY</span><span class="o">.</span><span class="n">nominal_value</span>
+            <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;yErr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ratioY</span><span class="o">.</span><span class="n">std_dev</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Cannot compute BPT diagram as some component fluxes are negative&quot;</span><span class="p">)</span>
+            <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;xErr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;yErr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">bptPoints</span>
+
+
+<div class="viewcode-block" id="bpt_plot"><a class="viewcode-back" href="../../api.html#src.bpt_plotting.bpt_plot">[docs]</a><span class="k">def</span> <span class="nf">bpt_plot</span><span class="p">(</span><span class="n">rpList</span><span class="p">,</span> <span class="n">rpBptPoints</span><span class="p">,</span> <span class="n">globalOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="s1">&#39;NII&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;NII&#39;</span><span class="p">:</span>
+        <span class="n">bpt_plot_NII</span><span class="p">(</span><span class="n">rpList</span><span class="p">,</span> <span class="n">rpBptPoints</span><span class="p">,</span> <span class="n">globalOnly</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;SII&#39;</span><span class="p">:</span>
+        <span class="n">bpt_plot_SII</span><span class="p">(</span><span class="n">rpList</span><span class="p">,</span> <span class="n">rpBptPoints</span><span class="p">,</span> <span class="n">globalOnly</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;OI&#39;</span><span class="p">:</span>
+        <span class="n">bpt_plot_OI</span><span class="p">(</span><span class="n">rpList</span><span class="p">,</span> <span class="n">rpBptPoints</span><span class="p">,</span> <span class="n">globalOnly</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;NIIvsSII&#39;</span><span class="p">:</span>
+        <span class="n">bpt_plot_NIIvsSII</span><span class="p">(</span><span class="n">rpList</span><span class="p">,</span> <span class="n">rpBptPoints</span><span class="p">,</span> <span class="n">globalOnly</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Invalid BPT plot_type </span><span class="si">{}</span><span class="s2">, using plot_type &#39;NII&#39; instead.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plot_type</span><span class="p">))</span>
+        <span class="n">bpt_plot_NII</span><span class="p">(</span><span class="n">rpList</span><span class="p">,</span> <span class="n">rpBptPoints</span><span class="p">,</span> <span class="n">globalOnly</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">bpt_plot_NII</span><span class="p">(</span><span class="n">rpList</span><span class="p">,</span> <span class="n">rpBptPoints</span><span class="p">,</span> <span class="n">globalOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compNames</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Narrow1&#39;</span><span class="p">:</span> <span class="s1">&#39;N1&#39;</span><span class="p">,</span> <span class="s1">&#39;Narrow2&#39;</span><span class="p">:</span> <span class="s1">&#39;N2&#39;</span><span class="p">,</span> <span class="s1">&#39;Broad1&#39;</span><span class="p">:</span> <span class="s1">&#39;B1&#39;</span><span class="p">,</span> <span class="s1">&#39;Broad&#39;</span><span class="p">:</span> <span class="s1">&#39;B&#39;</span><span class="p">}):</span>
+    <span class="n">plot_lines_and_other_points_NII</span><span class="p">()</span>
+
+    <span class="c1"># PLOT BPT POINTS</span>
+    <span class="n">colours</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;violet&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;#5D6D7E&#39;</span><span class="p">]</span>
+    <span class="n">markers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;8&#39;</span><span class="p">,</span> <span class="s1">&#39;&gt;&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rpList</span><span class="p">)):</span>
+        <span class="n">bptPoints</span> <span class="o">=</span> <span class="n">rpBptPoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">globalOnly</span><span class="p">:</span>
+            <span class="n">compList</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;global&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">compList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">bptPoints</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">if</span> <span class="s1">&#39;SII_label&#39;</span> <span class="ow">in</span> <span class="n">compList</span><span class="p">:</span>
+                <span class="n">compList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;SII_label&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">comp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">compList</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">xErr</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yErr</span> <span class="o">=</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;xErr&#39;</span><span class="p">],</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;yErr&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rpList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="n">compNames</span><span class="p">[</span><span class="n">comp</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rpList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="n">comp</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="n">markers</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span><span class="c1">#, color=colours[j])</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="n">xErr</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">yErr</span><span class="p">)</span><span class="c1">#, ecolor=colours[j])</span>
+                <span class="c1"># plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords=&#39;offset points&#39;, ha=&#39;right&#39;, va=&#39;bottom&#39;, color=colours[j], fontsize=8)</span>
+
+    <span class="c1"># PLOT AND SAVE FIGURE</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\log(\mathrm{[NII]6584\AA / H\alpha})$&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\log(\mathrm{[OIII]5007\AA / H\beta}$&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">OUTPUT_DIR</span><span class="p">,</span> <span class="s1">&#39;bpt_plot_NII.png&#39;</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">bpt_plot_SII</span><span class="p">(</span><span class="n">rpList</span><span class="p">,</span> <span class="n">rpBptPoints</span><span class="p">,</span> <span class="n">globalOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compNames</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Narrow1&#39;</span><span class="p">:</span> <span class="s1">&#39;N1&#39;</span><span class="p">,</span> <span class="s1">&#39;Narrow2&#39;</span><span class="p">:</span> <span class="s1">&#39;N2&#39;</span><span class="p">,</span> <span class="s1">&#39;Broad1&#39;</span><span class="p">:</span> <span class="s1">&#39;B1&#39;</span><span class="p">,</span> <span class="s1">&#39;Broad&#39;</span><span class="p">:</span> <span class="s1">&#39;B&#39;</span><span class="p">}):</span>
+    <span class="n">plot_lines_and_other_points_SII</span><span class="p">()</span>
+
+    <span class="c1"># PLOT BPT POINTS</span>
+    <span class="n">colours</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;violet&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;#5D6D7E&#39;</span><span class="p">]</span>
+    <span class="n">markers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;8&#39;</span><span class="p">,</span> <span class="s1">&#39;&gt;&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rpList</span><span class="p">)):</span>
+        <span class="n">bptPoints</span> <span class="o">=</span> <span class="n">rpBptPoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">globalOnly</span><span class="p">:</span>
+            <span class="n">compList</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;global&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">compList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">bptPoints</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">if</span> <span class="s1">&#39;SII_label&#39;</span> <span class="ow">in</span> <span class="n">compList</span><span class="p">:</span>
+                <span class="n">compList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;SII_label&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">comp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">compList</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">xErr</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yErr</span> <span class="o">=</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;xErr&#39;</span><span class="p">],</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;yErr&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rpList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="n">compNames</span><span class="p">[</span><span class="n">comp</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rpList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="n">comp</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="n">markers</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span><span class="c1">#, color=colours[j])</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="n">xErr</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">yErr</span><span class="p">)</span><span class="c1">#, ecolor=colours[j])</span>
+                <span class="c1"># plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords=&#39;offset points&#39;, ha=&#39;right&#39;, va=&#39;bottom&#39;, color=colours[j], fontsize=8)</span>
+
+    <span class="c1"># PLOT AND SAVE FIGURE</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">bptPoints</span><span class="p">[</span><span class="s1">&#39;SII_label&#39;</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\log(\mathrm{[OIII]5007\AA / H\beta}$&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">OUTPUT_DIR</span><span class="p">,</span> <span class="s1">&#39;bpt_plot_SII.png&#39;</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">bpt_plot_OI</span><span class="p">(</span><span class="n">rpList</span><span class="p">,</span> <span class="n">rpBptPoints</span><span class="p">,</span> <span class="n">globalOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compNames</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Narrow1&#39;</span><span class="p">:</span> <span class="s1">&#39;N1&#39;</span><span class="p">,</span> <span class="s1">&#39;Narrow2&#39;</span><span class="p">:</span> <span class="s1">&#39;N2&#39;</span><span class="p">,</span> <span class="s1">&#39;Broad1&#39;</span><span class="p">:</span> <span class="s1">&#39;B1&#39;</span><span class="p">,</span> <span class="s1">&#39;Broad&#39;</span><span class="p">:</span> <span class="s1">&#39;B&#39;</span><span class="p">}):</span>
+    <span class="n">plot_lines_and_other_points_OI</span><span class="p">()</span>
+
+    <span class="c1"># PLOT BPT POINTS</span>
+    <span class="n">colours</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;violet&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;#5D6D7E&#39;</span><span class="p">]</span>
+    <span class="n">markers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;8&#39;</span><span class="p">,</span> <span class="s1">&#39;&gt;&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rpList</span><span class="p">)):</span>
+        <span class="n">bptPoints</span> <span class="o">=</span> <span class="n">rpBptPoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">globalOnly</span><span class="p">:</span>
+            <span class="n">compList</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;global&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">compList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">bptPoints</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">if</span> <span class="s1">&#39;SII_label&#39;</span> <span class="ow">in</span> <span class="n">compList</span><span class="p">:</span>
+                <span class="n">compList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;SII_label&#39;</span><span class="p">)</span>
+
+
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">comp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">compList</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">xErr</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yErr</span> <span class="o">=</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;xErr&#39;</span><span class="p">],</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;yErr&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rpList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="n">compNames</span><span class="p">[</span><span class="n">comp</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rpList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="n">comp</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="n">markers</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span><span class="c1">#, color=colours[j])</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="n">xErr</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">yErr</span><span class="p">)</span><span class="c1">#, ecolor=colours[j])</span>
+                <span class="c1"># plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords=&#39;offset points&#39;, ha=&#39;right&#39;, va=&#39;bottom&#39;, color=colours[j], fontsize=8)</span>
+
+    <span class="c1"># PLOT AND SAVE FIGURE</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\log(\mathrm{[OI]6300\AA / H\alpha})$&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\log(\mathrm{[OIII]5007\AA / H\beta}$&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">OUTPUT_DIR</span><span class="p">,</span> <span class="s1">&#39;bpt_plot_OI.png&#39;</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">bpt_plot_NIIvsSII</span><span class="p">(</span><span class="n">rpList</span><span class="p">,</span> <span class="n">rpBptPoints</span><span class="p">,</span> <span class="n">globalOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compNames</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Narrow1&#39;</span><span class="p">:</span> <span class="s1">&#39;N1&#39;</span><span class="p">,</span> <span class="s1">&#39;Narrow2&#39;</span><span class="p">:</span> <span class="s1">&#39;N2&#39;</span><span class="p">,</span> <span class="s1">&#39;Broad1&#39;</span><span class="p">:</span> <span class="s1">&#39;B1&#39;</span><span class="p">,</span> <span class="s1">&#39;Broad&#39;</span><span class="p">:</span> <span class="s1">&#39;B&#39;</span><span class="p">}):</span>
+    <span class="n">plot_lines_and_other_points_NIIvsSII</span><span class="p">()</span>
+
+    <span class="c1"># PLOT BPT POINTS</span>
+    <span class="n">colours</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;violet&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;#5D6D7E&#39;</span><span class="p">]</span>
+    <span class="n">markers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;8&#39;</span><span class="p">,</span> <span class="s1">&#39;&gt;&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rpList</span><span class="p">)):</span>
+        <span class="n">bptPoints</span> <span class="o">=</span> <span class="n">rpBptPoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">globalOnly</span><span class="p">:</span>
+            <span class="n">compList</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;global&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">compList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">bptPoints</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">if</span> <span class="s1">&#39;SII_label&#39;</span> <span class="ow">in</span> <span class="n">compList</span><span class="p">:</span>
+                <span class="n">compList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;SII_label&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">comp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">compList</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">xErr</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yErr</span> <span class="o">=</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;xErr&#39;</span><span class="p">],</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="n">bptPoints</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="s1">&#39;yErr&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rpList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="n">compNames</span><span class="p">[</span><span class="n">comp</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rpList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">regionName</span><span class="p">,</span> <span class="n">comp</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="n">markers</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span><span class="c1">#, color=colours[j])</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="n">xErr</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">yErr</span><span class="p">)</span><span class="c1">#, ecolor=colours[j])</span>
+                <span class="c1"># plt.annotate(label, xy=(x, y), xytext=(30, 5), textcoords=&#39;offset points&#39;, ha=&#39;right&#39;, va=&#39;bottom&#39;, color=colours[j], fontsize=8)</span>
+
+    <span class="c1"># PLOT AND SAVE FIGURE</span>
+    <span class="c1"># plt.xlim(-1.5, 0.5)</span>
+    <span class="c1"># plt.ylim(-0.5, 1.5)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">bptPoints</span><span class="p">[</span><span class="s1">&#39;SII_label&#39;</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\log(\mathrm{[NII]6584\AA / H\alpha}$&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">OUTPUT_DIR</span><span class="p">,</span> <span class="s1">&#39;bpt_plot_NIIvsSII.png&#39;</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">plot_lines_and_other_points_NII</span><span class="p">():</span>
+    <span class="c1"># PLOT LINES</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="s1">&#39;BPT Plot OIII/NII&#39;</span><span class="p">)</span>
+    <span class="c1"># y1: log([OIII]5007/Hbeta) = 0.61 / (log([NII]6584/Halpha) - 0.05) + 1.3  (curve of Kauffmann+03 line)</span>
+    <span class="c1"># y2: log([OIII]5007/Hbeta) = 0.61 / (log([NII]6584/Halpha) - 0.47) + 1.19    (curve of Kewley+01 line)</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">y1</span> <span class="o">=</span> <span class="mf">0.61</span> <span class="o">/</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.3</span>
+    <span class="n">x2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.44</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">y2</span> <span class="o">=</span> <span class="mf">0.61</span> <span class="o">/</span> <span class="p">(</span><span class="n">x2</span> <span class="o">-</span> <span class="mf">0.47</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.19</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="s1">&#39;k--&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="s1">&#39;k--&#39;</span><span class="p">)</span>
+
+    <span class="c1"># AREA LABELS</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.8</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;Starburst&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mf">0.22</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.75</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;Transition&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mf">0.18</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.9</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;Objects&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.16</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;LINERs&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;Seyferts&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mf">1.46</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;Extreme Starburst Line&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+    <span class="c1"># OTHER POINTS FROM PAPER</span>
+    <span class="c1"># Olave et al., 2015 (regions of NGC6845)</span>
+    <span class="n">hBetaAbs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.033</span><span class="p">,</span> <span class="mf">0.007</span><span class="p">,</span> <span class="mf">0.084</span><span class="p">,</span> <span class="mf">0.632</span><span class="p">,</span> <span class="mf">0.075</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">,</span> <span class="mf">0.082</span><span class="p">,</span> <span class="mf">0.013</span><span class="p">,</span> <span class="mf">0.038</span><span class="p">,</span> <span class="mf">0.078</span><span class="p">,</span> <span class="mf">0.055</span><span class="p">,</span> <span class="mf">0.008</span><span class="p">,</span> <span class="mf">0.021</span><span class="p">,</span> <span class="mf">0.894</span><span class="p">,</span> <span class="mf">0.408</span><span class="p">,</span> <span class="mf">0.052</span><span class="p">,</span> <span class="mf">0.009</span><span class="p">,</span> <span class="mf">0.024</span><span class="p">,</span> <span class="mf">0.007</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">]</span>
+    <span class="n">hBetaErr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.011</span><span class="p">,</span> <span class="mf">0.027</span><span class="p">,</span> <span class="mf">0.003</span><span class="p">,</span> <span class="mf">0.019</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.022</span><span class="p">,</span> <span class="mf">0.009</span><span class="p">,</span> <span class="mf">0.017</span><span class="p">,</span> <span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.017</span><span class="p">,</span> <span class="mf">0.019</span><span class="p">,</span> <span class="mf">0.016</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">,</span> <span class="mf">0.013</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.026</span><span class="p">,</span> <span class="mf">0.014</span><span class="p">,</span> <span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.014</span><span class="p">,</span> <span class="mf">0.003</span><span class="p">,</span> <span class="mf">0.008</span><span class="p">]</span>
+    <span class="n">oIII5007Abs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.035</span><span class="p">,</span> <span class="mf">0.092</span><span class="p">,</span> <span class="mf">0.036</span><span class="p">,</span> <span class="mf">0.473</span><span class="p">,</span> <span class="mf">4.651</span><span class="p">,</span> <span class="mf">0.134</span><span class="p">,</span> <span class="mf">0.021</span><span class="p">,</span> <span class="mf">0.183</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.068</span><span class="p">,</span> <span class="mf">0.135</span><span class="p">,</span> <span class="mf">0.082</span><span class="p">,</span> <span class="mf">0.018</span><span class="p">,</span> <span class="mf">0.014</span><span class="p">,</span> <span class="mf">0.672</span><span class="p">,</span> <span class="mf">0.503</span><span class="p">,</span> <span class="mf">0.038</span><span class="p">,</span> <span class="mf">0.008</span><span class="p">,</span> <span class="mf">0.036</span><span class="p">,</span> <span class="mf">0.013</span><span class="p">,</span> <span class="mf">0.028</span><span class="p">]</span>
+    <span class="n">oIII5007Err</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.012</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.029</span><span class="p">,</span> <span class="mf">0.247</span><span class="p">,</span> <span class="mf">0.698</span><span class="p">,</span> <span class="mf">0.027</span><span class="p">,</span> <span class="mf">0.013</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">,</span> <span class="mf">0.007</span><span class="p">,</span> <span class="mf">0.018</span><span class="p">,</span> <span class="mf">0.023</span><span class="p">,</span> <span class="mf">0.018</span><span class="p">,</span> <span class="mf">0.007</span><span class="p">,</span> <span class="mf">0.008</span><span class="p">,</span> <span class="mf">0.072</span><span class="p">,</span> <span class="mf">0.028</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">,</span> <span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.014</span><span class="p">,</span> <span class="mf">0.007</span><span class="p">,</span> <span class="mf">0.016</span><span class="p">]</span>
+    <span class="n">hAlphaAbs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.069</span><span class="p">,</span> <span class="mf">0.102</span><span class="p">,</span> <span class="mf">0.032</span><span class="p">,</span> <span class="mf">0.377</span><span class="p">,</span> <span class="mf">3.011</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.256</span><span class="p">,</span> <span class="mf">0.046</span><span class="p">,</span> <span class="mf">0.111</span><span class="p">,</span> <span class="mf">0.246</span><span class="p">,</span> <span class="mf">0.172</span><span class="p">,</span> <span class="mf">0.027</span><span class="p">,</span> <span class="mf">0.062</span><span class="p">,</span> <span class="mf">3.3</span><span class="p">,</span> <span class="mf">1.66</span><span class="p">,</span> <span class="mf">0.161</span><span class="p">,</span> <span class="mf">0.013</span><span class="p">,</span> <span class="mf">0.062</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">,</span> <span class="mf">0.035</span><span class="p">]</span>
+    <span class="n">hAlphaErr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.011</span><span class="p">,</span> <span class="mf">0.029</span><span class="p">,</span> <span class="mf">0.452</span><span class="p">,</span> <span class="mf">0.032</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">,</span> <span class="mf">0.034</span><span class="p">,</span> <span class="mf">0.019</span><span class="p">,</span> <span class="mf">0.024</span><span class="p">,</span> <span class="mf">0.035</span><span class="p">,</span> <span class="mf">0.027</span><span class="p">,</span> <span class="mf">0.013</span><span class="p">,</span> <span class="mf">0.019</span><span class="p">,</span> <span class="mf">0.204</span><span class="p">,</span> <span class="mf">0.14</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.017</span><span class="p">,</span> <span class="mf">0.008</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">]</span>
+    <span class="n">nII6584Abs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.011</span><span class="p">,</span> <span class="mf">0.014</span><span class="p">,</span> <span class="mf">0.007</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.227</span><span class="p">,</span> <span class="mf">0.036</span><span class="p">,</span> <span class="mf">0.009</span><span class="p">,</span> <span class="mf">0.033</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.022</span><span class="p">,</span> <span class="mf">0.041</span><span class="p">,</span> <span class="mf">0.036</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">,</span> <span class="mf">0.021</span><span class="p">,</span> <span class="mf">1.064</span><span class="p">,</span> <span class="mf">0.48</span><span class="p">,</span> <span class="mf">0.056</span><span class="p">,</span> <span class="mf">0.003</span><span class="p">,</span> <span class="mf">0.011</span><span class="p">,</span> <span class="mf">0.003</span><span class="p">,</span> <span class="mf">0.004</span><span class="p">]</span>
+    <span class="n">nII6584Err</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.009</span><span class="p">,</span> <span class="mf">0.006</span><span class="p">,</span> <span class="mf">0.016</span><span class="p">,</span> <span class="mf">0.024</span><span class="p">,</span> <span class="mf">0.017</span><span class="p">,</span> <span class="mf">0.007</span><span class="p">,</span> <span class="mf">0.013</span><span class="p">,</span> <span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.011</span><span class="p">,</span> <span class="mf">0.016</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">,</span> <span class="mf">0.003</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">,</span> <span class="mf">0.062</span><span class="p">,</span> <span class="mf">0.033</span><span class="p">,</span> <span class="mf">0.014</span><span class="p">,</span> <span class="mf">0.002</span><span class="p">,</span> <span class="mf">0.007</span><span class="p">,</span> <span class="mf">0.003</span><span class="p">,</span> <span class="mf">0.003</span><span class="p">]</span>
+    <span class="n">hBeta</span> <span class="o">=</span> <span class="p">(</span><span class="n">unumpy</span><span class="o">.</span><span class="n">uarray</span><span class="p">(</span><span class="n">hBetaAbs</span><span class="p">,</span> <span class="n">hBetaErr</span><span class="p">))</span>
+    <span class="n">oIII5007</span> <span class="o">=</span> <span class="n">unumpy</span><span class="o">.</span><span class="n">uarray</span><span class="p">(</span><span class="n">oIII5007Abs</span><span class="p">,</span> <span class="n">oIII5007Err</span><span class="p">)</span>
+    <span class="n">hAlpha</span> <span class="o">=</span> <span class="n">unumpy</span><span class="o">.</span><span class="n">uarray</span><span class="p">(</span><span class="n">hAlphaAbs</span><span class="p">,</span> <span class="n">hAlphaErr</span><span class="p">)</span>
+    <span class="n">nII6584</span> <span class="o">=</span> <span class="n">unumpy</span><span class="o">.</span><span class="n">uarray</span><span class="p">(</span><span class="n">nII6584Abs</span><span class="p">,</span> <span class="n">nII6584Err</span><span class="p">)</span>
+
+    <span class="n">ratioNII</span> <span class="o">=</span> <span class="n">unumpy</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">nII6584</span><span class="o">/</span><span class="n">hAlpha</span><span class="p">)</span>
+    <span class="n">ratioOIII</span> <span class="o">=</span> <span class="n">unumpy</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">oIII5007</span><span class="o">/</span><span class="n">hBeta</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">unumpy</span><span class="o">.</span><span class="n">nominal_values</span><span class="p">(</span><span class="n">ratioNII</span><span class="p">)</span>
+    <span class="n">xErr</span> <span class="o">=</span> <span class="n">unumpy</span><span class="o">.</span><span class="n">std_devs</span><span class="p">(</span><span class="n">ratioNII</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">unumpy</span><span class="o">.</span><span class="n">nominal_values</span><span class="p">(</span><span class="n">ratioOIII</span><span class="p">)</span>
+    <span class="n">yErr</span> <span class="o">=</span> <span class="n">unumpy</span><span class="o">.</span><span class="n">std_devs</span><span class="p">(</span><span class="n">ratioOIII</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Olave et al. 2015&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="n">xErr</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">yErr</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="n">ecolor</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="n">elinewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">plot_lines_and_other_points_SII</span><span class="p">():</span>
+    <span class="c1"># https://sites.google.com/site/agndiagnostics/home/bpt</span>
+
+    <span class="c1"># PLOT LINES</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="s1">&#39;BPT Plot OIII/SII&#39;</span><span class="p">)</span>
+    <span class="c1"># y1: log([OIII]/Hb) = 0.72 / (log([SII]/Ha) - 0.32) + 1.30    (main AGN line)</span>
+    <span class="c1"># y2: log([OIII]/Hb) = 1.89 log([SII]/Ha) + 0.76   (LINER/Sy2 line)</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">y1</span> <span class="o">=</span> <span class="mf">0.72</span> <span class="o">/</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="mf">0.32</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.30</span>
+    <span class="n">x2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">0.314613</span><span class="p">,</span> <span class="mf">0.44</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">y2</span> <span class="o">=</span> <span class="mf">1.89</span> <span class="o">*</span> <span class="n">x2</span> <span class="o">+</span> <span class="mf">0.76</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="s1">&#39;k--&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="s1">&#39;k--&#39;</span><span class="p">)</span>
+
+    <span class="c1"># AREA LABELS</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.8</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;HII-Like Objects&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;LINERs&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;AGNs&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">plot_lines_and_other_points_OI</span><span class="p">():</span>
+    <span class="c1"># PLOT LINES</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="s1">&#39;BPT Plot OIII/OI&#39;</span><span class="p">)</span>
+    <span class="c1"># y1: log([OIII]/Hb) = 0.73 / (log([OI]/Ha) + 0.59) + 1.33    (main AGN line)</span>
+    <span class="c1"># y2: log([OIII]/Hb) = 1.18 log([OI]/Ha) + 1.30  (LINER/Sy2 line)</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">y1</span> <span class="o">=</span> <span class="mf">0.73</span> <span class="o">/</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="mf">0.59</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.33</span>
+    <span class="n">x2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">0.53</span><span class="p">,</span> <span class="mf">0.44</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">y2</span> <span class="o">=</span> <span class="mf">1.18</span> <span class="o">*</span> <span class="n">x2</span> <span class="o">+</span> <span class="mf">1.30</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="s1">&#39;k--&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="s1">&#39;k--&#39;</span><span class="p">)</span>
+
+    <span class="c1"># AREA LABELS</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;HII-Like Objects&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;LINERs&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;AGNs&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">plot_lines_and_other_points_NIIvsSII</span><span class="p">():</span>
+    <span class="c1"># PLOT LINES</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="s1">&#39;BPT Plot SII/HI&#39;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daniel Muthukrishna
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

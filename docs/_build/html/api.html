@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API &mdash; FitELP  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Example" href="example.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> FitELP
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Example</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-classes-and-methods">Basic Classes and Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plotting-methods">Plotting Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#latex-tables-methods">Latex Tables Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#full-documentation">Full Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">FitELP</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<p>An application programming interface (API) defines a set of routines to provides access to functions of a software without using a user interface.
+EmissionLineAnalysis has a few entry points into the API. Following we show the more important classes and methods.</p>
+<div class="section" id="basic-classes-and-methods">
+<h2>Basic Classes and Methods<a class="headerlink" href="#basic-classes-and-methods" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="#fitelp.line_profile_info.RegionParameters" title="fitelp.line_profile_info.RegionParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">fitelp.line_profile_info.RegionParameters</span></code></a> - Setup region properties</li>
+<li><a class="reference internal" href="#fitelp.line_profile_info.RegionParameters.add_em_line" title="fitelp.line_profile_info.RegionParameters.add_em_line"><code class="xref py py-func docutils literal notranslate"><span class="pre">fitelp.line_profile_info.RegionParameters.add_em_line()</span></code></a> - Add an emission line</li>
+<li><a class="reference internal" href="#fitelp.kinematics_calculations.RegionCalculations" title="fitelp.kinematics_calculations.RegionCalculations"><code class="xref py py-class docutils literal notranslate"><span class="pre">fitelp.kinematics_calculations.RegionCalculations</span></code></a> - Calculate region kinematics</li>
+</ul>
+</div>
+<div class="section" id="plotting-methods">
+<h2>Plotting Methods<a class="headerlink" href="#plotting-methods" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="#fitelp.bpt_plotting.bpt_plot" title="fitelp.bpt_plotting.bpt_plot"><code class="xref py py-func docutils literal notranslate"><span class="pre">fitelp.bpt_plotting.bpt_plot()</span></code></a> - Make different types of BPT plots</li>
+<li><a class="reference internal" href="#fitelp.fit_line_profiles.plot_profiles" title="fitelp.fit_line_profiles.plot_profiles"><code class="xref py py-func docutils literal notranslate"><span class="pre">fitelp.fit_line_profiles.plot_profiles()</span></code></a> - Plot emission line profiles and Gaussian fits</li>
+</ul>
+</div>
+<div class="section" id="latex-tables-methods">
+<h2>Latex Tables Methods<a class="headerlink" href="#latex-tables-methods" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="#fitelp.make_latex_tables.average_velocities_table_to_latex" title="fitelp.make_latex_tables.average_velocities_table_to_latex"><code class="xref py py-func docutils literal notranslate"><span class="pre">fitelp.make_latex_tables.average_velocities_table_to_latex()</span></code></a> - Make line profile velocities table</li>
+<li><a class="reference internal" href="#fitelp.make_latex_tables.halpha_regions_table_to_latex" title="fitelp.make_latex_tables.halpha_regions_table_to_latex"><code class="xref py py-func docutils literal notranslate"><span class="pre">fitelp.make_latex_tables.halpha_regions_table_to_latex()</span></code></a> - Make region information summary table</li>
+<li><a class="reference internal" href="#fitelp.make_latex_tables.comp_table_to_latex" title="fitelp.make_latex_tables.comp_table_to_latex"><code class="xref py py-func docutils literal notranslate"><span class="pre">fitelp.make_latex_tables.comp_table_to_latex()</span></code></a> - Make table detailing gaussian components of each emission line</li>
+</ul>
+<p>The full documentation can be found below.</p>
+</div>
+<div class="section" id="full-documentation">
+<h2>Full Documentation<a class="headerlink" href="#full-documentation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fitelp.line_profile_info.RegionParameters">
+<em class="property">class </em><code class="descclassname">fitelp.line_profile_info.</code><code class="descname">RegionParameters</code><span class="sig-paren">(</span><em>region_name</em>, <em>blue_spec_file</em>, <em>red_spec_file</em>, <em>blue_spec_error_file</em>, <em>red_spec_error_file</em>, <em>scale_flux</em>, <em>center_list</em>, <em>sigma_list</em>, <em>lin_slope</em>, <em>lin_int</em>, <em>num_comps</em>, <em>component_labels</em>, <em>component_colors</em>, <em>sigma_instr_blue</em>, <em>sigma_inst_red</em>, <em>distance</em>, <em>em_lines_for_avg_vel_calc</em>, <em>plotting_x_range=None</em>, <em>plot_residuals=True</em>, <em>show_systemic_velocity=False</em>, <em>systemic_velocity=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitelp/line_profile_info.html#RegionParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fitelp.line_profile_info.RegionParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>List information about a region containing multiple emission lines</p>
+<dl class="docutils">
+<dt>region_name <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Name of galaxy region. Do not use underscores in name, as this may affect latex compiling.</dd>
+<dt>blue_spec_file <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>FITS file path of the blue spectrum</dd>
+<dt>red_spec_file <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>FITS file path of the red spectrum</dd>
+<dt>blue_spec_error_file <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>FITS file path of the blue spectrum error</dd>
+<dt>red_spec_error_file <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>FITS file path of the red spectrum</dd>
+<dt>scale_flux <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>scales the fluxes from the files by this factor during fitting.
+If scale_flux is not 1e14, then you will need to edit the string _FLUX_UNITS_WAVE constant in constants.py
+to reflect the scaling so that the axis labels and tables are correct.</dd>
+<dt>center_list <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>The center values of the gaussians for the low (H-Alpha) and high (OIII) zones of each gaussian.
+E.g. centerList = {‘low’: [3918.56, 3969.72, 3978.93], ‘high’: [3923.50, 3970.63, 3984.13]}</dd>
+<dt>sigma_list <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>The sigma values of the gaussians for the low (H-Alpha) and high (OIII) zones of each gaussian.
+E.g. sigmaList = {‘low’: [17.123, 13.868, 45.207],’high’: [15.740, 12.875, 43.667]}</dd>
+<dt>lin_slope <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>The linear slope values representing the continuum for the low (H-Alpha) and high (OIII) zones.
+E.g. lin_slope = {‘low’: -5.2237e-08, ‘high’: -2.8976e-07}</dd>
+<dt>lin_int <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>The linear intercept values representing the continuum for the low (H-Alpha) and high (OIII) zones.
+E.g. lin_int = {‘low’: 0.00139680, ‘high’: 0.00254310}</dd>
+<dt>num_comps <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>The number of components for the low (H-Alpha) and high (OIII).
+This should be the length of the lists of the center and sigma of each of the guassian components
+E.g. num_comps = {‘low’: 3, ‘high’: 3}</dd>
+<dt>component_labels <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd>Labels for each of the components in the order that they are presented in all other lists.
+E.g. component_labels = [‘Narrow 1’, ‘Narrow 2’, ‘Broad’]</dd>
+<dt>component_colors <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd>Colour to plot each of the components in the order that they appear in component_labels.
+E.g. componentColours = [‘r’, ‘c’, ‘g’]</dd>
+<dt>sigma_instr_blue <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The instrument sigma in the blue arm.</dd>
+<dt>sigma_inst_red <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The instrument sigma in the blue arm.</dd>
+<dt>distance <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The distance to the region in centimetres (same units that distance appears in the input flux)</dd>
+<dt>em_lines_for_avg_vel_calc <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd>The emission lines to use to calculate the average velocity.
+E.g. emLinesForAvgVelCalc = [‘H-Alpha’, ‘H-Beta’, ‘OIII-5007A’, ‘NII-6584A’, ‘SII-6717A’]</dd>
+<dt>plotting_x_range: list or None</dt>
+<dd>The wavelength (or velocity) range to plot each of the emission line gaussians.
+E.g. plotting_x_range = [3600, 4400]</dd>
+<dt>plot_residuals <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Whether to plot the residuals of the fit in an extra panel below the gaussian
+Default is True.</dd>
+<dt>show_systemic_velocity <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>Assumed False if it is not defined. If True, the xAxis is plotted
+as the measured velocity minus the systemicVelocity: (velocity - systemicVelocity)</dd>
+<dt>systemic_velocity <span class="classifier-delimiter">:</span> <span class="classifier">float or None</span></dt>
+<dd>Required if show_systemic_velocity is True.</dd>
+</dl>
+<dl class="method">
+<dt id="fitelp.line_profile_info.RegionParameters.add_em_line">
+<code class="descname">add_em_line</code><span class="sig-paren">(</span><em>name</em>, <em>plot_color</em>, <em>order</em>, <em>filter</em>, <em>min_idx</em>, <em>max_idx</em>, <em>rest_wavelength</em>, <em>amp_list</em>, <em>zone</em>, <em>sigma_tsquared</em>, <em>comp_limits</em>, <em>copy_from</em>, <em>num_comps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitelp/line_profile_info.html#RegionParameters.add_em_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fitelp.line_profile_info.RegionParameters.add_em_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Emission line info</p>
+<dl class="docutils">
+<dt>name <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Name of emission line. E.g. ‘H-Alpha’ or NII-6584A. This name must be in the appropriate format.</dd>
+<dt>plot_color <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>The color that this emission line should appear in each of the plots.</dd>
+<dt>order <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>The order that this emission line appears in the Echelee FITS files.</dd>
+<dt>filter <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>‘red’ or ‘blue’. Indicating the filter that this emission line appears in the echelle spectra.</dd>
+<dt>min_idx <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Minimum index of the region in the echelle spectra that includes this emission line.</dd>
+<dt>max_idx <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Maximum index of the region in the echelle spectra that includes this emission line.</dd>
+<dt>rest_wavelength <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The rest wavelength of this emission line.</dd>
+<dt>num_comps <span class="classifier-delimiter">:</span> <span class="classifier">int (optional)</span></dt>
+<dd>The number of Gaussian components to fit the emission line.
+This overrides the num_comps set in RegionParameters for this emission line only.</dd>
+<dt>amp_list: list or float</dt>
+<dd>The list of amplitudes for each of the components that are included.
+This must be a list with the same number of elements as ‘num_comps’.
+If this is a float, then the amplitudes from the emission line listed in the copy_from parameter will be
+used and divided by this value.</dd>
+<dt>zone <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>‘low’ or ‘high’.</dd>
+<dt>sigma_tsquared <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>sigma of the temperature squared</dd>
+<dt>comp_limits <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>The limits in ‘compLimits’ can be in the following forms:
+- a list indicating the limits for each component
+- a single number indicating the percentage limits for ALL components
+- a tuple (minValue, maxValue) indicating the min and max not in a percentage
+- inf: indicating that the component can vary
+- False: indicating that the value is fixed</dd>
+<dt>copy_from <span class="classifier-delimiter">:</span> <span class="classifier">str or None or list</span></dt>
+<dd>The name of the emission line to copy from. If None, it will not copy any information.
+If it is a list, it must be the length of the number of components you have (as defined in num_comps in
+RegionParameters). Each element of the list must be a string indicating which emission line to
+copy for each component.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<hr class="docutils" />
+<dl class="class">
+<dt id="fitelp.kinematics_calculations.RegionCalculations">
+<em class="property">class </em><code class="descclassname">fitelp.kinematics_calculations.</code><code class="descname">RegionCalculations</code><span class="sig-paren">(</span><em>rp</em>, <em>xAxis='vel'</em>, <em>initVals='vel'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitelp/kinematics_calculations.html#RegionCalculations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fitelp.kinematics_calculations.RegionCalculations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute kinematics of a region.</p>
+<dl class="docutils">
+<dt>rp <span class="classifier-delimiter">:</span> <span class="classifier">RegionParameters object</span></dt>
+<dd>An instance of the RegionParameters class.</dd>
+<dt>xAxis <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Plots the x axis in velocity space if xAxis=’vel’ and in wavelength space if xAxis=’wave’. Default is ‘vel’.</dd>
+<dt>initVals <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Interprets the initial values from all the parameters (i.e. center, sigma, amplitude)
+as velocities if initVals=’vel’ or as wavelengths if initVals=’wave’</dd>
+</dl>
+</dd></dl>
+
+<hr class="docutils" />
+<dl class="function">
+<dt id="fitelp.bpt_plotting.bpt_plot">
+<code class="descclassname">fitelp.bpt_plotting.</code><code class="descname">bpt_plot</code><span class="sig-paren">(</span><em>rpList</em>, <em>rpBptPoints</em>, <em>globalOnly=False</em>, <em>plot_type='NII'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitelp/bpt_plotting.html#bpt_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fitelp.bpt_plotting.bpt_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<hr class="docutils" />
+<dl class="function">
+<dt id="fitelp.fit_line_profiles.plot_profiles">
+<code class="descclassname">fitelp.fit_line_profiles.</code><code class="descname">plot_profiles</code><span class="sig-paren">(</span><em>lineNames</em>, <em>rp</em>, <em>nameForComps=''</em>, <em>title=''</em>, <em>sortedIndex=None</em>, <em>plotAllComps=False</em>, <em>xAxis='vel'</em>, <em>logscale=False</em>, <em>ymin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitelp/fit_line_profiles.html#plot_profiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fitelp.fit_line_profiles.plot_profiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<hr class="docutils" />
+<dl class="function">
+<dt id="fitelp.make_latex_tables.average_velocities_table_to_latex">
+<code class="descclassname">fitelp.make_latex_tables.</code><code class="descname">average_velocities_table_to_latex</code><span class="sig-paren">(</span><em>rpList</em>, <em>directory=None</em>, <em>paperSize='a4'</em>, <em>orientation='portrait'</em>, <em>longTable=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitelp/make_latex_tables.html#average_velocities_table_to_latex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fitelp.make_latex_tables.average_velocities_table_to_latex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<hr class="docutils" />
+<dl class="function">
+<dt id="fitelp.make_latex_tables.halpha_regions_table_to_latex">
+<code class="descclassname">fitelp.make_latex_tables.</code><code class="descname">halpha_regions_table_to_latex</code><span class="sig-paren">(</span><em>regionInfoArray</em>, <em>directory=None</em>, <em>paperSize='a4'</em>, <em>orientation='portrait'</em>, <em>longTable=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitelp/make_latex_tables.html#halpha_regions_table_to_latex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fitelp.make_latex_tables.halpha_regions_table_to_latex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<hr class="docutils" />
+<dl class="function">
+<dt id="fitelp.make_latex_tables.comp_table_to_latex">
+<code class="descclassname">fitelp.make_latex_tables.</code><code class="descname">comp_table_to_latex</code><span class="sig-paren">(</span><em>componentArray</em>, <em>rp</em>, <em>paperSize='a4'</em>, <em>orientation='portrait'</em>, <em>longTable=True</em>, <em>xAxisUnits='vel'</em>, <em>scaleFlux=100000000000000.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitelp/make_latex_tables.html#comp_table_to_latex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fitelp.make_latex_tables.comp_table_to_latex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="example.html" class="btn btn-neutral float-left" title="Example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daniel Muthukrishna
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

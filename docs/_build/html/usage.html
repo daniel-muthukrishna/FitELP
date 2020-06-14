@@ -1,0 +1,286 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Usage &mdash; FitELP  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Example" href="example.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> FitELP
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#fit-emission-lines">Fit emission lines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#compute-kinematics-of-a-region">Compute kinematics of a region</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plot-multiple-profiles">Plot multiple profiles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#make-bpt-plot">Make BPT plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#make-table-of-average-velocities">Make table of average velocities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#make-table-of-h-alpha-and-sfr">Make table of H-alpha and SFR</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="example.html">Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">FitELP</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Usage</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<p>This package is used to fit emission lines from echelle or long-slit spectral data with a
+continuum and multiple Gaussian components. There are various methods that are useful detailed
+in the <a class="reference internal" href="api.html#api"><span class="std std-ref">API</span></a>. Example usage and analysis tools available are outlined below.</p>
+<div class="section" id="fit-emission-lines">
+<h2>Fit emission lines<a class="headerlink" href="#fit-emission-lines" title="Permalink to this headline">¶</a></h2>
+<p>To set-up the properties of a region with multiple emission lines use the following class.
+See <a class="reference internal" href="example.html#example"><span class="std std-ref">Example</span></a> for an example set-up.</p>
+<ul class="simple">
+<li><a class="reference internal" href="api.html#fitelp.line_profile_info.RegionParameters" title="fitelp.line_profile_info.RegionParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">fitelp.line_profile_info.RegionParameters</span></code></a></li>
+</ul>
+<p>To fit emission lines in this region use the following method.
+See <a class="reference internal" href="example.html#example"><span class="std std-ref">Example</span></a> for an example of how to add emission lines.</p>
+<ul class="simple">
+<li><a class="reference internal" href="api.html#fitelp.line_profile_info.RegionParameters.add_em_line" title="fitelp.line_profile_info.RegionParameters.add_em_line"><code class="xref py py-func docutils literal notranslate"><span class="pre">fitelp.line_profile_info.RegionParameters.add_em_line()</span></code></a></li>
+</ul>
+</div>
+<div class="section" id="compute-kinematics-of-a-region">
+<h2>Compute kinematics of a region<a class="headerlink" href="#compute-kinematics-of-a-region" title="Permalink to this headline">¶</a></h2>
+<p>To perform an analysis on the region use the class.</p>
+<ul class="simple">
+<li><a class="reference internal" href="api.html#fitelp.kinematics_calculations.RegionCalculations" title="fitelp.kinematics_calculations.RegionCalculations"><code class="xref py py-class docutils literal notranslate"><span class="pre">fitelp.kinematics_calculations.RegionCalculations</span></code></a></li>
+</ul>
+<p>Initiating this class will output several plots, tables, and data files about a region.
+Examples of outputs are shown below.</p>
+<p>A plot of each of the emission lines fit with as many gaussian components as specified will be saved.
+An example of a fit to a H-alpha line is shown below.</p>
+<img alt="_images/example_H-alpha_fit.png" src="_images/example_H-alpha_fit.png" />
+<p>A table in the form a LaTeX file and a pdf outlining the kinematics of each emission line  will be saved.
+An example is shown below.</p>
+<img alt="_images/example_component_table.png" src="_images/example_component_table.png" />
+<div class="section" id="plot-multiple-profiles">
+<h3>Plot multiple profiles<a class="headerlink" href="#plot-multiple-profiles" title="Permalink to this headline">¶</a></h3>
+<p>You may plot which ever profiles you wish together using the following function:
+See <a class="reference internal" href="example.html#example"><span class="std std-ref">Example</span></a> for an example of using this. An example output plot is also shown below.</p>
+<ul class="simple">
+<li><a class="reference internal" href="api.html#fitelp.fit_line_profiles.plot_profiles" title="fitelp.fit_line_profiles.plot_profiles"><code class="xref py py-func docutils literal notranslate"><span class="pre">fitelp.fit_line_profiles.plot_profiles()</span></code></a></li>
+</ul>
+<img alt="_images/example_plot_profiles.png" src="_images/example_plot_profiles.png" />
+</div>
+<div class="section" id="make-bpt-plot">
+<h3>Make BPT plot<a class="headerlink" href="#make-bpt-plot" title="Permalink to this headline">¶</a></h3>
+<p>Each region and its components can be added to a BPT plot using the following function.
+See <a class="reference internal" href="example.html#example"><span class="std std-ref">Example</span></a> for an example of how to add several regions onto differnt types of BPT plots.
+An example of a BPT plot output is shown below.</p>
+<ul class="simple">
+<li><a class="reference internal" href="api.html#fitelp.bpt_plotting.bpt_plot" title="fitelp.bpt_plotting.bpt_plot"><code class="xref py py-func docutils literal notranslate"><span class="pre">fitelp.bpt_plotting.bpt_plot()</span></code></a> - Make different types of BPT plots</li>
+</ul>
+<img alt="_images/example_bpt_plot.png" src="_images/example_bpt_plot.png" />
+</div>
+<div class="section" id="make-table-of-average-velocities">
+<h3>Make table of average velocities<a class="headerlink" href="#make-table-of-average-velocities" title="Permalink to this headline">¶</a></h3>
+<p>A table (in LaTeX and pdf format) of the average velocities of each of the components of
+multiple regions can be created using the following function.
+An example of this table is shown below.</p>
+<ul class="simple">
+<li><a class="reference internal" href="api.html#fitelp.make_latex_tables.average_velocities_table_to_latex" title="fitelp.make_latex_tables.average_velocities_table_to_latex"><code class="xref py py-func docutils literal notranslate"><span class="pre">fitelp.make_latex_tables.average_velocities_table_to_latex()</span></code></a></li>
+</ul>
+<img alt="_images/example_average_velocities_table.png" src="_images/example_average_velocities_table.png" />
+</div>
+<div class="section" id="make-table-of-h-alpha-and-sfr">
+<h3>Make table of H-alpha and SFR<a class="headerlink" href="#make-table-of-h-alpha-and-sfr" title="Permalink to this headline">¶</a></h3>
+<p>A table (in LaTeX and pdf format) of the star formation rate and other information about
+multiple regions can be created using the following function.
+An example of this table is shown below.</p>
+<ul class="simple">
+<li><a class="reference internal" href="api.html#fitelp.make_latex_tables.halpha_regions_table_to_latex" title="fitelp.make_latex_tables.halpha_regions_table_to_latex"><code class="xref py py-func docutils literal notranslate"><span class="pre">fitelp.make_latex_tables.halpha_regions_table_to_latex()</span></code></a></li>
+</ul>
+<img alt="_images/example_region_info_table.png" src="_images/example_region_info_table.png" />
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="example.html" class="btn btn-neutral float-right" title="Example" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daniel Muthukrishna
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

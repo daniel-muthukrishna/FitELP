@@ -1,4 +1,4 @@
-from src.line_profile_info import RegionParameters
+from fitelp.line_profile_info import RegionParameters
 import numpy as np
 
 

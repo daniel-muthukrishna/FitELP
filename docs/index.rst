@@ -1,17 +1,17 @@
-.. EmissionLineAnalysis documentation master file, created by
+.. FitELP documentation master file, created by
    sphinx-quickstart on Fri Jun 14 15:02:56 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
    
 .. note:: You are reading the most recent edition of this documentation which content the latest available version.
 
-EmissionLineAnalysis Documentation
+FitELP Documentation
 ==================================
-EmissionLineAnalysis is a tool specifically designed to perform spectral emission-line fits with multiple gaussian components in echelle or long-slit data. The actual fitting procedure is based on the Non-Linear Least-Square Minimization and Curve-Fitting (LMFIT) package, https://lmfit.github.io/lmfit-py/ (Newville et al. 2014, https://doi.org/10.5281/zenodo.11813).
+FitELP is a tool specifically designed to perform spectral emission-line fits with multiple gaussian components in echelle or long-slit data. The actual fitting procedure is based on the Non-Linear Least-Square Minimization and Curve-Fitting (LMFIT) package, https://lmfit.github.io/lmfit-py/ (Newville et al. 2014, https://doi.org/10.5281/zenodo.11813).
 
 The Python code was designed for the analysis of the internal kinematics of star-forming regions using echelle data. However, it can be used to model any emission-lines in both in echelle and longslit spectroscopy.
 
-EmissionLineAnalysis allows you to:
+FitELP allows you to:
 
 * Modelling all individual emission-lines profiles with multiple-gaussian components. 
 
@@ -48,13 +48,13 @@ EmissionLineAnalysis allows you to:
 Contribute
 ----------
 
-- Issue Tracker: https://github.com/daniel-muthukrishna/EmissionLineAnalysis/issues
-- Source Code: https://github.com/daniel-muthukrishna/EmissionLineAnalysis
+- Issue Tracker: https://github.com/daniel-muthukrishna/FitELP/issues
+- Source Code: https://github.com/daniel-muthukrishna/FitELP
 
 Support
 -------
 
-If you are having issues, please let us know by submitting a GitHub issue at https://github.com/daniel-muthukrishna/EmissionLineAnalysis/issues
+If you are having issues, please let us know by submitting a GitHub issue at https://github.com/daniel-muthukrishna/FitELP/issues
 
 License
 -------

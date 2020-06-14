@@ -163,7 +163,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        region_name : str</span>
-<span class="sd">            Name of galaxy region. Do not use underscores in name, as this may affect latex compiling.</span>
+<span class="sd">            Name of object. Do not use underscores in name, as this may affect latex compiling.</span>
 <span class="sd">        blue_spec_file : str</span>
 <span class="sd">            FITS file path of the blue spectrum</span>
 <span class="sd">        red_spec_file : str</span>
@@ -171,37 +171,39 @@
 <span class="sd">        blue_spec_error_file : str</span>
 <span class="sd">            FITS file path of the blue spectrum error</span>
 <span class="sd">        red_spec_error_file : str</span>
-<span class="sd">            FITS file path of the red spectrum</span>
+<span class="sd">            FITS file path of the red spectrum error</span>
 <span class="sd">        scale_flux : float</span>
 <span class="sd">            scales the fluxes from the files by this factor during fitting.</span>
-<span class="sd">            If scale_flux is not 1e14, then you will need to edit the string _FLUX_UNITS_WAVE constant in constants.py</span>
-<span class="sd">            to reflect the scaling so that the axis labels and tables are correct.</span>
 <span class="sd">        center_list : dict</span>
-<span class="sd">            The center values of the gaussians for the low (H-Alpha) and high (OIII) zones of each gaussian.</span>
+<span class="sd">            The center values of the gaussian components for the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007) zones</span>
+<span class="sd">            of each gaussian. These values will depend on the type of fit, if it is in velocity or wavelength.</span>
 <span class="sd">            E.g. centerList = {&#39;low&#39;: [3918.56, 3969.72, 3978.93], &#39;high&#39;: [3923.50, 3970.63, 3984.13]}</span>
 <span class="sd">        sigma_list : dict</span>
-<span class="sd">            The sigma values of the gaussians for the low (H-Alpha) and high (OIII) zones of each gaussian.</span>
+<span class="sd">            The sigma values of the gaussian components for the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007) zones</span>
+<span class="sd">            of each gaussian. These values will depend on the type of fit, if it is in velocity or wavelength.</span>
 <span class="sd">            E.g. sigmaList = {&#39;low&#39;: [17.123, 13.868, 45.207],&#39;high&#39;: [15.740, 12.875, 43.667]}</span>
 <span class="sd">        lin_slope : dict</span>
-<span class="sd">            The linear slope values representing the continuum for the low (H-Alpha) and high (OIII) zones.</span>
+<span class="sd">            The linear slope values representing the continuum for the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007)</span>
+<span class="sd">            zones. This value will depend on the type of fit, if it is in velocity or wavelength.</span>
 <span class="sd">            E.g. lin_slope = {&#39;low&#39;: -5.2237e-08, &#39;high&#39;: -2.8976e-07}</span>
 <span class="sd">        lin_int : dict</span>
-<span class="sd">            The linear intercept values representing the continuum for the low (H-Alpha) and high (OIII) zones.</span>
+<span class="sd">            The linear intercept values representing the continuum the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007)</span>
+<span class="sd">            zones. This value will depend on the type of fit, if it is in velocity or wavelength.</span>
 <span class="sd">            E.g. lin_int = {&#39;low&#39;: 0.00139680, &#39;high&#39;: 0.00254310}</span>
 <span class="sd">        num_comps : dict</span>
-<span class="sd">            The number of components for the low (H-Alpha) and high (OIII).</span>
-<span class="sd">            This should be the length of the lists of the center and sigma of each of the guassian components</span>
-<span class="sd">            E.g. num_comps = {&#39;low&#39;: 3, &#39;high&#39;: 3}</span>
+<span class="sd">            The number of gaussian components for the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007) zones.</span>
+<span class="sd">            This should be the length of the lists of the center and sigma of each of the gaussian components</span>
+<span class="sd">            E.g. num_comps = {&#39;low&#39;: 3, &#39;high&#39;: 3} or num_comps = {&#39;low&#39;: 3, &#39;high&#39;: 5}</span>
 <span class="sd">        component_labels : list</span>
-<span class="sd">            Labels for each of the components in the order that they are presented in all other lists.</span>
+<span class="sd">            Labels for each of the gaussian components in the order that they are presented in all other lists.</span>
 <span class="sd">            E.g. component_labels = [&#39;Narrow 1&#39;, &#39;Narrow 2&#39;, &#39;Broad&#39;]</span>
 <span class="sd">        component_colors : list</span>
-<span class="sd">            Colour to plot each of the components in the order that they appear in component_labels.</span>
+<span class="sd">            Colour to plot each of the gaussian components in the order that they appear in component_labels.</span>
 <span class="sd">            E.g. componentColours = [&#39;r&#39;, &#39;c&#39;, &#39;g&#39;]</span>
 <span class="sd">        sigma_instr_blue : float</span>
-<span class="sd">            The instrument sigma in the blue arm.</span>
+<span class="sd">            The instrumental profile (σi) in the blue-arm of the spectrograph. It is well approximated by a single Gaussian function.</span>
 <span class="sd">        sigma_inst_red : float</span>
-<span class="sd">            The instrument sigma in the blue arm.</span>
+<span class="sd">            The instrumental profile (σi) in the red-arm of the spectrograph. It is well approximated by a single Gaussian function.</span>
 <span class="sd">        distance : float</span>
 <span class="sd">            The distance to the region in centimetres (same units that distance appears in the input flux)</span>
 <span class="sd">        em_lines_for_avg_vel_calc : list</span>
@@ -251,16 +253,17 @@
 <span class="sd">        ----------</span>
 <span class="sd">        name : str</span>
 <span class="sd">            Name of emission line. E.g. &#39;H-Alpha&#39; or NII-6584A. This name must be in the appropriate format.</span>
+<span class="sd">            This name must be in the appropriate format (see ALL_IONS list in constants.py).</span>
 <span class="sd">        plot_color : str</span>
 <span class="sd">            The color that this emission line should appear in each of the plots.</span>
 <span class="sd">        order : int</span>
-<span class="sd">            The order that this emission line appears in the Echelee FITS files.</span>
+<span class="sd">            The order that this emission line appears in the Echelle FITS files or 1 for Longslit FIT file.</span>
 <span class="sd">        filter : str</span>
-<span class="sd">            &#39;red&#39; or &#39;blue&#39;. Indicating the filter that this emission line appears in the echelle spectra.</span>
+<span class="sd">            &#39;red&#39; or &#39;blue&#39;. Indicating the red-arm or blue-arm of the spectrograph where the emission line appears in the spectrum.</span>
 <span class="sd">        min_idx : int</span>
-<span class="sd">            Minimum index of the region in the echelle spectra that includes this emission line.</span>
+<span class="sd">            Minimum index of the region in the spectra that includes this emission line.</span>
 <span class="sd">        max_idx : int</span>
-<span class="sd">            Maximum index of the region in the echelle spectra that includes this emission line.</span>
+<span class="sd">            Maximum index of the region in the spectra that includes this emission line.</span>
 <span class="sd">        rest_wavelength : float</span>
 <span class="sd">            The rest wavelength of this emission line.</span>
 <span class="sd">        num_comps : int (optional)</span>
@@ -272,9 +275,14 @@
 <span class="sd">            If this is a float, then the amplitudes from the emission line listed in the copy_from parameter will be</span>
 <span class="sd">            used and divided by this value.</span>
 <span class="sd">        zone : str</span>
-<span class="sd">            &#39;low&#39; or &#39;high&#39;.</span>
+<span class="sd">            &#39;low&#39; or &#39;high&#39; ionization zone. Two-ionization-zone scheme is assumed: the low-ionization zone where</span>
+<span class="sd">            the hydrogen recombination lines and [OI], [OII], [NII], [SII] forbidden lines are emitted, and the</span>
+<span class="sd">            high-ionization zone where the helium recombination lines and [OIII], [SIII], [ArIII], [NeIII]</span>
+<span class="sd">            forbidden lines are emitted (Hägele et al., 2012).</span>
 <span class="sd">        sigma_tsquared : float</span>
-<span class="sd">            sigma of the temperature squared</span>
+<span class="sd">            squared of the random thermal motion (σt). In the example, the thermal contribution was derived from the</span>
+<span class="sd">            Boltzmann’s equation, assuming a typical kinetic temperature T≃10^4K and the atomic mass of the</span>
+<span class="sd">            corresponding element.</span>
 <span class="sd">        comp_limits : dict</span>
 <span class="sd">            The limits in &#39;compLimits&#39; can be in the following forms:</span>
 <span class="sd">            - a list indicating the limits for each component</span>

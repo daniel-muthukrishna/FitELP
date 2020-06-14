@@ -112,7 +112,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'EmissionLineAnalysisdoc'
+htmlhelp_basename = 'FitELPdoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -149,7 +149,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'emissionlineanalysis', 'FitELP Documentation',
+    (master_doc, 'fitelp', 'FitELP Documentation',
      [author], 1)
 ]
 

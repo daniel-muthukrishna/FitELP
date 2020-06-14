@@ -9,8 +9,8 @@ The source code can be downloaded from GitHub and dependencies can be installed 
 
 .. code-block:: bash
 
-    git clone https://github.com/daniel-muthukrishna/EmissionLineAnalysis.git
-    cd EmissionLineAnalysis
+    git clone https://github.com/daniel-muthukrishna/FitELP.git
+    cd FitELP
     python setup.py install
 
 Dependencies

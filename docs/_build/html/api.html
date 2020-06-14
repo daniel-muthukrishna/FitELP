@@ -158,7 +158,7 @@
   <div class="section" id="api">
 <h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
 <p>An application programming interface (API) defines a set of routines to provides access to functions of a software without using a user interface.
-EmissionLineAnalysis has a few entry points into the API. Following we show the more important classes and methods.</p>
+FitELP (Fit Emission Line Profiles) has a few entry points into the API. Following we show the more important classes and methods.</p>
 <div class="section" id="basic-classes-and-methods">
 <h2>Basic Classes and Methods<a class="headerlink" href="#basic-classes-and-methods" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -191,7 +191,7 @@ EmissionLineAnalysis has a few entry points into the API. Following we show the 
 <dd><p>List information about a region containing multiple emission lines</p>
 <dl class="docutils">
 <dt>region_name <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd>Name of galaxy region. Do not use underscores in name, as this may affect latex compiling.</dd>
+<dd>Name of object. Do not use underscores in name, as this may affect latex compiling.</dd>
 <dt>blue_spec_file <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd>FITS file path of the blue spectrum</dd>
 <dt>red_spec_file <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
@@ -199,37 +199,39 @@ EmissionLineAnalysis has a few entry points into the API. Following we show the 
 <dt>blue_spec_error_file <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd>FITS file path of the blue spectrum error</dd>
 <dt>red_spec_error_file <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd>FITS file path of the red spectrum</dd>
+<dd>FITS file path of the red spectrum error</dd>
 <dt>scale_flux <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>scales the fluxes from the files by this factor during fitting.
-If scale_flux is not 1e14, then you will need to edit the string _FLUX_UNITS_WAVE constant in constants.py
-to reflect the scaling so that the axis labels and tables are correct.</dd>
+<dd>scales the fluxes from the files by this factor during fitting.</dd>
 <dt>center_list <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>The center values of the gaussians for the low (H-Alpha) and high (OIII) zones of each gaussian.
+<dd>The center values of the gaussian components for the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007) zones
+of each gaussian. These values will depend on the type of fit, if it is in velocity or wavelength.
 E.g. centerList = {‘low’: [3918.56, 3969.72, 3978.93], ‘high’: [3923.50, 3970.63, 3984.13]}</dd>
 <dt>sigma_list <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>The sigma values of the gaussians for the low (H-Alpha) and high (OIII) zones of each gaussian.
+<dd>The sigma values of the gaussian components for the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007) zones
+of each gaussian. These values will depend on the type of fit, if it is in velocity or wavelength.
 E.g. sigmaList = {‘low’: [17.123, 13.868, 45.207],’high’: [15.740, 12.875, 43.667]}</dd>
 <dt>lin_slope <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>The linear slope values representing the continuum for the low (H-Alpha) and high (OIII) zones.
+<dd>The linear slope values representing the continuum for the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007)
+zones. This value will depend on the type of fit, if it is in velocity or wavelength.
 E.g. lin_slope = {‘low’: -5.2237e-08, ‘high’: -2.8976e-07}</dd>
 <dt>lin_int <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>The linear intercept values representing the continuum for the low (H-Alpha) and high (OIII) zones.
+<dd>The linear intercept values representing the continuum the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007)
+zones. This value will depend on the type of fit, if it is in velocity or wavelength.
 E.g. lin_int = {‘low’: 0.00139680, ‘high’: 0.00254310}</dd>
 <dt>num_comps <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>The number of components for the low (H-Alpha) and high (OIII).
-This should be the length of the lists of the center and sigma of each of the guassian components
-E.g. num_comps = {‘low’: 3, ‘high’: 3}</dd>
+<dd>The number of gaussian components for the low-ionization (e.g H-Alpha) and high-ionization (e.g [OIII]5007) zones.
+This should be the length of the lists of the center and sigma of each of the gaussian components
+E.g. num_comps = {‘low’: 3, ‘high’: 3} or num_comps = {‘low’: 3, ‘high’: 5}</dd>
 <dt>component_labels <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>Labels for each of the components in the order that they are presented in all other lists.
+<dd>Labels for each of the gaussian components in the order that they are presented in all other lists.
 E.g. component_labels = [‘Narrow 1’, ‘Narrow 2’, ‘Broad’]</dd>
 <dt>component_colors <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>Colour to plot each of the components in the order that they appear in component_labels.
+<dd>Colour to plot each of the gaussian components in the order that they appear in component_labels.
 E.g. componentColours = [‘r’, ‘c’, ‘g’]</dd>
 <dt>sigma_instr_blue <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The instrument sigma in the blue arm.</dd>
+<dd>The instrumental profile (σi) in the blue-arm of the spectrograph. It is well approximated by a single Gaussian function.</dd>
 <dt>sigma_inst_red <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The instrument sigma in the blue arm.</dd>
+<dd>The instrumental profile (σi) in the red-arm of the spectrograph. It is well approximated by a single Gaussian function.</dd>
 <dt>distance <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
 <dd>The distance to the region in centimetres (same units that distance appears in the input flux)</dd>
 <dt>em_lines_for_avg_vel_calc <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
@@ -253,17 +255,18 @@ as the measured velocity minus the systemicVelocity: (velocity - systemicVelocit
 <dd><p>Emission line info</p>
 <dl class="docutils">
 <dt>name <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd>Name of emission line. E.g. ‘H-Alpha’ or NII-6584A. This name must be in the appropriate format.</dd>
+<dd>Name of emission line. E.g. ‘H-Alpha’ or NII-6584A. This name must be in the appropriate format.
+This name must be in the appropriate format (see ALL_IONS list in constants.py).</dd>
 <dt>plot_color <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
 <dd>The color that this emission line should appear in each of the plots.</dd>
 <dt>order <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd>The order that this emission line appears in the Echelee FITS files.</dd>
+<dd>The order that this emission line appears in the Echelle FITS files or 1 for Longslit FIT file.</dd>
 <dt>filter <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd>‘red’ or ‘blue’. Indicating the filter that this emission line appears in the echelle spectra.</dd>
+<dd>‘red’ or ‘blue’. Indicating the red-arm or blue-arm of the spectrograph where the emission line appears in the spectrum.</dd>
 <dt>min_idx <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd>Minimum index of the region in the echelle spectra that includes this emission line.</dd>
+<dd>Minimum index of the region in the spectra that includes this emission line.</dd>
 <dt>max_idx <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd>Maximum index of the region in the echelle spectra that includes this emission line.</dd>
+<dd>Maximum index of the region in the spectra that includes this emission line.</dd>
 <dt>rest_wavelength <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
 <dd>The rest wavelength of this emission line.</dd>
 <dt>num_comps <span class="classifier-delimiter">:</span> <span class="classifier">int (optional)</span></dt>
@@ -275,9 +278,14 @@ This must be a list with the same number of elements as ‘num_comps’.
 If this is a float, then the amplitudes from the emission line listed in the copy_from parameter will be
 used and divided by this value.</dd>
 <dt>zone <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd>‘low’ or ‘high’.</dd>
+<dd>‘low’ or ‘high’ ionization zone. Two-ionization-zone scheme is assumed: the low-ionization zone where
+the hydrogen recombination lines and [OI], [OII], [NII], [SII] forbidden lines are emitted, and the
+high-ionization zone where the helium recombination lines and [OIII], [SIII], [ArIII], [NeIII]
+forbidden lines are emitted (Hägele et al., 2012).</dd>
 <dt>sigma_tsquared <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>sigma of the temperature squared</dd>
+<dd>squared of the random thermal motion (σt). In the example, the thermal contribution was derived from the
+Boltzmann’s equation, assuming a typical kinetic temperature T≃10^4K and the atomic mass of the
+corresponding element.</dd>
 <dt>comp_limits <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd>The limits in ‘compLimits’ can be in the following forms:
 - a list indicating the limits for each component

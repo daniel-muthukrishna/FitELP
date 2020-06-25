@@ -106,16 +106,24 @@ def calc_continuum(model, emName, rp):
 
 def calc_luminosity(rp):
     if 'H-Alpha' in rp.emProfiles:
-        calcLuminosity = 4 * np.pi * rp.emProfiles['H-Alpha']['globalFlux'] * rp.distance**2 / rp.scaleFlux
-        calcLuminosityError = 4 * np.pi * rp.distance**2 * rp.emProfiles['H-Alpha']['globalFluxErr'] / rp.scaleFlux
+        calcLuminosity = (4 * np.pi * rp.emProfiles['H-Alpha']['globalFlux'] * (
+                    rp.distance * 3.086) ** 2 / rp.scaleFlux) * 1e48
+        calcLuminosityError = (4 * np.pi * (rp.distance * 3.086) ** 2 * rp.emProfiles['H-Alpha'][
+            'globalFluxErr'] / rp.scaleFlux) * 1e48
     else:
-        calcLuminosity = 4 * np.pi * rp.emProfiles['H1r_6563A']['globalFlux'] * rp.distance**2 / rp.scaleFlux
-        calcLuminosityError = 4 * np.pi * rp.distance**2 * rp.emProfiles['H1r_6563A']['globalFluxErr'] / rp.scaleFlux
-    starFormRate = 5.5e-42 * calcLuminosity #D. Calzetti 2000ApJ...533..682C
-    starFormRateError = 5.5e-42 * calcLuminosityError
+        calcLuminosity = (4 * np.pi * rp.emProfiles['H1r_6563A']['globalFlux'] * (
+                    rp.distance * 3.086) ** 2 / rp.scaleFlux) * 1e48
+        calcLuminosityError = (4 * np.pi * (rp.distance * 3.086) ** 2 * rp.emProfiles['H1r_6563A'][
+            'globalFluxErr'] / rp.scaleFlux) * 1e48
+
+    starFormRate = 7.9e-42 * calcLuminosity  # (*1e6 M_sun/year) by Kennicutt, 1998, 0.1-100 M_sun, Te=10^4k, ne=100 cm^-3
+    starFormRateError = 7.9e-42 * calcLuminosityError
+
+    #starFormRate = 5.5e-42 * calcLuminosity  # (*1e6 M_sun/year) by Starburst99, Leitherer et al. 1999, 0.1-100 M_sun, Te=10^4k, ne=100 cm^-3
+    #starFormRateError = 5.5e-42 * calcLuminosityError  #(*1e6 M_sun/year)
 
     logLuminosity = np.log10(calcLuminosity)
-    logLuminosityError = 0.434 * calcLuminosityError/calcLuminosity
+    logLuminosityError = 0.434 * calcLuminosityError / calcLuminosity
 
     return logLuminosity, logLuminosityError, starFormRate, starFormRateError
 

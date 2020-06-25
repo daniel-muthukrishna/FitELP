@@ -7,7 +7,7 @@
 
 FitELP Documentation
 ==================================
-FitELP is a tool specifically designed to perform spectral emission-line fits with multiple gaussian components in echelle or long-slit data. The actual fitting procedure is based on the Non-Linear Least-Square Minimization and Curve-Fitting (LMFIT) package, https://lmfit.github.io/lmfit-py/ (Newville et al. 2014, https://doi.org/10.5281/zenodo.11813).
+FitELP (Fit Emission-Line Profiles) is a tool specifically designed to perform spectral emission-line fits with multiple gaussian components in echelle or long-slit data. The actual fitting procedure is based on the Non-Linear Least-Square Minimization and Curve-Fitting (LMFIT) package, https://lmfit.github.io/lmfit-py/ (Newville et al. 2014, https://doi.org/10.5281/zenodo.11813).
 
 The Python code was designed for the analysis of the internal kinematics of star-forming regions using echelle data. However, it can be used to model any emission-lines in both in echelle and longslit spectroscopy.
 
@@ -25,7 +25,7 @@ FitELP allows you to:
    
    - Average of radial velocities and velocity dispersion with the corresponding errors.
    
-   - H-alpha luminosity and the corresponding Star Formation Rate (SFR) base on Calzetti et al.(2000) equation, abscissa and ordinate values of the BPT-NII diagnostic diagram.
+   - H-alpha luminosity and the corresponding Star Formation Rate (SFR) base on Kennicutt (1998) equation, abscissa and ordinate values of the BPT-NII diagnostic diagram.
    
 * Visualise the different BPT diagnostic diagrams. 
 

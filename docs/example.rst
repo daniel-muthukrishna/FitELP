@@ -2,7 +2,7 @@
 Example
 =======
 
-Example script of fitting multiple gaussian components in the emission line profiles of a star forming region.
+Example script of fitting multiple Gaussian components in the emission-line profiles of a star-forming region.
 
 .. code-block:: python
 

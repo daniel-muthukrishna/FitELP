@@ -19,7 +19,7 @@ See :ref:`example` for an example of how to add emission-lines.
 * :func:`fitelp.line_profile_info.RegionParameters.add_em_line`
 
 
-Compute kinematics of an object
+Compute kinematics of the object
 -------------------------------
 To perform an analysis on the object use the class.
 

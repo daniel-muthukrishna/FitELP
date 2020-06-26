@@ -160,7 +160,7 @@ def bpt_plot_NII(rpList, rpBptPoints, globalOnly=False):
     plt.xlim(-1.5, 0.5)
     plt.ylim(-1, 1.5)
     plt.xlabel(r"$\log(\mathrm{[NII]6584\AA / H\alpha})$")
-    plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
+    plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta})$")
     plt.legend(fontsize=9)
     plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_NII.png'))
 
@@ -195,7 +195,7 @@ def bpt_plot_SII(rpList, rpBptPoints, globalOnly=False):
     plt.xlim(-1.5, 0.5)
     plt.ylim(-1, 1.5)
     plt.xlabel(SII_label)
-    plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
+    plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta})$")
     plt.legend(fontsize=9)
     plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_SII.png'))
 
@@ -229,7 +229,7 @@ def bpt_plot_OI(rpList, rpBptPoints, globalOnly=False):
     plt.xlim(-1.5, 0.5)
     plt.ylim(-0.5, 1.5)
     plt.xlabel(r"$\log(\mathrm{[OI]6300\AA / H\alpha})$")
-    plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta}$")
+    plt.ylabel(r"$\log(\mathrm{[OIII]5007\AA / H\beta})$")
     plt.legend(fontsize=9)
     plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_OI.png'))
 
@@ -264,7 +264,7 @@ def bpt_plot_NIIvsSII(rpList, rpBptPoints, globalOnly=False):
     # plt.ylim(-0.5, 1.5)
 
     plt.xlabel(bptPoints['SII_label'])
-    plt.ylabel(r"$\log(\mathrm{[NII]6584\AA / H\alpha}$")
+    plt.ylabel(r"$\log(\mathrm{[NII]6584\AA / H\alpha})$")
     plt.legend(fontsize=9)
     plt.savefig(os.path.join(constants.OUTPUT_DIR, 'bpt_NIIvsSII.png'))
 

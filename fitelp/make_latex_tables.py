@@ -38,11 +38,11 @@ def table_to_latex(tableArray, headingLines, saveFileName, directory, caption, c
 
 
 def halpha_regions_table_to_latex(regionInfoArray, directory=None, paperSize='a4', orientation='portrait', longTable=False):
-    saveFileName = 'RegionInfo'
-    headings = [r'Region Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{log([NII]/H}\alpha)$', r'$\mathrm{log([OIII]/H}\beta)$']
+    saveFileName = 'ObjectInfo'
+    headings = [r'Object Name', r'SFR', r'$\mathrm{log(L(H}\alpha))$', r'$\mathrm{log([NII]/H}\alpha)$', r'$\mathrm{log([OIII]/H}\beta)$']
     headingUnits = ['', r'$(\mathrm{M_{\odot} \ yr^{-1}})$', '', '', '']
     headingLines = [headings, headingUnits]
-    caption = 'Region Information'
+    caption = 'Object Information'
     nCols = len(headings)
     centering = 'l' + 'c' * (nCols-1)
     directory = get_directory(directory)
@@ -80,7 +80,7 @@ def average_velocities_table_to_latex(rpList, directory=None, paperSize='a4', or
         headingUnits += [r'$\mathrm{(km \ s^{-1})}$', r'$\mathrm{(km \ s^{-1})}$']
 
     headingLines = [regionHeadings, headings, headingUnits]
-    caption = "Average radial velocities and velocity dispersions for all regions"
+    caption = "Average of radial velocities and velocity dispersions"
     nCols = len(headings)
     centering = 'l' + 'c' * (nCols-1)
     directory = get_directory(directory)

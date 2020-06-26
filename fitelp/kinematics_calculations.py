@@ -118,7 +118,6 @@ def calc_luminosity(rp):
 
     starFormRate = 7.9e-42 * calcLuminosity  # (*1e6 M_sun/year) by Kennicutt, 1998, 0.1-100 M_sun, Te=10^4k, ne=100 cm^-3
     starFormRateError = 7.9e-42 * calcLuminosityError
-
     #starFormRate = 5.5e-42 * calcLuminosity  # (*1e6 M_sun/year) by Starburst99, Leitherer et al. 1999, 0.1-100 M_sun, Te=10^4k, ne=100 cm^-3
     #starFormRateError = 5.5e-42 * calcLuminosityError  #(*1e6 M_sun/year)
 

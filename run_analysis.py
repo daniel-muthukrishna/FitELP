@@ -15,7 +15,7 @@ constants.OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 # Path to the directory containing your input data files (Optional).
 constants.DATA_FILES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Input_Data_Files')
 
-# # Set up example region to simultaneously fit multiple emission lines
+# # Set up example region to simultaneously fit multiple emission-lines
 example_object = RegionParameters(region_name='example-object', # Name of object
                                   blue_spec_file='exampleB.fc.fits', #fits file path of the blue spectrum
                                   red_spec_file='exampleR.fc.fits', #fits file path of the red spectrum
@@ -40,7 +40,7 @@ example_object = RegionParameters(region_name='example-object', # Name of object
                                   show_systemic_velocity=False, # Assumed False if not defined
                                   systemic_velocity=3650  # Center of most importan emission-line required only if showSystemicVelocity is True
                                   )
-
+# Add emission-lines to fit
 example_object.add_em_line(name='H-Alpha', plot_color= 'y', order=  20, filter= 'red', min_idx=  2800, max_idx=3140, rest_wavelength=  6562.82, num_comps=3, amp_list=  [44.999084, 18.236959, 9.312178], zone= 'low', sigma_tsquared=  164.96, comp_limits= {'a': np.inf, 'c': np.inf, 's': np.inf}, copy_from= None)
 example_object.add_em_line(name='OIII-5007A', plot_color= 'c', order=  4, filter= 'red', min_idx=  2535, max_idx=2870, rest_wavelength=  5006.84, num_comps=3, amp_list=  [15.056061, 4.566674, 5.261243], zone= 'high', sigma_tsquared=  10.39,  comp_limits= {'a': np.inf, 'c': np.inf, 's': np.inf}, copy_from= None)
 example_object.add_em_line(name='OIII-4959A', plot_color= 'g', order=  4, filter= 'red', min_idx=  1180, max_idx=1510, rest_wavelength=  4958.91, num_comps=3, amp_list=  [5.190979, 1.265695, 0.986356], zone= 'high', sigma_tsquared=  10.39, comp_limits= {'a': np.inf, 'c': False, 's': False}, copy_from= 'OIII-5007A')

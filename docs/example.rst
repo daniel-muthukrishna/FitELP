@@ -46,7 +46,7 @@ Example script of fitting multiple Gaussian components in the emission-line prof
                                   em_lines_for_avg_vel_calc=['H-Alpha', 'OIII-5007A', 'NII-6584A', 'SII-6717A'], # List of emission-lines to use to calculate the average radial velocity
                                   plot_residuals=True,
                                   show_systemic_velocity=False, # Assumed False if not defined
-                                  systemic_velocity=3650  # Center of most importan emission-line required only if showSystemicVelocity is True
+                                  systemic_velocity=3650  # Center of most important emission-lines required only if showSystemicVelocity is True
                                   )
 
     # Add emission-lines to fit

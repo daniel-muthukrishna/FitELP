@@ -1,0 +1,5 @@
+numpy
+matplotlib
+uncertainties
+lmfit==0.9.10
+astropy

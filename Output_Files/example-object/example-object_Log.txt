@@ -1,0 +1,464 @@
+LOG INFORMATION FOR example-object
+------------------ example-object : H-Alpha ----------------
+######## example-object H-Alpha Linear and Multi-gaussian Model ##########
+[[Model]]
+    (Model(linear, prefix='lin_') + ((Model(gaussian, prefix='g1_') + Model(gaussian, prefix='g2_')) + Model(gaussian, prefix='g3_')))
+[[Fit Statistics]]
+    # function evals   = 63
+    # data points      = 340
+    # variables        = 11
+    chi-square         = 0.055
+    reduced chi-square = 0.000
+    Akaike info crit   = -2948.604
+    Bayesian info crit = -2906.486
+[[Variables]]
+    lin_slope:       3.9469e-07 +/- 1.35e-07 (34.10%) (init=-5.8183e-07)
+    lin_intercept:   0.00552818 +/- 0.000487 (8.80%) (init= 0.00890187)
+    g1_sigma:        37.6555689 +/- 0.136286 (0.36%) (init= 37.84043)
+    g1_amplitude:    43.3234559 +/- 0.265098 (0.61%) (init= 44.99908)
+    g1_center:       3649.21251 +/- 0.077864 (0.00%) (init= 3649.112)
+    g1_fwhm:         88.6720869 +/- 0.320930 (0.36%)  == '2.3548200*g1_sigma'
+    g1_height:       0.45899078 +/- 0.002366 (0.52%)  == '0.3989423*g1_amplitude/max(1.e-15, g1_sigma)'
+    g2_sigma:        17.3457201 +/- 0.204918 (1.18%) (init= 17.47261)
+    g2_amplitude:    6.48109417 +/- 0.169712 (2.62%) (init= 18.23696)
+    g2_center:       3661.90231 +/- 0.159557 (0.00%) (init= 3661.842)
+    g2_fwhm:         40.8460486 +/- 0.482545 (1.18%)  == '2.3548200*g2_sigma'
+    g2_height:       0.14906170 +/- 0.002470 (1.66%)  == '0.3989423*g2_amplitude/max(1.e-15, g2_sigma)'
+    g3_sigma:        71.8300895 +/- 0.901923 (1.26%) (init= 73.89975)
+    g3_amplitude:    8.36110745 +/- 0.278526 (3.33%) (init= 9.312178)
+    g3_center:       3647.26203 +/- 0.355933 (0.01%) (init= 3648.065)
+    g3_fwhm:         169.146931 +/- 2.123866 (1.26%)  == '2.3548200*g3_sigma'
+    g3_height:       0.04643735 +/- 0.002100 (4.52%)  == '0.3989423*g3_amplitude/max(1.e-15, g3_sigma)'
+[[Correlations]] (unreported correlations are <  0.100)
+    C(lin_slope, lin_intercept)  = -0.996 
+    C(g3_sigma, g3_amplitude)    = -0.931 
+    C(g1_sigma, g3_amplitude)    = -0.909 
+    C(g2_sigma, g2_amplitude)    =  0.890 
+    C(g1_amplitude, g3_sigma)    =  0.810 
+    C(g1_amplitude, g3_amplitude)  = -0.803 
+    C(g1_sigma, g3_sigma)        =  0.798 
+    C(g1_center, g2_amplitude)   = -0.733 
+    C(g1_sigma, g2_amplitude)    =  0.700 
+    C(g1_center, g2_sigma)       = -0.651 
+    C(g1_center, g3_center)      = -0.627 
+    C(g1_sigma, g2_center)       = -0.608 
+    C(g1_sigma, g1_amplitude)    =  0.541 
+    C(g2_amplitude, g2_center)   = -0.511 
+    C(g1_sigma, g2_sigma)        =  0.510 
+    C(g2_center, g3_amplitude)   =  0.466 
+    C(g2_amplitude, g3_amplitude)  = -0.444 
+    C(g1_sigma, g1_center)       = -0.436 
+    C(g2_sigma, g2_center)       = -0.420 
+    C(g2_center, g3_sigma)       = -0.371 
+    C(g2_amplitude, g3_sigma)    =  0.356 
+    C(lin_intercept, g3_center)  =  0.310 
+    C(lin_slope, g3_center)      = -0.308 
+    C(g2_amplitude, g3_center)   =  0.304 
+    C(g2_sigma, g3_amplitude)    = -0.286 
+    C(g2_sigma, g3_center)       =  0.271 
+    C(g1_center, g3_amplitude)   =  0.266 
+    C(g1_amplitude, g2_sigma)    = -0.261 
+    C(g1_amplitude, g3_center)   = -0.243 
+    C(g1_center, g3_sigma)       = -0.235 
+    C(g2_sigma, g3_sigma)        =  0.226 
+    C(g1_amplitude, g1_center)   =  0.180 
+    C(g1_amplitude, g2_center)   = -0.175 
+    C(g1_amplitude, g2_amplitude)  = -0.157 
+    C(lin_slope, g1_center)      =  0.151 
+    C(lin_intercept, g1_center)  = -0.144 
+------------------ example-object : OIII-5007A ----------------
+######## example-object OIII-5007A Linear and Multi-gaussian Model ##########
+[[Model]]
+    (Model(linear, prefix='lin_') + ((Model(gaussian, prefix='g1_') + Model(gaussian, prefix='g2_')) + Model(gaussian, prefix='g3_')))
+[[Fit Statistics]]
+    # function evals   = 51
+    # data points      = 335
+    # variables        = 11
+    chi-square         = 0.053
+    reduced chi-square = 0.000
+    Akaike info crit   = -2906.929
+    Bayesian info crit = -2864.973
+[[Variables]]
+    lin_slope:      -9.2042e-07 +/- 3.29e-07 (35.78%) (init=-4.5958e-07)
+    lin_intercept:   0.00971267 +/- 0.001205 (12.42%) (init= 0.00789864)
+    g1_sigma:        29.9908152 +/- 0.888900 (2.96%) (init= 30.12096)
+    g1_amplitude:    9.38200902 +/- 0.626336 (6.68%) (init= 15.05606)
+    g1_center:       3653.43726 +/- 0.670764 (0.02%) (init= 3653.627)
+    g1_fwhm:         70.6229715 +/- 2.093201 (2.96%)  == '2.3548200*g1_sigma'
+    g1_height:       0.12480088 +/- 0.006976 (5.59%)  == '0.3989423*g1_amplitude/max(1.e-15, g1_sigma)'
+    g2_sigma:        14.9672326 +/- 1.594137 (10.65%) (init= 14.80251)
+    g2_amplitude:    1.24972724 +/- 0.331783 (26.55%) (init= 4.566674)
+    g2_center:       3664.56317 +/- 1.267821 (0.03%) (init= 3664.446)
+    g2_fwhm:         35.2451388 +/- 3.753907 (10.65%)  == '2.3548200*g2_sigma'
+    g2_height:       0.03331070 +/- 0.005761 (17.30%)  == '0.3989423*g2_amplitude/max(1.e-15, g2_sigma)'
+    g3_sigma:        56.4175199 +/- 1.420210 (2.52%) (init= 57.10313)
+    g3_amplitude:    8.34745889 +/- 0.572895 (6.86%) (init= 5.261243)
+    g3_center:       3659.57928 +/- 0.780377 (0.02%) (init= 3659.428)
+    g3_fwhm:         132.853104 +/- 3.344340 (2.52%)  == '2.3548200*g3_sigma'
+    g3_height:       0.05902695 +/- 0.005438 (9.21%)  == '0.3989423*g3_amplitude/max(1.e-15, g3_sigma)'
+[[Correlations]] (unreported correlations are <  0.100)
+    C(lin_slope, lin_intercept)  = -0.997 
+    C(g2_sigma, g2_amplitude)    =  0.918 
+    C(g3_sigma, g3_amplitude)    = -0.910 
+    C(g1_sigma, g3_amplitude)    = -0.889 
+    C(g1_amplitude, g3_sigma)    =  0.855 
+    C(g1_amplitude, g3_amplitude)  = -0.842 
+    C(g1_center, g2_amplitude)   = -0.767 
+    C(g1_sigma, g3_sigma)        =  0.729 
+    C(g1_center, g2_sigma)       = -0.713 
+    C(g1_sigma, g2_center)       = -0.709 
+    C(g1_amplitude, g1_center)   =  0.613 
+    C(g1_sigma, g3_center)       =  0.568 
+    C(g1_sigma, g1_amplitude)    =  0.559 
+    C(g2_center, g3_amplitude)   =  0.532 
+    C(g1_center, g3_center)      = -0.524 
+    C(g1_sigma, g2_amplitude)    =  0.513 
+    C(g2_amplitude, g3_center)   =  0.502 
+    C(g3_amplitude, g3_center)   = -0.479 
+    C(g2_amplitude, g2_center)   = -0.442 
+    C(g1_amplitude, g2_sigma)    = -0.431 
+    C(g2_center, g3_sigma)       = -0.405 
+    C(g2_sigma, g3_center)       =  0.382 
+    C(g1_amplitude, g2_amplitude)  = -0.374 
+    C(g3_sigma, g3_center)       =  0.361 
+    C(g1_sigma, g2_sigma)        =  0.353 
+    C(g2_sigma, g2_center)       = -0.344 
+    C(g1_center, g3_sigma)       =  0.314 
+    C(g1_amplitude, g2_center)   = -0.261 
+    C(g2_center, g3_center)      = -0.256 
+    C(lin_slope, g3_center)      = -0.212 
+    C(g1_center, g3_amplitude)   = -0.211 
+    C(lin_intercept, g3_center)  =  0.205 
+    C(g1_amplitude, g3_center)   =  0.180 
+    C(g2_amplitude, g3_amplitude)  = -0.173 
+------------------ example-object : OIII-4959A ----------------
+######## example-object OIII-4959A Linear and Multi-gaussian Model ##########
+[[Model]]
+    (Model(linear, prefix='lin_') + ((Model(gaussian, prefix='g1_') + Model(gaussian, prefix='g2_')) + Model(gaussian, prefix='g3_')))
+[[Fit Statistics]]
+    # function evals   = 14
+    # data points      = 330
+    # variables        = 5
+    chi-square         = 0.025
+    reduced chi-square = 0.000
+    Akaike info crit   = -3114.722
+    Bayesian info crit = -3095.727
+[[Variables]]
+    lin_slope:      -2.9941e-06 +/- 6.46e-07 (21.56%) (init=-4.5958e-07)
+    lin_intercept:   0.02220021 +/- 0.002418 (10.89%) (init= 0.00789864)
+    g1_sigma:        29.99082 (fixed)
+    g1_amplitude:    3.02839988 +/- 0.118172 (3.90%) (init= 5.190979)
+    g1_center:       3653.437 (fixed)
+    g1_fwhm:         70.6229715 +/- 0        (0.00%)  == '2.3548200*g1_sigma'
+    g1_height:       0.04028422 +/- 0.001571 (3.90%)  == '0.3989423*g1_amplitude/max(1.e-15, g1_sigma)'
+    g2_sigma:        14.96723 (fixed)
+    g2_amplitude:    0.51148463 +/- 0.053888 (10.54%) (init= 1.265695)
+    g2_center:       3664.563 (fixed)
+    g2_fwhm:         35.2451388 +/- 0        (0.00%)  == '2.3548200*g2_sigma'
+    g2_height:       0.01363330 +/- 0.001436 (10.54%)  == '0.3989423*g2_amplitude/max(1.e-15, g2_sigma)'
+    g3_sigma:        56.41752 (fixed)
+    g3_amplitude:    2.37260533 +/- 0.121983 (5.14%) (init= 0.986356)
+    g3_center:       3659.579 (fixed)
+    g3_fwhm:         132.853104 +/- 0        (0.00%)  == '2.3548200*g3_sigma'
+    g3_height:       0.01677728 +/- 0.000863 (5.14%)  == '0.3989423*g3_amplitude/max(1.e-15, g3_sigma)'
+[[Correlations]] (unreported correlations are <  0.100)
+    C(lin_slope, lin_intercept)  = -0.998 
+    C(g1_amplitude, g3_amplitude)  = -0.785 
+    C(g1_amplitude, g2_amplitude)  = -0.706 
+    C(g2_amplitude, g3_amplitude)  =  0.280 
+------------------ example-object : H-Beta ----------------
+######## example-object H-Beta Linear and Multi-gaussian Model ##########
+[[Model]]
+    (Model(linear, prefix='lin_') + ((Model(gaussian, prefix='g1_') + Model(gaussian, prefix='g2_')) + Model(gaussian, prefix='g3_')))
+[[Fit Statistics]]
+    # function evals   = 15
+    # data points      = 470
+    # variables        = 5
+    chi-square         = 0.042
+    reduced chi-square = 0.000
+    Akaike info crit   = -4376.431
+    Bayesian info crit = -4355.667
+[[Variables]]
+    lin_slope:       7.8517e-06 +/- 3.79e-07 (4.83%) (init=-5.8183e-07)
+    lin_intercept:  -0.02335996 +/- 0.001315 (5.63%) (init= 0.00890187)
+    g1_sigma:        37.49896 (fixed)
+    g1_amplitude:    8.67825617 +/- 0.109639 (1.26%) (init= 8.435867)
+    g1_center:       3649.213 (fixed)
+    g1_fwhm:         88.3032970 +/- 0        (0.00%)  == '2.3548200*g1_sigma'
+    g1_height:       0.09232585 +/- 0.001166 (1.26%)  == '0.3989423*g1_amplitude/max(1.e-15, g1_sigma)'
+    g2_sigma:        17.00306 (fixed)
+    g2_amplitude:    1.73151341 +/- 0.049935 (2.88%) (init= 1.861033)
+    g2_center:       3661.902 (fixed)
+    g2_fwhm:         40.0391427 +/- 0        (0.00%)  == '2.3548200*g2_sigma'
+    g2_height:       0.04062645 +/- 0.001171 (2.88%)  == '0.3989423*g2_amplitude/max(1.e-15, g2_sigma)'
+    g3_sigma:        71.74811 (fixed)
+    g3_amplitude:    3.08347605 +/- 0.107431 (3.48%) (init= 3.630495)
+    g3_center:       3647.262 (fixed)
+    g3_fwhm:         168.953892 +/- 0        (0.00%)  == '2.3548200*g3_sigma'
+    g3_height:       0.01714510 +/- 0.000597 (3.48%)  == '0.3989423*g3_amplitude/max(1.e-15, g3_sigma)'
+[[Correlations]] (unreported correlations are <  0.100)
+    C(lin_slope, lin_intercept)  = -0.998 
+    C(g1_amplitude, g3_amplitude)  = -0.805 
+    C(g1_amplitude, g2_amplitude)  = -0.726 
+    C(g2_amplitude, g3_amplitude)  =  0.380 
+    C(lin_slope, g3_amplitude)   = -0.345 
+    C(lin_intercept, g3_amplitude)  =  0.313 
+    C(lin_slope, g1_amplitude)   =  0.182 
+    C(lin_intercept, g1_amplitude)  = -0.166 
+------------------ example-object : OI-6300A ----------------
+######## example-object OI-6300A Linear and Multi-gaussian Model ##########
+[[Model]]
+    (Model(linear, prefix='lin_') + ((Model(gaussian, prefix='g1_') + Model(gaussian, prefix='g2_')) + Model(gaussian, prefix='g3_')))
+[[Fit Statistics]]
+    # function evals   = 14
+    # data points      = 320
+    # variables        = 5
+    chi-square         = 0.098
+    reduced chi-square = 0.000
+    Akaike info crit   = -2580.019
+    Bayesian info crit = -2561.177
+[[Variables]]
+    lin_slope:       1.7943e-07 +/- 1.56e-07 (87.04%) (init=-5.8183e-07)
+    lin_intercept:   0.00639787 +/- 0.000571 (8.92%) (init= 0.00890187)
+    g1_sigma:        35.54394 (fixed)
+    g1_amplitude:    0.55520480 +/- 0.032126 (5.79%) (init= 0.254865)
+    g1_center:       3649.213 (fixed)
+    g1_fwhm:         83.6995875 +/- 0        (0.00%)  == '2.3548200*g1_sigma'
+    g1_height:       0.00623157 +/- 0.000361 (5.79%)  == '0.3989423*g1_amplitude/max(1.e-15, g1_sigma)'
+    g2_sigma:        12.09562 (fixed)
+    g2_amplitude:    0.11707003 +/- 0.010669 (9.11%) (init= 0.420512)
+    g2_center:       3661.902 (fixed)
+    g2_fwhm:         28.4830062 +/- 0        (0.00%)  == '2.3548200*g2_sigma'
+    g2_height:       0.00386124 +/- 0.000352 (9.11%)  == '0.3989423*g2_amplitude/max(1.e-15, g2_sigma)'
+    g3_sigma:        70.74597 (fixed)
+    g3_amplitude:    0.40460705 +/- 0.039275 (9.71%) (init= 0.598598)
+    g3_center:       3647.262 (fixed)
+    g3_fwhm:         166.594016 +/- 0        (0.00%)  == '2.3548200*g3_sigma'
+    g3_height:       0.00228161 +/- 0.000221 (9.71%)  == '0.3989423*g3_amplitude/max(1.e-15, g3_sigma)'
+[[Correlations]] (unreported correlations are <  0.100)
+    C(lin_slope, lin_intercept)  = -0.997 
+    C(g1_amplitude, g3_amplitude)  = -0.837 
+    C(g1_amplitude, g2_amplitude)  = -0.631 
+    C(g2_amplitude, g3_amplitude)  =  0.316 
+------------------ example-object : NII-6584A ----------------
+######## example-object NII-6584A Linear and Multi-gaussian Model ##########
+[[Model]]
+    (Model(linear, prefix='lin_') + ((Model(gaussian, prefix='g1_') + Model(gaussian, prefix='g2_')) + Model(gaussian, prefix='g3_')))
+[[Fit Statistics]]
+    # function evals   = 111
+    # data points      = 340
+    # variables        = 11
+    chi-square         = 0.059
+    reduced chi-square = 0.000
+    Akaike info crit   = -2920.945
+    Bayesian info crit = -2878.826
+[[Variables]]
+    lin_slope:      -7.8223e-07 +/- 1.59e-07 (20.34%) (init=-5.8183e-07)
+    lin_intercept:   0.00949180 +/- 0.000581 (6.12%) (init= 0.00890187)
+    g1_sigma:        37.3829533 +/- 0.638584 (1.71%) (init= 37.84043)
+    g1_amplitude:    7.12155852 +/- 0.275749 (3.87%) (init= 5.526779)
+    g1_center:       3652.17814 +/- 0.356633 (0.01%) (init= 3649.112)
+    g1_fwhm:         88.0301261 +/- 1.503750 (1.71%)  == '2.3548200*g1_sigma'
+    g1_height:       0.07599963 +/- 0.002017 (2.66%)  == '0.3989423*g1_amplitude/max(1.e-15, g1_sigma)'
+    g2_sigma:        16.3101312 +/- 0.409117 (2.51%) (init= 17.47261)
+    g2_amplitude:    1.67120229 +/- 0.089510 (5.36%) (init= 4.684082)
+    g2_center:       3666.26659 +/- 0.323989 (0.01%) (init= 3661.842)
+    g2_fwhm:         38.4074231 +/- 0.963398 (2.51%)  == '2.3548200*g2_sigma'
+    g2_height:       0.04087724 +/- 0.001359 (3.32%)  == '0.3989423*g2_amplitude/max(1.e-15, g2_sigma)'
+    g3_sigma:        68.1634182 +/- 4.506218 (6.61%) (init= 73.89975)
+    g3_amplitude:    1.63921746 +/- 0.288478 (17.60%) (init= 2.48221)
+    g3_center:       3648.08813 +/- 1.825866 (0.05%) (init= 3648.065)
+    g3_fwhm:         160.512580 +/- 10.61133 (6.61%)  == '2.3548200*g3_sigma'
+    g3_height:       0.00959390 +/- 0.002290 (23.88%)  == '0.3989423*g3_amplitude/max(1.e-15, g3_sigma)'
+[[Correlations]] (unreported correlations are <  0.100)
+    C(lin_slope, lin_intercept)  = -0.996 
+    C(g1_amplitude, g3_amplitude)  = -0.949 
+    C(g1_sigma, g3_amplitude)    = -0.942 
+    C(g3_sigma, g3_amplitude)    = -0.931 
+    C(g1_amplitude, g3_sigma)    =  0.921 
+    C(g2_sigma, g2_amplitude)    =  0.890 
+    C(g1_sigma, g3_sigma)        =  0.840 
+    C(g1_sigma, g1_amplitude)    =  0.821 
+    C(g1_center, g2_amplitude)   = -0.784 
+    C(g1_center, g2_sigma)       = -0.680 
+    C(g1_sigma, g2_amplitude)    =  0.616 
+    C(g1_sigma, g2_center)       = -0.604 
+    C(g1_center, g3_center)      = -0.596 
+    C(g2_center, g3_amplitude)   =  0.482 
+    C(g2_amplitude, g2_center)   = -0.453 
+    C(g1_sigma, g1_center)       = -0.443 
+    C(g1_sigma, g2_sigma)        =  0.436 
+    C(g1_amplitude, g3_center)   = -0.420 
+    C(g2_amplitude, g3_amplitude)  = -0.414 
+    C(g2_center, g3_sigma)       = -0.377 
+    C(g1_amplitude, g2_center)   = -0.369 
+    C(g2_sigma, g2_center)       = -0.361 
+    C(g2_amplitude, g3_sigma)    =  0.354 
+    C(g1_center, g3_sigma)       = -0.327 
+    C(g1_center, g3_amplitude)   =  0.315 
+    C(g3_amplitude, g3_center)   =  0.312 
+    C(lin_intercept, g3_center)  =  0.307 
+    C(lin_slope, g3_center)      = -0.301 
+    C(g2_amplitude, g3_center)   =  0.272 
+    C(g2_sigma, g3_amplitude)    = -0.264 
+    C(g2_sigma, g3_center)       =  0.257 
+    C(g3_sigma, g3_center)       = -0.256 
+    C(g2_sigma, g3_sigma)        =  0.228 
+    C(g2_center, g3_center)      =  0.198 
+    C(g1_sigma, g3_center)       = -0.197 
+    C(lin_slope, g1_center)      =  0.150 
+    C(lin_intercept, g1_center)  = -0.138 
+    C(g1_amplitude, g2_amplitude)  =  0.125 
+------------------ example-object : NII-6548A ----------------
+######## example-object NII-6548A Linear and Multi-gaussian Model ##########
+[[Model]]
+    (Model(linear, prefix='lin_') + ((Model(gaussian, prefix='g1_') + Model(gaussian, prefix='g2_')) + Model(gaussian, prefix='g3_')))
+[[Fit Statistics]]
+    # function evals   = 14
+    # data points      = 340
+    # variables        = 5
+    chi-square         = 0.057
+    reduced chi-square = 0.000
+    Akaike info crit   = -2946.634
+    Bayesian info crit = -2927.489
+[[Variables]]
+    lin_slope:      -6.3064e-07 +/- 1.15e-07 (18.23%) (init=-5.8183e-07)
+    lin_intercept:   0.00935673 +/- 0.000420 (4.49%) (init= 0.00890187)
+    g1_sigma:        37.38295 (fixed)
+    g1_amplitude:    2.46520041 +/- 0.033334 (1.35%) (init= 1.729284)
+    g1_center:       3652.178 (fixed)
+    g1_fwhm:         88.0301261 +/- 0        (0.00%)  == '2.3548200*g1_sigma'
+    g1_height:       0.02630805 +/- 0.000356 (1.35%)  == '0.3989423*g1_amplitude/max(1.e-15, g1_sigma)'
+    g2_sigma:        16.31013 (fixed)
+    g2_amplitude:    0.53540524 +/- 0.013310 (2.49%) (init= 1.613114)
+    g2_center:       3666.267 (fixed)
+    g2_fwhm:         38.4074231 +/- 0        (0.00%)  == '2.3548200*g2_sigma'
+    g2_height:       0.01309589 +/- 0.000326 (2.49%)  == '0.3989423*g2_amplitude/max(1.e-15, g2_sigma)'
+    g3_sigma:        68.16342 (fixed)
+    g3_amplitude:    0.32194450 +/- 0.034231 (10.63%) (init= 0.821882)
+    g3_center:       3648.088 (fixed)
+    g3_fwhm:         160.512580 +/- 0        (0.00%)  == '2.3548200*g3_sigma'
+    g3_height:       0.00188425 +/- 0.000200 (10.63%)  == '0.3989423*g3_amplitude/max(1.e-15, g3_sigma)'
+[[Correlations]] (unreported correlations are <  0.100)
+    C(lin_slope, lin_intercept)  = -0.997 
+    C(g1_amplitude, g3_amplitude)  = -0.842 
+    C(g1_amplitude, g2_amplitude)  = -0.691 
+    C(g2_amplitude, g3_amplitude)  =  0.371 
+------------------ example-object : SII-6717A ----------------
+######## example-object SII-6717A Linear and Multi-gaussian Model ##########
+[[Model]]
+    (Model(linear, prefix='lin_') + ((Model(gaussian, prefix='g1_') + Model(gaussian, prefix='g2_')) + Model(gaussian, prefix='g3_')))
+[[Fit Statistics]]
+    # function evals   = 171
+    # data points      = 320
+    # variables        = 11
+    chi-square         = 0.041
+    reduced chi-square = 0.000
+    Akaike info crit   = -2849.296
+    Bayesian info crit = -2807.844
+[[Variables]]
+    lin_slope:       1.0396e-06 +/- 2.32e-07 (22.28%) (init=-5.8183e-07)
+    lin_intercept:   0.00440870 +/- 0.000863 (19.57%) (init= 0.00890187)
+    g1_sigma:        40.5053687 +/- 0.851179 (2.10%) (init= 37.84043)
+    g1_amplitude:    5.68329667 +/- 0.161558 (2.84%) (init= 4.68714)
+    g1_center:       3651.54601 +/- 0.471313 (0.01%) (init= 3649.112)
+    g1_fwhm:         95.3828525 +/- 2.004375 (2.10%)  == '2.3548200*g1_sigma'
+    g1_height:       0.05597547 +/- 0.001212 (2.17%)  == '0.3989423*g1_amplitude/max(1.e-15, g1_sigma)'
+    g2_sigma:        16.8047400 +/- 0.600199 (3.57%) (init= 17.47261)
+    g2_amplitude:    1.15675645 +/- 0.097179 (8.40%) (init= 2.259787)
+    g2_center:       3660.40094 +/- 0.347665 (0.01%) (init= 3661.842)
+    g2_fwhm:         39.5721380 +/- 1.413360 (3.57%)  == '2.3548200*g2_sigma'
+    g2_height:       0.02746124 +/- 0.001456 (5.30%)  == '0.3989423*g2_amplitude/max(1.e-15, g2_sigma)'
+    g3_sigma:        81.4310487 +/- 9.056515 (11.12%) (init= 73.89975)
+    g3_amplitude:    0.81176554 +/- 0.191087 (23.54%) (init= 1.839585)
+    g3_center:       3627.11115 +/- 7.715223 (0.21%) (init= 3648.065)
+    g3_fwhm:         191.755462 +/- 21.32646 (11.12%)  == '2.3548200*g3_sigma'
+    g3_height:       0.00397695 +/- 0.001312 (33.00%)  == '0.3989423*g3_amplitude/max(1.e-15, g3_sigma)'
+[[Correlations]] (unreported correlations are <  0.100)
+    C(lin_slope, lin_intercept)  = -0.997 
+    C(g2_sigma, g2_amplitude)    =  0.920 
+    C(g1_sigma, g3_amplitude)    = -0.919 
+    C(g1_amplitude, g3_amplitude)  = -0.855 
+    C(g1_sigma, g2_amplitude)    =  0.842 
+    C(g1_amplitude, g3_sigma)    =  0.815 
+    C(g3_amplitude, g3_center)   =  0.812 
+    C(g1_amplitude, g3_center)   = -0.808 
+    C(g3_sigma, g3_amplitude)    = -0.785 
+    C(g1_sigma, g1_center)       = -0.744 
+    C(g1_sigma, g3_sigma)        =  0.726 
+    C(g1_center, g2_amplitude)   = -0.724 
+    C(g1_center, g3_sigma)       = -0.707 
+    C(g1_sigma, g3_center)       = -0.705 
+    C(g1_sigma, g2_sigma)        =  0.691 
+    C(g3_sigma, g3_center)       = -0.691 
+    C(g1_center, g3_amplitude)   =  0.663 
+    C(g1_sigma, g1_amplitude)    =  0.654 
+    C(g2_amplitude, g3_amplitude)  = -0.632 
+    C(g1_center, g2_sigma)       = -0.626 
+    C(lin_intercept, g3_center)  =  0.492 
+    C(g2_sigma, g3_amplitude)    = -0.491 
+    C(g2_amplitude, g3_sigma)    =  0.483 
+    C(lin_slope, g3_center)      = -0.481 
+    C(g1_amplitude, g1_center)   = -0.446 
+    C(g2_amplitude, g3_center)   = -0.394 
+    C(g2_amplitude, g2_center)   = -0.391 
+    C(g1_sigma, g2_center)       = -0.388 
+    C(g2_sigma, g3_sigma)        =  0.377 
+    C(g2_sigma, g2_center)       = -0.355 
+    C(lin_intercept, g3_sigma)   = -0.351 
+    C(lin_intercept, g1_amplitude)  = -0.351 
+    C(lin_slope, g1_amplitude)   =  0.331 
+    C(g2_center, g3_center)      =  0.312 
+    C(lin_slope, g3_sigma)       =  0.309 
+    C(lin_intercept, g3_amplitude)  =  0.295 
+    C(g1_center, g3_center)      =  0.294 
+    C(g2_center, g3_amplitude)   =  0.291 
+    C(g2_sigma, g3_center)       = -0.288 
+    C(lin_slope, g3_amplitude)   = -0.287 
+    C(lin_intercept, g1_sigma)   = -0.258 
+    C(lin_slope, g1_sigma)       =  0.243 
+    C(g1_amplitude, g2_amplitude)  =  0.195 
+    C(lin_intercept, g2_amplitude)  = -0.130 
+    C(lin_slope, g2_amplitude)   =  0.119 
+    C(lin_intercept, g1_center)  =  0.118 
+    C(g2_center, g3_sigma)       = -0.116 
+    C(g1_amplitude, g2_center)   = -0.108 
+------------------ example-object : SII-6731A ----------------
+######## example-object SII-6731A Linear and Multi-gaussian Model ##########
+[[Model]]
+    (Model(linear, prefix='lin_') + ((Model(gaussian, prefix='g1_') + Model(gaussian, prefix='g2_')) + Model(gaussian, prefix='g3_')))
+[[Fit Statistics]]
+    # function evals   = 14
+    # data points      = 314
+    # variables        = 5
+    chi-square         = 0.067
+    reduced chi-square = 0.000
+    Akaike info crit   = -2642.454
+    Bayesian info crit = -2623.707
+[[Variables]]
+    lin_slope:       7.2145e-07 +/- 2.16e-07 (29.89%) (init=-5.8183e-07)
+    lin_intercept:   0.00541445 +/- 0.000799 (14.77%) (init= 0.00890187)
+    g1_sigma:        40.50537 (fixed)
+    g1_amplitude:    3.93552174 +/- 0.049065 (1.25%) (init= 3.34683)
+    g1_center:       3651.546 (fixed)
+    g1_fwhm:         95.3828525 +/- 0        (0.00%)  == '2.3548200*g1_sigma'
+    g1_height:       0.03876143 +/- 0.000483 (1.25%)  == '0.3989423*g1_amplitude/max(1.e-15, g1_sigma)'
+    g2_sigma:        16.80474 (fixed)
+    g2_amplitude:    0.91905318 +/- 0.022481 (2.45%) (init= 1.878706)
+    g2_center:       3660.401 (fixed)
+    g2_fwhm:         39.5721380 +/- 0        (0.00%)  == '2.3548200*g2_sigma'
+    g2_height:       0.02181820 +/- 0.000534 (2.45%)  == '0.3989423*g2_amplitude/max(1.e-15, g2_sigma)'
+    g3_sigma:        81.43105 (fixed)
+    g3_amplitude:    0.60755763 +/- 0.050818 (8.36%) (init= 1.238023)
+    g3_center:       3627.111 (fixed)
+    g3_fwhm:         191.755462 +/- 0        (0.00%)  == '2.3548200*g3_sigma'
+    g3_height:       0.00297651 +/- 0.000249 (8.36%)  == '0.3989423*g3_amplitude/max(1.e-15, g3_sigma)'
+[[Correlations]] (unreported correlations are <  0.100)
+    C(lin_slope, lin_intercept)  = -0.998 
+    C(g1_amplitude, g3_amplitude)  = -0.787 
+    C(g1_amplitude, g2_amplitude)  = -0.757 
+    C(g2_amplitude, g3_amplitude)  =  0.414 
+    C(lin_intercept, g3_amplitude)  = -0.270 
+    C(lin_slope, g3_amplitude)   =  0.232 
+    C(lin_intercept, g1_amplitude)  =  0.180 
+    C(lin_slope, g1_amplitude)   = -0.163 

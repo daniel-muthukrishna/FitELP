@@ -1,0 +1,17 @@
+  510  git config --global user.email "vfirpo@gemini.edu"
+  511  # ! git config --global  user.name "firpov"
+  512  git config --global user.email "vfirpo@gemini.edu"
+  513  git config --global  user.name "firpov"
+  514  git push
+
+pregunta
+username: firpov
+pass: @just3s1119
+ 
+  518  history > history_log.txt
+  519  ls
+  520  less history_log.txt 
+  521  history -20 > history_log.txt
+  522  history 20 > history_log.txt
+
+

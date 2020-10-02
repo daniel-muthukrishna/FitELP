@@ -1,0 +1,3 @@
+[console_scripts]
+sample = run_analysis:main
+

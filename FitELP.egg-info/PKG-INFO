@@ -1,0 +1,16 @@
+Metadata-Version: 1.1
+Name: FitELP
+Version: 0.1.0
+Summary: A powerful Python code to perform spectral emission line fits with multiple gaussian components in echelle or long-slit data. 
+Home-page: https://github.com/daniel-muthukrishna/FitELP
+Author: Daniel Muthukrishna
+Author-email: daniel.muthukrishna@gmail.com
+License: MIT
+Description: UNKNOWN
+Keywords: spectra emission spectral line fitting gaussian continuum echelle long-slit
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Astronomy
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
